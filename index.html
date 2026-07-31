@@ -97,6 +97,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 3
 .dash-mini-chat .av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--cyan));flex-shrink:0;}
 .dash-mini-chat .txt{font-size:0.8rem;color:var(--text-muted);}
 .dash-mini-chat .txt b{color:var(--white);}
+.dash-stat .val.flash{animation:flashVal .6s ease;}
+@keyframes flashVal{0%{color:var(--cyan-light);}100%{color:var(--white);}}
+.dash-mini-chat .txt.flash{animation:fadeSwap .5s ease;}
+@keyframes fadeSwap{0%{opacity:0;transform:translateY(4px);}100%{opacity:1;transform:translateY(0);}}
 
 section{position:relative;z-index:1;padding:100px 0;}
 .section-head{max-width:640px;margin:0 auto 56px;text-align:center;}
@@ -310,14 +314,14 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
         <span class="dash-status"><span class="dot"></span>KI ist online</span>
       </div>
       <div class="dash-stats">
-        <div class="dash-stat"><div class="lbl">Termine heute</div><div class="val" data-count="18">0</div></div>
-        <div class="dash-stat"><div class="lbl">Neue Kunden</div><div class="val up" data-count="7">0</div></div>
-        <div class="dash-stat"><div class="lbl">Monatsumsatz</div><div class="val">€6.4k</div></div>
-        <div class="dash-stat"><div class="lbl">Auslastung</div><div class="val" data-count="92" data-suffix="%">0</div></div>
+        <div class="dash-stat"><div class="lbl">Termine heute</div><div class="val" id="dashAppts" data-count="18">0</div></div>
+        <div class="dash-stat"><div class="lbl">Neue Kunden</div><div class="val up" id="dashCustomers" data-count="7">0</div></div>
+        <div class="dash-stat"><div class="lbl">Monatsumsatz</div><div class="val" id="dashRevenue">€6.4k</div></div>
+        <div class="dash-stat"><div class="lbl">Auslastung</div><div class="val" id="dashUtil" data-count="92" data-suffix="%">0</div></div>
       </div>
       <div class="dash-chart">
         <div class="lbl">Buchungen · Wochenverlauf</div>
-        <div class="bars">
+        <div class="bars" id="dashBars">
           <span style="height:40%;animation-delay:.1s"></span>
           <span style="height:65%;animation-delay:.2s"></span>
           <span style="height:50%;animation-delay:.3s"></span>
@@ -329,7 +333,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
       </div>
       <div class="dash-mini-chat">
         <div class="av"></div>
-        <div class="txt"><b>Termivox</b> hat gerade einen Termin für Freitag 10:00 bestätigt</div>
+        <div class="txt" id="dashFeedText"><b>Termivox</b> hat gerade einen Termin für Freitag 10:00 bestätigt</div>
       </div>
     </div>
   </div>
@@ -595,6 +599,76 @@ const cio = new IntersectionObserver((entries)=>{
   });
 },{threshold:0.4});
 counters.forEach(el=>cio.observe(el));
+
+/* Live dashboard simulation — mimics real activity without needing a backend */
+(function(){
+  if(reduceMotion) return; // respect reduced motion: leave static values as-is
+  const apptsEl = document.getElementById('dashAppts');
+  const custEl = document.getElementById('dashCustomers');
+  const revEl = document.getElementById('dashRevenue');
+  const utilEl = document.getElementById('dashUtil');
+  const barsEl = document.getElementById('dashBars');
+  const feedEl = document.getElementById('dashFeedText');
+  if(!apptsEl) return;
+
+  let appts = 18, customers = 7, revenue = 6400, util = 92;
+
+  const names = ['Julia','Marco','Lena','Kevin','Sophie','Tim','Nina','David','Anna','Felix'];
+  const services = ['Schnitt & Föhnen','Farbe & Balayage','Bartpflege','Maniküre','Beratung','Massage','Inspektion'];
+  const times = ['09:00','10:30','11:15','13:00','14:30','15:45','17:00','18:15'];
+  const days = ['heute','morgen','Mittwoch','Donnerstag','Freitag'];
+
+  function fmtRevenue(v){
+    return '€' + (v/1000).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1}) + 'k';
+  }
+  function flash(el){
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  function tick(){
+    const roll = Math.random();
+
+    // Neue Buchung eintreffen lassen (häufigster Fall)
+    if(roll < 0.55){
+      appts += 1;
+      revenue += Math.round((30 + Math.random()*70));
+      apptsEl.textContent = appts; flash(apptsEl);
+      revEl.textContent = fmtRevenue(revenue); flash(revEl);
+      feedEl.innerHTML = `<b>Termivox</b> hat gerade einen Termin für ${pick(days)} ${pick(times)} bestätigt`;
+      flash(feedEl);
+      // Balken: letzten Tag leicht erhöhen, um "live" Aktivität zu zeigen
+      const lastBar = barsEl.lastElementChild;
+      if(lastBar){
+        let h = parseInt(lastBar.style.height,10) || 60;
+        h = Math.min(98, h + 3 + Math.random()*4);
+        lastBar.style.height = h + '%';
+      }
+    }
+    // Neuer Kunde
+    else if(roll < 0.75){
+      customers += 1;
+      custEl.textContent = customers; flash(custEl);
+      feedEl.innerHTML = `<b>${pick(names)}</b> hat sich als neue:r Kund:in registriert`;
+      flash(feedEl);
+    }
+    // Termin verschoben/storniert -> Auslastung schwankt leicht
+    else if(roll < 0.9){
+      util = Math.max(78, Math.min(97, util + (Math.random()<0.5?-1:1)*(1+Math.floor(Math.random()*3))));
+      utilEl.textContent = util + '%'; flash(utilEl);
+      feedEl.innerHTML = `<b>${pick(names)}</b> hat einen Termin auf ${pick(times)} verschoben`;
+      flash(feedEl);
+    }
+    // Erinnerung versendet
+    else {
+      feedEl.innerHTML = `<b>Termivox</b> hat eine Erinnerung für ${pick(days)} ${pick(times)} versendet`;
+      flash(feedEl);
+    }
+
+    setTimeout(tick, 3800 + Math.random()*3200);
+  }
+  setTimeout(tick, 4500);
+})();
 
 /* Chat demo loop */
 function runChat(){
