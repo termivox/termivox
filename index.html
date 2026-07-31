@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Termivox — KI-Terminassistent für Salons, Praxen &amp; Handwerk</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#08111F; --bg-2:#0B1220; --bg-3:#111B2E;
@@ -20,12 +17,12 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
-  background:var(--bg); color:var(--white); font-family:'Inter',sans-serif;
+  background:var(--bg); color:var(--white); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
   line-height:1.55; overflow-x:hidden; opacity:0; animation:pageIn .6s ease forwards;
 }
 @keyframes pageIn{to{opacity:1;}}
-h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:-0.01em;}
-.mono{font-family:'IBM Plex Mono',monospace;}
+h1,h2,h3,h4{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif; font-weight:600; letter-spacing:-0.01em;}
+.mono{font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;}
 a{color:inherit;text-decoration:none;}
 button{font-family:inherit;cursor:pointer;}
 :focus-visible{outline:2px solid var(--cyan-light); outline-offset:3px;}
@@ -48,7 +45,7 @@ img,svg{display:block;}
 header{position:sticky;top:0;z-index:100;transition:background .3s ease, border-color .3s ease;border-bottom:1px solid transparent;}
 header.scrolled{background:rgba(8,17,31,0.85);backdrop-filter:blur(14px);border-bottom-color:var(--glass-border);}
 nav{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;max-width:1240px;margin:0 auto;}
-.logo{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.25rem;}
+.logo{display:flex;align-items:center;gap:9px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;font-size:1.25rem;}
 .logo-dot{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--indigo),var(--cyan));box-shadow:0 0 16px rgba(79,70,229,0.6);}
 .navlinks{display:flex;gap:30px;align-items:center;}
 .navlinks a{font-size:0.9rem;color:var(--text-muted);transition:color .2s;position:relative;}
@@ -65,7 +62,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 3
 /* HERO */
 .hero{position:relative;z-index:1;padding:88px 0 60px;}
 .hero-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center;}
-.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--cyan-light);margin-bottom:24px;}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;font-size:0.75rem;color:var(--cyan-light);margin-bottom:24px;}
 .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 1.6s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 .hero h1{font-size:3rem;line-height:1.12;margin-bottom:22px;}
@@ -74,19 +71,19 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 3
 .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:44px;}
 .trustrow{display:flex;gap:32px;flex-wrap:wrap;}
 .trust-item{display:flex;flex-direction:column;gap:2px;}
-.trust-num{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;}
+.trust-num{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:1.4rem;font-weight:700;}
 .trust-label{font-size:0.78rem;color:var(--text-muted);}
 
 /* Dashboard mock */
 .dash{padding:20px;position:relative;}
 .dash-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
 .dash-title{font-size:0.82rem;color:var(--text-muted);}
-.dash-status{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--success);}
+.dash-status{display:flex;align-items:center;gap:6px;font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;font-size:0.72rem;color:var(--success);}
 .dash-status .dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.6s infinite;}
 .dash-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
 .dash-stat{background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;}
 .dash-stat .lbl{font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;}
-.dash-stat .val{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;}
+.dash-stat .val{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:1.5rem;font-weight:700;}
 .dash-stat .val.up{color:var(--success);}
 .dash-chart{background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:14px;padding:16px;margin-bottom:16px;}
 .dash-chart .lbl{font-size:0.72rem;color:var(--text-muted);margin-bottom:12px;}
@@ -104,7 +101,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 3
 
 section{position:relative;z-index:1;padding:100px 0;}
 .section-head{max-width:640px;margin:0 auto 56px;text-align:center;}
-.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--cyan-light);margin-bottom:14px;}
+.eyebrow{font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--cyan-light);margin-bottom:14px;}
 .section-head h2{font-size:2.1rem;line-height:1.2;}
 .section-head p{color:var(--text-muted);margin-top:14px;}
 
@@ -114,7 +111,7 @@ section{position:relative;z-index:1;padding:100px 0;}
 /* Chat demo section */
 .chat-shell{max-width:480px;margin:0 auto;padding:0;overflow:hidden;}
 .chat-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--glass-border);}
-.chat-head .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;}
+.chat-head .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:700;font-size:0.9rem;}
 .chat-head .info b{display:block;font-size:0.92rem;}
 .chat-head .info span{font-size:0.75rem;color:var(--success);display:flex;align-items:center;gap:5px;}
 .chat-head .info span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--success);}
@@ -131,7 +128,7 @@ section{position:relative;z-index:1;padding:100px 0;}
 .typing span:nth-child(3){animation-delay:.3s;}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
 .chat-quick{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--glass-border);flex-wrap:wrap;}
-.chat-quick span{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);color:var(--text-muted);}
+.chat-quick span{font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;font-size:0.7rem;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);color:var(--text-muted);}
 
 /* Function cards */
 .func-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
@@ -146,7 +143,7 @@ section{position:relative;z-index:1;padding:100px 0;}
 /* Steps */
 .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
 .step{text-align:left;}
-.step-num{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:transparent;-webkit-text-stroke:1.4px var(--violet-light);margin-bottom:14px;}
+.step-num{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:1.6rem;font-weight:700;color:transparent;-webkit-text-stroke:1.4px var(--violet-light);margin-bottom:14px;}
 .step h4{font-size:0.98rem;margin-bottom:8px;}
 .step p{font-size:0.82rem;color:var(--text-muted);}
 
@@ -173,11 +170,11 @@ section{position:relative;z-index:1;padding:100px 0;}
 .testi-who .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--violet-light),var(--cyan));}
 .testi-who b{font-size:0.85rem;display:block;}
 .testi-who span{font-size:0.75rem;color:var(--text-muted);}
-.testi-result{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--success);}
+.testi-result{margin-top:12px;font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;font-size:0.72rem;color:var(--success);}
 
 .logo-band{margin-top:56px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);}
 .logo-track{display:flex;gap:56px;width:max-content;animation:scrollLogos 22s linear infinite;align-items:center;}
-.logo-track span{font-family:'IBM Plex Mono',monospace;font-size:0.85rem;color:var(--text-muted);white-space:nowrap;opacity:.7;}
+.logo-track span{font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;font-size:0.85rem;color:var(--text-muted);white-space:nowrap;opacity:.7;}
 @keyframes scrollLogos{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 
 /* ROI calculator */
@@ -186,11 +183,11 @@ section{position:relative;z-index:1;padding:100px 0;}
 .roi-inputs{padding:40px;border-right:1px solid var(--glass-border);}
 .roi-field{margin-bottom:26px;}
 .roi-field label{display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-muted);margin-bottom:10px;}
-.roi-field label b{color:var(--cyan-light);font-family:'IBM Plex Mono',monospace;font-weight:500;}
+.roi-field label b{color:var(--cyan-light);font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;font-weight:500;}
 input[type=range]{width:100%;accent-color:var(--cyan-light);}
 .roi-results{padding:40px;display:flex;flex-direction:column;justify-content:center;gap:22px;}
 .roi-result-item .lbl{font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;}
-.roi-result-item .num{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:var(--cyan-light);}
+.roi-result-item .num{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:2rem;font-weight:700;color:var(--cyan-light);}
 .roi-note{font-size:0.72rem;color:var(--text-muted);margin-top:6px;}
 
 /* Pricing */
@@ -199,10 +196,10 @@ input[type=range]{width:100%;accent-color:var(--cyan-light);}
 .price-card.featured{border:1px solid var(--violet-light);background:linear-gradient(180deg,rgba(108,99,255,0.1),var(--glass-bg));position:relative;transform:scale(1.03);box-shadow:0 20px 50px -20px rgba(108,99,255,0.4);}
 .price-card:hover{transform:translateY(-6px);}
 .price-card.featured:hover{transform:scale(1.03) translateY(-6px);}
-.badge{position:absolute;top:-13px;left:28px;background:linear-gradient(135deg,var(--indigo),var(--violet-light));padding:5px 14px;border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;font-weight:600;}
+.badge{position:absolute;top:-13px;left:28px;background:linear-gradient(135deg,var(--indigo),var(--violet-light));padding:5px 14px;border-radius:999px;font-family:ui-monospace,'SF Mono','Cascadia Code','Roboto Mono',Consolas,monospace;font-size:0.68rem;font-weight:600;}
 .price-name{color:var(--text-muted);font-size:1rem;margin-bottom:8px;}
-.price-amount{font-family:'Space Grotesk',sans-serif;font-size:2.4rem;font-weight:700;margin-bottom:4px;}
-.price-amount span{font-size:0.95rem;font-family:'Inter',sans-serif;font-weight:400;color:var(--text-muted);}
+.price-amount{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:2.4rem;font-weight:700;margin-bottom:4px;}
+.price-amount span{font-size:0.95rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-weight:400;color:var(--text-muted);}
 .price-sub{font-size:0.82rem;color:var(--text-muted);margin-bottom:24px;}
 .price-feats{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:28px;flex:1;}
 .price-feats li{font-size:0.87rem;display:flex;gap:9px;align-items:flex-start;}
@@ -212,7 +209,7 @@ input[type=range]{width:100%;accent-color:var(--cyan-light);}
 /* FAQ */
 .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
 .faq-item{overflow:hidden;}
-.faq-q{width:100%;background:none;border:none;color:var(--white);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;font-size:0.95rem;font-family:'Inter',sans-serif;font-weight:600;text-align:left;}
+.faq-q{width:100%;background:none;border:none;color:var(--white);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;font-size:0.95rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-weight:600;text-align:left;}
 .faq-q svg{width:18px;height:18px;flex-shrink:0;transition:transform .3s ease;stroke:var(--cyan-light);}
 .faq-item.open .faq-q svg{transform:rotate(45deg);}
 .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease, padding .35s ease;padding:0 24px;}
@@ -554,8 +551,8 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
         <p>Der KI-Terminassistent, der Anrufe entgegennimmt, während Sie arbeiten.</p>
       </div>
       <div class="foot-col"><h5>Produkt</h5><a href="#funktionen">Funktionen</a><a href="#preise">Preise</a><a href="#faq">FAQ</a></div>
-      <div class="foot-col"><h5>Unternehmen</h5><a href="#">Über uns</a><a href="#">Kontakt</a><a href="#">Support</a></div>
-      <div class="foot-col"><h5>Rechtliches</h5><a href="#">Datenschutz</a><a href="#">Impressum</a><a href="#">AGB</a></div>
+      <div class="foot-col"><h5>Unternehmen</h5><a href="ueber-uns.html">Über uns</a><a href="#kontakt">Kontakt</a><a href="support.html">Support</a></div>
+      <div class="foot-col"><h5>Rechtliches</h5><a href="datenschutz.html">Datenschutz</a><a href="impressum.html">Impressum</a><a href="agb.html">AGB</a></div>
     </div>
     <div class="foot-bottom">
       <p>© 2026 Termivox. Alle Rechte vorbehalten.</p>
@@ -625,25 +622,30 @@ counters.forEach(el=>cio.observe(el));
     el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
   }
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function setBar(el,h){ el.style.height = Math.max(15, Math.min(98, h)) + '%'; }
 
   function tick(){
     const roll = Math.random();
 
     // Neue Buchung eintreffen lassen (häufigster Fall)
-    if(roll < 0.55){
+    if(roll < 0.45){
       appts += 1;
       revenue += Math.round((30 + Math.random()*70));
       apptsEl.textContent = appts; flash(apptsEl);
       revEl.textContent = fmtRevenue(revenue); flash(revEl);
       feedEl.innerHTML = `<b>Termivox</b> hat gerade einen Termin für ${pick(days)} ${pick(times)} bestätigt`;
       flash(feedEl);
-      // Balken: letzten Tag leicht erhöhen, um "live" Aktivität zu zeigen
       const lastBar = barsEl.lastElementChild;
-      if(lastBar){
-        let h = parseInt(lastBar.style.height,10) || 60;
-        h = Math.min(98, h + 3 + Math.random()*4);
-        lastBar.style.height = h + '%';
-      }
+      if(lastBar) setBar(lastBar, (parseInt(lastBar.style.height,10)||60) + 3 + Math.random()*5);
+    }
+    // Termin storniert -> Zahlen gehen auch mal runter, nicht nur hoch
+    else if(roll < 0.58){
+      appts = Math.max(3, appts - 1);
+      apptsEl.textContent = appts; flash(apptsEl);
+      feedEl.innerHTML = `<b>${pick(names)}</b> hat einen Termin storniert`;
+      flash(feedEl);
+      const lastBar = barsEl.lastElementChild;
+      if(lastBar) setBar(lastBar, (parseInt(lastBar.style.height,10)||60) - 4 - Math.random()*5);
     }
     // Neuer Kunde
     else if(roll < 0.75){
@@ -652,9 +654,10 @@ counters.forEach(el=>cio.observe(el));
       feedEl.innerHTML = `<b>${pick(names)}</b> hat sich als neue:r Kund:in registriert`;
       flash(feedEl);
     }
-    // Termin verschoben/storniert -> Auslastung schwankt leicht
-    else if(roll < 0.9){
-      util = Math.max(78, Math.min(97, util + (Math.random()<0.5?-1:1)*(1+Math.floor(Math.random()*3))));
+    // Termin verschoben -> Auslastung schwankt realistisch (mal ruhig, mal fast voll)
+    else if(roll < 0.92){
+      const swing = (Math.random()<0.5?-1:1) * (2 + Math.floor(Math.random()*6));
+      util = Math.max(30, Math.min(97, util + swing));
       utilEl.textContent = util + '%'; flash(utilEl);
       feedEl.innerHTML = `<b>${pick(names)}</b> hat einen Termin auf ${pick(times)} verschoben`;
       flash(feedEl);
@@ -667,7 +670,30 @@ counters.forEach(el=>cio.observe(el));
 
     setTimeout(tick, 3800 + Math.random()*3200);
   }
+
+  // Alle ~50-70s rollt die Woche einen Tag weiter: ältester Balken fällt raus,
+  // neuer Tag mit realistischer, zufälliger Auslastung kommt dazu — und "Termine heute" /
+  // "Neue Kunden" starten für den neuen Tag wieder auf einem plausiblen, niedrigeren Wert.
+  function newDay(){
+    const bars = Array.from(barsEl.children);
+    bars.forEach((b,i)=>{
+      if(i < bars.length-1) setBar(b, parseInt(bars[i+1].style.height,10)||60);
+    });
+    const freshHeight = 20 + Math.random()*75;
+    setBar(bars[bars.length-1], freshHeight);
+
+    appts = 2 + Math.floor(Math.random()*6);
+    customers = Math.floor(Math.random()*3);
+    apptsEl.textContent = appts; flash(apptsEl);
+    custEl.textContent = customers; flash(custEl);
+    feedEl.innerHTML = `<b>Termivox</b> startet in einen neuen Tag`;
+    flash(feedEl);
+
+    setTimeout(newDay, 50000 + Math.random()*20000);
+  }
+
   setTimeout(tick, 4500);
+  setTimeout(newDay, 55000 + Math.random()*20000);
 })();
 
 /* Chat demo loop */
