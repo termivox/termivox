@@ -608,10 +608,13 @@ counters.forEach(el=>cio.observe(el));
   const feedEl = document.getElementById('dashFeedText');
   if(!apptsEl) return;
 
-  let appts = 18, customers = 7, revenue = 6400, util = 92;
+  // Tagesziel-Kapazität: bestimmt, wie viele Termine "voll ausgelastet" bedeuten.
+  // Auslastung wird IMMER aus Termine heute berechnet, nie unabhängig — so bleiben
+  // die Zahlen auf dem Dashboard logisch konsistent zueinander.
+  const dailyCapacity = 19;
+  let appts = 18, customers = 7, revenue = 6400;
 
   const names = ['Julia','Marco','Lena','Kevin','Sophie','Tim','Nina','David','Anna','Felix'];
-  const services = ['Schnitt & Föhnen','Farbe & Balayage','Bartpflege','Maniküre','Beratung','Massage','Inspektion'];
   const times = ['09:00','10:30','11:15','13:00','14:30','15:45','17:00','18:15'];
   const days = ['heute','morgen','Mittwoch','Donnerstag','Freitag'];
 
@@ -623,29 +626,33 @@ counters.forEach(el=>cio.observe(el));
   }
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
   function setBar(el,h){ el.style.height = Math.max(15, Math.min(98, h)) + '%'; }
+  function syncUtilAndBar(){
+    const util = Math.max(20, Math.min(97, Math.round((appts/dailyCapacity)*100)));
+    utilEl.textContent = util + '%'; flash(utilEl);
+    const lastBar = barsEl.lastElementChild;
+    if(lastBar) setBar(lastBar, util);
+  }
 
   function tick(){
     const roll = Math.random();
 
-    // Neue Buchung eintreffen lassen (häufigster Fall)
-    if(roll < 0.45){
+    // Neue Buchung — Termine, Auslastung und Umsatz ändern sich gemeinsam, konsistent
+    if(roll < 0.4){
       appts += 1;
       revenue += Math.round((30 + Math.random()*70));
       apptsEl.textContent = appts; flash(apptsEl);
       revEl.textContent = fmtRevenue(revenue); flash(revEl);
+      syncUtilAndBar();
       feedEl.innerHTML = `<b>Termivox</b> hat gerade einen Termin für ${pick(days)} ${pick(times)} bestätigt`;
       flash(feedEl);
-      const lastBar = barsEl.lastElementChild;
-      if(lastBar) setBar(lastBar, (parseInt(lastBar.style.height,10)||60) + 3 + Math.random()*5);
     }
-    // Termin storniert -> Zahlen gehen auch mal runter, nicht nur hoch
-    else if(roll < 0.58){
-      appts = Math.max(3, appts - 1);
+    // Termin storniert — Zahlen gehen auch mal runter, nicht nur hoch
+    else if(roll < 0.55){
+      appts = Math.max(2, appts - 1);
       apptsEl.textContent = appts; flash(apptsEl);
+      syncUtilAndBar();
       feedEl.innerHTML = `<b>${pick(names)}</b> hat einen Termin storniert`;
       flash(feedEl);
-      const lastBar = barsEl.lastElementChild;
-      if(lastBar) setBar(lastBar, (parseInt(lastBar.style.height,10)||60) - 4 - Math.random()*5);
     }
     // Neuer Kunde
     else if(roll < 0.75){
@@ -654,11 +661,8 @@ counters.forEach(el=>cio.observe(el));
       feedEl.innerHTML = `<b>${pick(names)}</b> hat sich als neue:r Kund:in registriert`;
       flash(feedEl);
     }
-    // Termin verschoben -> Auslastung schwankt realistisch (mal ruhig, mal fast voll)
-    else if(roll < 0.92){
-      const swing = (Math.random()<0.5?-1:1) * (2 + Math.floor(Math.random()*6));
-      util = Math.max(30, Math.min(97, util + swing));
-      utilEl.textContent = util + '%'; flash(utilEl);
+    // Termin verschoben — ändert nur die Meldung, nicht die Zahlen (bleibt derselbe Termin)
+    else if(roll < 0.9){
       feedEl.innerHTML = `<b>${pick(names)}</b> hat einen Termin auf ${pick(times)} verschoben`;
       flash(feedEl);
     }
@@ -668,32 +672,31 @@ counters.forEach(el=>cio.observe(el));
       flash(feedEl);
     }
 
-    setTimeout(tick, 3800 + Math.random()*3200);
+    setTimeout(tick, 11000 + Math.random()*7000);
   }
 
-  // Alle ~50-70s rollt die Woche einen Tag weiter: ältester Balken fällt raus,
-  // neuer Tag mit realistischer, zufälliger Auslastung kommt dazu — und "Termine heute" /
-  // "Neue Kunden" starten für den neuen Tag wieder auf einem plausiblen, niedrigeren Wert.
+  // Alle ~2-3 Minuten rollt die Woche einen Tag weiter: ältester Balken fällt raus,
+  // "Termine heute" / "Neue Kunden" starten für den neuen Tag wieder niedriger,
+  // die Auslastung passt sich automatisch daran an.
   function newDay(){
     const bars = Array.from(barsEl.children);
     bars.forEach((b,i)=>{
       if(i < bars.length-1) setBar(b, parseInt(bars[i+1].style.height,10)||60);
     });
-    const freshHeight = 20 + Math.random()*75;
-    setBar(bars[bars.length-1], freshHeight);
 
-    appts = 2 + Math.floor(Math.random()*6);
+    appts = 2 + Math.floor(Math.random()*5);
     customers = Math.floor(Math.random()*3);
     apptsEl.textContent = appts; flash(apptsEl);
     custEl.textContent = customers; flash(custEl);
+    syncUtilAndBar();
     feedEl.innerHTML = `<b>Termivox</b> startet in einen neuen Tag`;
     flash(feedEl);
 
-    setTimeout(newDay, 50000 + Math.random()*20000);
+    setTimeout(newDay, 120000 + Math.random()*60000);
   }
 
-  setTimeout(tick, 4500);
-  setTimeout(newDay, 55000 + Math.random()*20000);
+  setTimeout(tick, 8000);
+  setTimeout(newDay, 130000 + Math.random()*40000);
 })();
 
 /* Chat demo loop */
