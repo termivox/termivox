@@ -747,15 +747,50 @@ const testimonials = [
   ['Sarah M.','Salon Lichtblick','„Seit wir Termivox nutzen, müssen wir kaum noch auf Terminfragen antworten.“','−42% Telefonzeit'],
   ['Kevin R.','KR Elektrotechnik','„Kunden buchen jetzt abends und am Wochenende — Termine, die uns sonst entgangen wären.“','+18% gebuchte Termine'],
   ['Lena F.','Nailbar Lena','„Die Erinnerungen haben unsere No-Show-Quote spürbar gesenkt.“','−58% No-Shows'],
+  ['Maren T.','Studio Maren','„Endlich muss niemand mehr während der Behandlung ans Telefon.“','−35% verpasste Anrufe'],
+  ['Jonas B.','JB Sanitär','„Kunden bekommen sofort einen Termin vorgeschlagen, statt in der Warteschleife zu hängen.“','+22% Erstanfragen gebucht'],
+  ['Petra W.','Kosmetik Petra','„Die Umbuchung läuft jetzt komplett automatisch — spart uns täglich Zeit.“','−6 Std./Woche Aufwand'],
+  ['Daniel K.','Barbershop Daniel','„Auch nachts kommen noch Buchungen rein, die wir sonst verpasst hätten.“','+15% Buchungen außerhalb der Öffnungszeiten'],
+  ['Anja S.','Physio Anja','„Unsere Patientinnen loben, wie schnell und unkompliziert die Buchung jetzt ist.“','−48% No-Shows'],
 ];
-document.getElementById('testiGrid').innerHTML = testimonials.map(([n,c,q,r])=>`
-  <div class="testi-card glass reveal">
-    <div class="stars">★★★★★</div>
-    <p>${q}</p>
-    <div class="testi-who"><div class="av"></div><div><b>${n}</b><span>${c}</span></div></div>
-    <div class="testi-result">${r}</div>
-  </div>`).join('');
-document.querySelectorAll('#testiGrid .reveal').forEach(el=>io.observe(el));
+function renderTesti(list){
+  return list.map(([n,c,q,r])=>`
+    <div class="testi-card glass">
+      <div class="stars">★★★★★</div>
+      <p>${q}</p>
+      <div class="testi-who"><div class="av"></div><div><b>${n}</b><span>${c}</span></div></div>
+      <div class="testi-result">${r}</div>
+    </div>`).join('');
+}
+const testiGrid = document.getElementById('testiGrid');
+let testiVisible = testimonials.slice(0,3);
+let testiPoolIndex = 3;
+testiGrid.innerHTML = renderTesti(testiVisible);
+document.querySelectorAll('#testiGrid .testi-card').forEach((el,i)=>{ el.classList.add('reveal'); io.observe(el); });
+
+if(!reduceMotion){
+  setInterval(()=>{
+    const slot = Math.floor(Math.random()*testiVisible.length);
+    const next = testimonials[testiPoolIndex % testimonials.length];
+    testiPoolIndex++;
+    testiVisible[slot] = next;
+    const card = testiGrid.children[slot];
+    if(!card) return;
+    card.style.transition = 'opacity .4s ease, transform .4s ease';
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(8px)';
+    setTimeout(()=>{
+      card.outerHTML = renderTesti([next]);
+      const newCard = testiGrid.children[slot];
+      newCard.style.opacity = '0';
+      requestAnimationFrame(()=>{
+        newCard.style.transition = 'opacity .4s ease, transform .4s ease';
+        newCard.style.opacity = '1';
+        newCard.style.transform = 'translateY(0)';
+      });
+    }, 400);
+  }, 6000);
+}
 
 const logos = ['Google Calendar','WhatsApp Business','Instagram','OpenAI','E-Mail','SMS'];
 document.getElementById('logoTrack').innerHTML = [...logos,...logos,...logos].map(l=>`<span>${l}</span>`).join('');
