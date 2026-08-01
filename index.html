@@ -217,6 +217,7 @@ input[type=range]{width:100%;accent-color:var(--cyan-light);}
 .price-feats li::before{content:"✓";color:var(--success);flex-shrink:0;font-weight:700;}
 .price-card .btn{width:100%;}
 .price-cta-row{display:flex;flex-direction:column;gap:10px;}
+.price-cta-row > div{width:100%;}
 
 /* FAQ */
 .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
@@ -479,7 +480,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
           <li>Begrenzte Nachrichtenanzahl</li>
         </ul>
         <div class="price-cta-row">
-          <a href="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=REPLACE_STARTER_PLAN_ID" class="btn btn-primary" target="_blank" rel="noopener">Jetzt abonnieren</a>
+          <div id="paypal-btn-starter"></div>
           <a href="#kontakt" class="btn btn-ghost">Erst Demo anfragen</a>
         </div>
       </div>
@@ -496,7 +497,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
           <li>Statistiken &amp; Kalenderintegration</li>
         </ul>
         <div class="price-cta-row">
-          <a href="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=REPLACE_PROFESSIONAL_PLAN_ID" class="btn btn-primary" target="_blank" rel="noopener">Jetzt abonnieren</a>
+          <div id="paypal-btn-professional"></div>
           <a href="#kontakt" class="btn btn-ghost">Erst Demo anfragen</a>
         </div>
       </div>
@@ -512,12 +513,12 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
           <li>Bevorzugter Support</li>
         </ul>
         <div class="price-cta-row">
-          <a href="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=REPLACE_BUSINESS_PLAN_ID" class="btn btn-primary" target="_blank" rel="noopener">Jetzt abonnieren</a>
+          <div id="paypal-btn-business"></div>
           <a href="#kontakt" class="btn btn-ghost">Erst Demo anfragen</a>
         </div>
       </div>
     </div>
-    <p style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:24px;">Zahlung monatlich per PayPal. Überweisung auf Anfrage möglich. Einmalige Einrichtungsgebühr von 99€ deckt die individuelle Ersteinrichtung — <a href="#kontakt" style="color:var(--cyan-light);">kontaktieren Sie uns</a>.</p>
+    <p style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:24px;">Zahlung monatlich per PayPal. Überweisung auf Anfrage möglich. <a href="https://www.paypal.com/ncp/payment/R7XFW4L58355J" target="_blank" rel="noopener" style="color:var(--cyan-light);">Einmalige Einrichtungsgebühr (99€) hier bezahlen</a> oder <a href="#kontakt" style="color:var(--cyan-light);">kontaktieren Sie uns</a>.</p>
   </div>
 </section>
 
@@ -555,6 +556,11 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
         <div class="field" data-field="paket"><label for="f-paket">Gewünschtes Paket</label>
           <select id="f-paket" name="Paket">
             <option>Starter</option><option selected>Professional</option><option>Business</option><option>Noch unsicher</option>
+          </select>
+        </div>
+        <div class="field" data-field="zahlung"><label for="f-zahlung">Bevorzugte Zahlungsweise</label>
+          <select id="f-zahlung" name="Zahlungsweise">
+            <option>PayPal</option><option>Überweisung</option><option>Noch unsicher</option>
           </select>
         </div>
         <div class="field full" data-field="nachricht"><label for="f-msg">Nachricht</label><textarea id="f-msg" name="Nachricht" rows="4"></textarea></div>
@@ -859,7 +865,7 @@ calcRoi();
 /* FAQ */
 const faqs = [
   ['Was ist Termivox?','Ein KI-Assistent, der Terminanfragen für Salons, Praxen und Handwerksbetriebe automatisch beantwortet und bucht.'],
-  ['Fällt eine einmalige Einrichtungsgebühr an?','Ja, einmalig 99€ für die individuelle Ersteinrichtung Ihres Kalenders und Ihrer Leistungen. Danach nur noch der monatliche Tarifpreis.'],
+  ['Fällt eine einmalige Einrichtungsgebühr an?','Ja, einmalig 99€ für die individuelle Ersteinrichtung Ihres Kalenders und Ihrer Leistungen. Danach nur noch der monatliche Tarifpreis. <a href="https://www.paypal.com/ncp/payment/R7XFW4L58355J" target="_blank" rel="noopener" style="color:var(--cyan-light);">Hier bezahlen</a>.'],
   ['Kann Termivox Termine buchen?','Ja — inklusive Verschiebung, Stornierung und automatischer Bestätigung.'],
   ['Funktioniert es mit WhatsApp?','Ja, WhatsApp ist einer der unterstützten Kanäle.'],
   ['Kann ich mehrere Mitarbeiter verwalten?','Ja, ab dem Professional-Tarif inklusive eigener Kalender pro Mitarbeiter.'],
@@ -925,6 +931,38 @@ form.addEventListener('submit',async (e)=>{
   submitBtn.textContent = originalLabel;
   submitBtn.disabled = false;
 });
+</script>
+<script src="https://www.paypal.com/sdk/js?client-id=BAAVn7kHOhWjPfeCYvzNlZfhO4uODYGW2LCfMeZkZgO1-mq-yfIwvyb3SzGzglSBCoi03Mi-0hY0haorwA&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+<script>
+  // PayPal-Abo-Buttons für die drei Tarife. Plan-IDs "PLACEHOLDER_*" sind noch nicht
+  // ersetzt worden — sobald sie da sind, ersetzt renderPaypalButton sie automatisch nicht mehr
+  // (siehe Prüfung unten), damit die Seite nicht mit einem kaputten Button crasht.
+  const paypalPlans = {
+    'paypal-btn-starter': 'P-4B542603S2163440SNJXCTOI',
+    'paypal-btn-professional': 'P-5C708847U5655494SNJXCYOY',
+    'paypal-btn-business': 'P-3C762869X9951014BNJXC2UI'
+  };
+  function renderPaypalButton(containerId, planId){
+    const el = document.getElementById(containerId);
+    if(!el) return;
+    if(planId.startsWith('PLACEHOLDER_')){
+      el.innerHTML = '<a href="#kontakt" class="btn btn-primary" style="width:100%;display:flex;">Jetzt abonnieren</a>';
+      return;
+    }
+    if(typeof paypal === 'undefined') return;
+    paypal.Buttons({
+      style: { shape: 'rect', color: 'gold', layout: 'vertical', label: 'subscribe' },
+      createSubscription: function(data, actions){
+        return actions.subscription.create({ plan_id: planId });
+      },
+      onApprove: function(data){
+        alert('Danke für Ihr Abo! Ihre Abonnement-ID: ' + data.subscriptionID + '\nWir melden uns in Kürze zur Einrichtung.');
+      }
+    }).render('#' + containerId);
+  }
+  window.addEventListener('load', function(){
+    Object.keys(paypalPlans).forEach(function(id){ renderPaypalButton(id, paypalPlans[id]); });
+  });
 </script>
 </body>
 </html>
