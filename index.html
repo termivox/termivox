@@ -323,10 +323,10 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
         <span class="dash-status"><span class="dot"></span>KI ist online</span>
       </div>
       <div class="dash-stats">
-        <div class="dash-stat"><div class="lbl">Termine heute</div><div class="val" id="dashAppts" data-count="18">0</div></div>
-        <div class="dash-stat"><div class="lbl">Neue Kunden</div><div class="val up" id="dashCustomers" data-count="7">0</div></div>
+        <div class="dash-stat"><div class="lbl">Termine heute</div><div class="val" id="dashAppts" data-count="3">0</div></div>
+        <div class="dash-stat"><div class="lbl">Neue Kunden</div><div class="val up" id="dashCustomers" data-count="1">0</div></div>
         <div class="dash-stat"><div class="lbl">Monatsumsatz</div><div class="val" id="dashRevenue">€6.4k</div></div>
-        <div class="dash-stat"><div class="lbl">Auslastung</div><div class="val" id="dashUtil" data-count="92" data-suffix="%">0</div></div>
+        <div class="dash-stat"><div class="lbl">Auslastung</div><div class="val" id="dashUtil" data-count="16" data-suffix="%">0</div></div>
       </div>
       <div class="dash-chart">
         <div class="lbl">Buchungen · Wochenverlauf</div>
@@ -336,8 +336,8 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
           <span style="height:50%;animation-delay:.3s"></span>
           <span style="height:80%;animation-delay:.4s"></span>
           <span style="height:60%;animation-delay:.5s"></span>
-          <span style="height:95%;animation-delay:.6s"></span>
-          <span style="height:70%;animation-delay:.7s"></span>
+          <span style="height:70%;animation-delay:.6s"></span>
+          <span style="height:16%;animation-delay:.7s"></span>
         </div>
       </div>
       <div class="dash-mini-chat">
@@ -619,7 +619,9 @@ const cio = new IntersectionObserver((entries)=>{
 },{threshold:0.4});
 counters.forEach(el=>cio.observe(el));
 
-/* Live dashboard simulation — mimics real activity without needing a backend */
+/* Live dashboard simulation — follows the REAL time of day, like a real business:
+   quiet in the morning, busiest around midday/early afternoon, quiet again in the evening.
+   No artificial fast day-loop — this reads the visitor's actual clock. */
 (function(){
   if(reduceMotion) return; // respect reduced motion: leave static values as-is
   const apptsEl = document.getElementById('dashAppts');
@@ -630,11 +632,10 @@ counters.forEach(el=>cio.observe(el));
   const feedEl = document.getElementById('dashFeedText');
   if(!apptsEl) return;
 
-  // Tagesziel-Kapazität: bestimmt, wie viele Termine "voll ausgelastet" bedeuten.
-  // Auslastung wird IMMER aus Termine heute berechnet, nie unabhängig — so bleiben
-  // die Zahlen auf dem Dashboard logisch konsistent zueinander.
-  const dailyCapacity = 19;
-  let appts = 18, customers = 7, revenue = 6400;
+  const dailyCapacity = 19;      // Termine, die einem "voll ausgelasteten" Tag entsprechen
+  const openHour = 8, closeHour = 20; // Geschäftszeiten, auf denen die Kurve basiert
+  let customers = 1, revenue = 6400;
+  let appts = parseInt(apptsEl.dataset.count, 10) || 3; // startet bei dem Wert aus der Lade-Animation
 
   const names = ['Julia','Marco','Lena','Kevin','Sophie','Tim','Nina','David','Anna','Felix'];
   const times = ['09:00','10:30','11:15','13:00','14:30','15:45','17:00','18:15'];
@@ -648,77 +649,65 @@ counters.forEach(el=>cio.observe(el));
   }
   function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
   function setBar(el,h){ el.style.height = Math.max(15, Math.min(98, h)) + '%'; }
+
+  // Glockenkurve über den echten Tagesverlauf: 0 vor/nach Öffnungszeit, Maximum in der Tagesmitte
+  function targetForNow(){
+    const now = new Date();
+    const hour = now.getHours() + now.getMinutes()/60;
+    if(hour <= openHour || hour >= closeHour) return 1; // außerhalb der Öffnungszeit: ruhig
+    const progress = (hour - openHour) / (closeHour - openHour); // 0..1 über den Tag
+    const shape = Math.sin(progress * Math.PI); // 0 morgens/abends, 1 zur Tagesmitte
+    return Math.max(1, Math.round(1 + shape * (dailyCapacity - 1)));
+  }
+
   function syncUtilAndBar(){
-    const util = Math.max(20, Math.min(97, Math.round((appts/dailyCapacity)*100)));
+    const util = Math.max(5, Math.min(97, Math.round((appts/dailyCapacity)*100)));
     utilEl.textContent = util + '%'; flash(utilEl);
     const lastBar = barsEl.lastElementChild;
     if(lastBar) setBar(lastBar, util);
   }
 
-  function tick(){
-    const roll = Math.random();
+  // Erster Abgleich mit der echten Uhrzeit erfolgt sanft über tick() weiter unten,
+  // damit die Lade-Animation der Zahlen ungestört abläuft.
 
-    // Neue Buchung — Termine, Auslastung und Umsatz ändern sich gemeinsam, konsistent
-    if(roll < 0.4){
+  function tick(){
+    const target = targetForNow();
+
+    if(appts < target){
       appts += 1;
-      revenue += Math.round((30 + Math.random()*70));
+      revenue += Math.round(30 + Math.random()*70);
       apptsEl.textContent = appts; flash(apptsEl);
       revEl.textContent = fmtRevenue(revenue); flash(revEl);
       syncUtilAndBar();
       feedEl.innerHTML = `<b>Termivox</b> hat gerade einen Termin für ${pick(days)} ${pick(times)} bestätigt`;
       flash(feedEl);
-    }
-    // Termin storniert — Zahlen gehen auch mal runter, nicht nur hoch
-    else if(roll < 0.55){
-      appts = Math.max(2, appts - 1);
+    } else if(appts > target){
+      appts -= 1;
       apptsEl.textContent = appts; flash(apptsEl);
       syncUtilAndBar();
-      feedEl.innerHTML = `<b>${pick(names)}</b> hat einen Termin storniert`;
+      feedEl.innerHTML = `<b>Termivox</b> hat den Tag für ${pick(days)} abgeschlossen`;
       flash(feedEl);
-    }
-    // Neuer Kunde
-    else if(roll < 0.75){
-      customers += 1;
-      custEl.textContent = customers; flash(custEl);
-      feedEl.innerHTML = `<b>${pick(names)}</b> hat sich als neue:r Kund:in registriert`;
-      flash(feedEl);
-    }
-    // Termin verschoben — ändert nur die Meldung, nicht die Zahlen (bleibt derselbe Termin)
-    else if(roll < 0.9){
-      feedEl.innerHTML = `<b>${pick(names)}</b> hat einen Termin auf ${pick(times)} verschoben`;
-      flash(feedEl);
-    }
-    // Erinnerung versendet
-    else {
-      feedEl.innerHTML = `<b>Termivox</b> hat eine Erinnerung für ${pick(days)} ${pick(times)} versendet`;
-      flash(feedEl);
+    } else {
+      // Kalender ist gerade im Gleichgewicht mit der Tageszeit — trotzdem etwas Leben zeigen
+      const roll = Math.random();
+      if(roll < 0.4){
+        customers += 1;
+        custEl.textContent = customers; flash(custEl);
+        feedEl.innerHTML = `<b>${pick(names)}</b> hat sich als neue:r Kund:in registriert`;
+        flash(feedEl);
+      } else if(roll < 0.75){
+        feedEl.innerHTML = `<b>${pick(names)}</b> hat einen Termin auf ${pick(times)} verschoben`;
+        flash(feedEl);
+      } else {
+        feedEl.innerHTML = `<b>Termivox</b> hat eine Erinnerung für ${pick(days)} ${pick(times)} versendet`;
+        flash(feedEl);
+      }
     }
 
-    setTimeout(tick, 11000 + Math.random()*7000);
-  }
-
-  // Alle ~2-3 Minuten rollt die Woche einen Tag weiter: ältester Balken fällt raus,
-  // "Termine heute" / "Neue Kunden" starten für den neuen Tag wieder niedriger,
-  // die Auslastung passt sich automatisch daran an.
-  function newDay(){
-    const bars = Array.from(barsEl.children);
-    bars.forEach((b,i)=>{
-      if(i < bars.length-1) setBar(b, parseInt(bars[i+1].style.height,10)||60);
-    });
-
-    appts = 2 + Math.floor(Math.random()*5);
-    customers = Math.floor(Math.random()*3);
-    apptsEl.textContent = appts; flash(apptsEl);
-    custEl.textContent = customers; flash(custEl);
-    syncUtilAndBar();
-    feedEl.innerHTML = `<b>Termivox</b> startet in einen neuen Tag`;
-    flash(feedEl);
-
-    setTimeout(newDay, 120000 + Math.random()*60000);
+    setTimeout(tick, 13000 + Math.random()*8000);
   }
 
   setTimeout(tick, 8000);
-  setTimeout(newDay, 130000 + Math.random()*40000);
 })();
 
 /* Chat demo loop */
