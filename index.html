@@ -488,7 +488,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
     <div class="section-head reveal">
       <div class="eyebrow">Preise</div>
       <h2>Ein Tarif für jede Betriebsgröße</h2>
-      <p>Monatlich kündbar. 14 Tage kostenlos testen. Zzgl. einmaliger Einrichtungsgebühr von 99€.</p>
+      <p>Monatlich kündbar. Die einmalige Einrichtungsgebühr von 99€ ist in der ersten Zahlung enthalten.</p>
     </div>
     <div class="price-grid">
       <div class="price-card glass reveal">
@@ -561,7 +561,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
         </div>
       </div>
     </div>
-    <p style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:24px;">Zahlung monatlich per PayPal. Überweisung auf Anfrage möglich. <a href="https://www.paypal.com/ncp/payment/R7XFW4L58355J" target="_blank" rel="noopener" style="color:var(--cyan-light);">Einmalige Einrichtungsgebühr (99€) hier bezahlen</a> oder <a href="#kontakt" style="color:var(--cyan-light);">kontaktieren Sie uns</a>.</p>
+    <p style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:24px;">Zahlung monatlich per PayPal. Überweisung auf Anfrage möglich. <a href="#kontakt" style="color:var(--cyan-light);">Bei Fragen kontaktieren Sie uns</a>.</p>
   </div>
 </section>
 
@@ -932,7 +932,7 @@ calcRoi();
 /* FAQ */
 const faqs = [
   ['Was ist Termivox?','Ein KI-Assistent, der Terminanfragen für Salons, Praxen und Handwerksbetriebe automatisch beantwortet und bucht.'],
-  ['Fällt eine einmalige Einrichtungsgebühr an?','Ja, einmalig 99€ für die individuelle Ersteinrichtung Ihres Kalenders und Ihrer Leistungen. Danach nur noch der monatliche Tarifpreis. <a href="https://www.paypal.com/ncp/payment/R7XFW4L58355J" target="_blank" rel="noopener" style="color:var(--cyan-light);">Hier bezahlen</a>.'],
+  ['Fällt eine einmalige Einrichtungsgebühr an?','Ja, einmalig 99€ für die individuelle Ersteinrichtung Ihres Kalenders und Ihrer Leistungen. Diese Gebühr ist bereits in Ihrer ersten monatlichen Zahlung enthalten — es fällt keine separate Zahlung an.'],
   ['Kann Termivox Termine buchen?','Ja — inklusive Verschiebung, Stornierung und automatischer Bestätigung.'],
   ['Funktioniert es mit WhatsApp?','Ja, WhatsApp ist einer der unterstützten Kanäle.'],
   ['Kann ich mehrere Mitarbeiter verwalten?','Ja, ab dem Professional-Tarif inklusive eigener Kalender pro Mitarbeiter.'],
@@ -1005,9 +1005,9 @@ form.addEventListener('submit',async (e)=>{
   // ersetzt worden — sobald sie da sind, ersetzt renderPaypalButton sie automatisch nicht mehr
   // (siehe Prüfung unten), damit die Seite nicht mit einem kaputten Button crasht.
   const paypalPlans = {
-    'paypal-btn-starter': 'P-4B542603S2163440SNJXCTOI',
-    'paypal-btn-professional': 'P-5C708847U5655494SNJXCYOY',
-    'paypal-btn-business': 'P-3C762869X9951014BNJXC2UI'
+    'paypal-btn-starter': 'P-51L142753T310500UNJ47YAY',
+    'paypal-btn-professional': 'P-15114819BX563343DNJ47TYY',
+    'paypal-btn-business': 'P-3K97997130581231JNJ47VKY'
   };
   function renderPaypalButton(containerId, planId){
     const el = document.getElementById(containerId);
