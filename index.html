@@ -310,7 +310,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
       <a href="#ablauf">So funktioniert's</a>
       <a href="#branchen">Branchen</a>
       <a href="#preise">Preise</a>
-      <a href="#bewertungen">Bewertungen</a>
+      <a href="#bewertungen">Vorteile</a>
       <a href="#faq">FAQ</a>
     </div>
     <div class="nav-cta">
@@ -342,7 +342,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
 
     <div class="dash glass reveal">
       <div class="dash-top">
-        <span class="dash-title mono">termivox · dashboard</span>
+        <span class="dash-title mono">termivox · dashboard <span style="opacity:.6;font-weight:400">(Beispielansicht)</span></span>
         <span class="dash-status"><span class="dot"></span>KI ist online</span>
       </div>
       <div class="dash-stats">
@@ -376,7 +376,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
     <div class="section-head reveal">
       <div class="eyebrow">Live-Demo</div>
       <h2>So klingt ein Gespräch mit Termivox</h2>
-      <p>Egal ob Website, WhatsApp oder Instagram — der Ablauf bleibt derselbe.</p>
+      <p>So läuft ein Gespräch im Website-Chat ab.</p>
     </div>
     <div class="chat-shell glass reveal">
       <div class="chat-head">
@@ -389,7 +389,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
         <div class="typing" data-i="2"><span></span><span></span><span></span></div>
         <div class="msg in" data-i="3">Mittwoch 14:30 Uhr bei Sarah wäre frei — passt das?</div>
         <div class="msg out" data-i="4">Ja, passt perfekt.</div>
-        <div class="msg in" data-i="5">Termin bestätigt ✓ Erinnerung folgt automatisch per WhatsApp.</div>
+        <div class="msg in" data-i="5">Termin bestätigt ✓ Sie erhalten alle Details direkt hier im Chat.</div>
       </div>
       <div class="chat-quick">
         <span>Termin buchen</span><span>Preise</span><span>Öffnungszeiten</span><span>Termin verschieben</span>
@@ -437,8 +437,8 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
 <section id="bewertungen">
   <div class="wrap">
     <div class="section-head reveal">
-      <div class="eyebrow">Bewertungen</div>
-      <h2>Was Unternehmen über Termivox sagen</h2>
+      <div class="eyebrow">Vorteile</div>
+      <h2>Was Termivox für Ihren Betrieb ändert</h2>
     </div>
     <div class="testi-grid" id="testiGrid"></div>
     <div class="logo-band">
@@ -488,7 +488,7 @@ footer{border-top:1px solid var(--glass-border);padding:56px 0 30px;position:rel
     <div class="section-head reveal">
       <div class="eyebrow">Preise</div>
       <h2>Ein Tarif für jede Betriebsgröße</h2>
-      <p>Monatlich kündbar. 14 Tage kostenlos testen. Zzgl. einmaliger Einrichtungsgebühr von 99€.</p>
+      <p>Monatlich kündbar. Zzgl. einmaliger Einrichtungsgebühr von 99€.</p>
     </div>
     <div class="price-grid">
       <div class="price-card glass reveal">
@@ -776,13 +776,13 @@ runChat();
 /* Function cards data */
 const functions = [
   {t:'KI-Kundenservice', items:['Beantwortet Anfragen automatisch','Erkennt Wünsche','Stellt Rückfragen','Antwortet rund um die Uhr'], ex:'Kundin schreibt um 22 Uhr: „Habt ihr morgen früh noch was frei?“ — Termivox antwortet sofort mit passenden Zeiten, statt dass die Nachricht bis zum nächsten Tag liegen bleibt.'},
-  {t:'Terminbuchung', items:['Freie Termine suchen','Kalender prüfen','Mitarbeiter berücksichtigen','Termin automatisch eintragen'], ex:'Ein Kunde bucht per WhatsApp einen Termin für Dienstag 14 Uhr — Termivox prüft in Echtzeit den Kalender und trägt den Termin automatisch ein.'},
+  {t:'Terminbuchung', items:['Freie Termine suchen','Kalender prüfen','Mitarbeiter berücksichtigen','Termin automatisch eintragen'], ex:'Ein Kunde bucht im Chat einen Termin für Dienstag 14 Uhr — Termivox prüft in Echtzeit den Kalender und trägt den Termin automatisch ein.'},
   {t:'Terminverschiebung', items:['Bisherigen Termin finden','Neue Uhrzeit prüfen','Überschneidungen verhindern','Änderung bestätigen'], ex:'„Kann ich auf Freitag verschieben?“ — Termivox findet den bestehenden Termin, prüft die neue Zeit auf Überschneidungen und bestätigt die Änderung sofort.'},
   {t:'Terminabsage', items:['Termin identifizieren','Stornieren','Kunde &amp; Unternehmen informieren','Für Statistiken behalten'], ex:'Ein Kunde storniert kurzfristig per Chat — Termivox gibt den Slot sofort für andere Kunden frei und informiert Ihr Team.'},
   {t:'Öffnungszeiten', items:['Wochentage berücksichtigen','Geschlossene Tage erkennen','Feiertage berücksichtigen','Späteste Startzeit prüfen'], ex:'Anfrage an einem Feiertag — Termivox erkennt automatisch, dass geschlossen ist, und schlägt direkt den nächsten freien Tag vor.'},
   {t:'Mitarbeiterverwaltung', items:['Mitarbeiter anlegen','Aktivieren/deaktivieren','Farbe im Kalender','Verfügbarkeit prüfen'], ex:'Neue Kollegin startet — in wenigen Klicks angelegt, inklusive eigener Kalenderfarbe und individueller Verfügbarkeit.'},
   {t:'Kundenverwaltung', items:['Kundendaten speichern','Telefon &amp; E-Mail','Notizen','Terminverlauf'], ex:'Ein Stammkunde meldet sich — Termivox kennt seinen Terminverlauf und bevorzugte Uhrzeiten aus vergangenen Buchungen.'},
-  {t:'Automatische Erinnerungen', items:['Erinnerung vor Termin','E-Mail, WhatsApp, SMS','Geplante Versandzeit','Weniger No-Shows'], ex:'24 Stunden vor dem Termin verschickt Termivox automatisch eine Erinnerung per WhatsApp — spürbar weniger verpasste Termine.'},
+  {t:'Automatische Erinnerungen', items:['Erinnerung vor Termin','Per E-Mail','Geplante Versandzeit','Weniger No-Shows','Zusatzfunktion, gegen Aufpreis buchbar'], ex:'Als Zusatzfunktion verschickt Termivox automatisch eine Erinnerung vor dem Termin — spürbar weniger verpasste Termine.'},
 ];
 const iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>';
 const plusSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
@@ -803,11 +803,11 @@ document.querySelectorAll('.func-card').forEach(card=>{
 
 /* Steps */
 const steps = [
-  {n:'01', t:'Kunde schreibt', d:'Über Website, WhatsApp, Instagram, E-Mail oder SMS.', detail:'Egal auf welchem Kanal die Nachricht ankommt — Termivox liest sie sofort, auch mitten in der Nacht oder am Wochenende, wenn niemand im Betrieb ist.'},
+  {n:'01', t:'Kunde schreibt', d:'Über den Chat auf Ihrer Website.', detail:'Egal wann die Nachricht ankommt — Termivox liest sie sofort, auch mitten in der Nacht oder am Wochenende, wenn niemand im Betrieb ist.'},
   {n:'02', t:'KI erkennt das Anliegen', d:'Buchen, verschieben, stornieren, Preisfrage, Öffnungszeiten.', detail:'Beispiel: „Was kostet ein Herrenschnitt?“ wird als Preisfrage erkannt und sofort korrekt beantwortet — ohne Umweg über einen Mitarbeiter.'},
   {n:'03', t:'Kalender wird geprüft', d:'Öffnungszeiten, Feiertage, Dauer, Mitarbeiter, Pufferzeiten.', detail:'Termivox berücksichtigt automatisch Pufferzeiten zwischen Terminen und die individuelle Verfügbarkeit jedes Mitarbeiters — keine Doppelbuchungen.'},
   {n:'04', t:'Termin wird bearbeitet', d:'Buchen, verschieben, stornieren oder Alternative anbieten.', detail:'Ist der Wunschtermin belegt, schlägt Termivox automatisch die nächstbesten freien Alternativen vor, statt einfach abzulehnen.'},
-  {n:'05', t:'Bestätigung wird versendet', d:'Datum, Uhrzeit, Leistung, Mitarbeiter, Preis, Erinnerung.', detail:'Der Kunde erhält sofort eine Bestätigung mit allen Details — und automatisch eine Erinnerung kurz vor dem Termin.'},
+  {n:'05', t:'Bestätigung wird versendet', d:'Datum, Uhrzeit, Leistung, Mitarbeiter, Preis.', detail:'Der Kunde erhält sofort eine Bestätigung mit allen Details direkt im Chat.'},
 ];
 document.getElementById('stepsGrid').innerHTML = steps.map(s=>`
   <div class="step reveal">
@@ -855,24 +855,18 @@ slider.addEventListener('mouseleave',()=>isDown=false);
 slider.addEventListener('mouseup',()=>isDown=false);
 slider.addEventListener('mousemove',(e)=>{ if(!isDown) return; e.preventDefault(); const x=e.pageX-slider.offsetLeft; slider.scrollLeft = scrollLeft - (x-startX); });
 
-/* Testimonials */
+/* Vorteile (keine erfundenen Kundenstimmen - echte Testimonials folgen, sobald verfügbar) */
 const testimonials = [
-  ['Sarah M.','Salon Lichtblick','„Seit wir Termivox nutzen, müssen wir kaum noch auf Terminfragen antworten.“','−42% Telefonzeit'],
-  ['Kevin R.','KR Elektrotechnik','„Kunden buchen jetzt abends und am Wochenende — Termine, die uns sonst entgangen wären.“','+18% gebuchte Termine'],
-  ['Lena F.','Nailbar Lena','„Die Erinnerungen haben unsere No-Show-Quote spürbar gesenkt.“','−58% No-Shows'],
-  ['Maren T.','Studio Maren','„Endlich muss niemand mehr während der Behandlung ans Telefon.“','−35% verpasste Anrufe'],
-  ['Jonas B.','JB Sanitär','„Kunden bekommen sofort einen Termin vorgeschlagen, statt in der Warteschleife zu hängen.“','+22% Erstanfragen gebucht'],
-  ['Petra W.','Kosmetik Petra','„Die Umbuchung läuft jetzt komplett automatisch — spart uns täglich Zeit.“','−6 Std./Woche Aufwand'],
-  ['Daniel K.','Barbershop Daniel','„Auch nachts kommen noch Buchungen rein, die wir sonst verpasst hätten.“','+15% Buchungen außerhalb der Öffnungszeiten'],
-  ['Anja S.','Physio Anja','„Unsere Patientinnen loben, wie schnell und unkompliziert die Buchung jetzt ist.“','−48% No-Shows'],
+  ['','Weniger verpasste Anrufe','Anfragen werden auch dann beantwortet, wenn während der Behandlung niemand ans Telefon gehen kann — abends, am Wochenende oder mitten im Termin.',''],
+  ['','Weniger Zeit am Telefon','Terminanfragen, Umbuchungen und Absagen laufen automatisch — Zeit, die sonst für Rückrufe draufgeht, bleibt für die eigentliche Arbeit.',''],
+  ['','Keine Doppelbuchungen','Der Kalender wird bei jeder Anfrage in Echtzeit geprüft, bevor ein Termin bestätigt wird.',''],
+  ['','Erreichbar außerhalb der Öffnungszeiten','Kunden können auch abends oder am Wochenende einen Termin anfragen, statt bis zum nächsten Werktag zu warten.',''],
 ];
 function renderTesti(list){
   return list.map(([n,c,q,r])=>`
     <div class="testi-card glass">
-      <div class="stars">★★★★★</div>
       <p>${q}</p>
-      <div class="testi-who"><div class="av"></div><div><b>${n}</b><span>${c}</span></div></div>
-      <div class="testi-result">${r}</div>
+      ${c ? `<div class="testi-who"><div><b>${c}</b></div></div>` : ''}
     </div>`).join('');
 }
 const testiGrid = document.getElementById('testiGrid');
@@ -905,7 +899,7 @@ if(!reduceMotion){
   }, 6000);
 }
 
-const logos = ['Google Calendar','WhatsApp Business','Instagram','OpenAI','E-Mail','SMS'];
+const logos = ['Google Calendar','OpenAI','E-Mail'];
 document.getElementById('logoTrack').innerHTML = [...logos,...logos,...logos].map(l=>`<span>${l}</span>`).join('');
 
 /* ROI calculator */
@@ -934,7 +928,7 @@ const faqs = [
   ['Was ist Termivox?','Ein KI-Assistent, der Terminanfragen für Salons, Praxen und Handwerksbetriebe automatisch beantwortet und bucht.'],
   ['Fällt eine einmalige Einrichtungsgebühr an?','Ja, einmalig 99€ für die individuelle Ersteinrichtung Ihres Kalenders und Ihrer Leistungen. Danach nur noch der monatliche Tarifpreis. <a href="https://www.paypal.com/ncp/payment/R7XFW4L58355J" target="_blank" rel="noopener" style="color:var(--cyan-light);">Hier bezahlen</a>.'],
   ['Kann Termivox Termine buchen?','Ja — inklusive Verschiebung, Stornierung und automatischer Bestätigung.'],
-  ['Funktioniert es mit WhatsApp?','Ja, WhatsApp ist einer der unterstützten Kanäle.'],
+  ['Funktioniert es mit WhatsApp?','WhatsApp-Anbindung ist als Zusatzfunktion gegen Aufpreis buchbar. Im Standard-Umfang läuft der Chat über Ihre Website.'],
   ['Kann ich mehrere Mitarbeiter verwalten?','Ja, ab dem Professional-Tarif inklusive eigener Kalender pro Mitarbeiter.'],
   ['Werden Doppelbuchungen verhindert?','Ja, das System prüft Überschneidungen automatisch vor jeder Bestätigung.'],
   ['Funktioniert es auf dem Handy?','Ja, die gesamte Website und der Chat sind vollständig mobil optimiert.'],
