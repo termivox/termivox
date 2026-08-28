@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termivox — KI-Terminassistent für Salons, Praxen &amp; Handwerk</title>
+<link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
+<meta name="description" content="Termivox ist der KI-Terminassistent für Salons, Praxen, Handwerksbetriebe und Dienstleister aller Art. Automatische Terminbuchung, Erinnerungen und Kundenkommunikation rund um die Uhr — ohne dass jemand ans Telefon muss.">
+<meta name="keywords" content="KI Terminbuchung, KI Terminassistent, automatische Terminvergabe, KI Automatisierung Terminplanung, Terminbuchung Software, WhatsApp Terminbuchung, Terminassistent Handwerk, Terminassistent Praxis, Terminassistent Salon">
+<link rel="canonical" href="https://termivox.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Termivox — KI-Terminassistent für Salons, Praxen & Handwerk">
+<meta property="og:description" content="Termine automatisch verwalten, Kunden sofort beantworten. Termivox übernimmt die Terminbuchung rund um die Uhr — für Salons, Praxen, Handwerksbetriebe und viele weitere Branchen.">
+<meta property="og:url" content="https://termivox.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Termivox — KI-Terminassistent für Salons, Praxen & Handwerk">
+<meta name="twitter:description" content="Termine automatisch verwalten, Kunden sofort beantworten. Für jede terminbasierte Branche — rund um die Uhr, ohne dass jemand ans Telefon muss.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Empfangsbuch-Palette: Tinte statt Navy, Messing statt Neon-Blau, Stempel-Rot als Sparsam-Akzent */
+  --ink:#15130F; --ink-2:#1C1912; --ink-3:#231F16;
+  --paper:#F3EEE2; --paper-dim:#B9B09A;
+  --brass:#C99A3C; --brass-light:#E2BD6C; --brass-dim:#8A6C2C;
+  --stamp:#A6383D; --stamp-light:#C2534F;
+  --line:rgba(243,238,226,0.12); --line-strong:rgba(243,238,226,0.22);
+  --success:#5E8C61; --warn:#C99A3C; --error:#A6383D;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--ink); color:var(--paper);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  line-height:1.55; overflow-x:hidden; opacity:0; animation:pageIn .6s ease forwards;
+}
+@keyframes pageIn{to{opacity:1;}}
+h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif; font-weight:600; letter-spacing:-0.01em;}
+.mono{font-family:'IBM Plex Mono',ui-monospace,Consolas,monospace;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+:focus-visible{outline:2px solid var(--brass-light); outline-offset:3px;}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px;}
+img,svg{display:block;}
+
+/* Ledger-Textur statt Glow-Blobs / Dot-Grid */
+.bg-ledger{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:repeating-linear-gradient(180deg, rgba(243,238,226,0.028) 0px, rgba(243,238,226,0.028) 1px, transparent 1px, transparent 34px);
+  mask-image:radial-gradient(ellipse 75% 60% at 50% 0%, #000 30%, transparent 100%);}
+.bg-margin{position:fixed;top:0;bottom:0;left:calc(50% - 620px);width:1px;background:rgba(166,56,61,0.18);z-index:0;pointer-events:none;}
+@media(max-width:1280px){.bg-margin{display:none;}}
+
+/* Karten im Ticket-Stil: flach, Tinten-Rand, gestanzte Kante oben, Lochung an den Seiten */
+.ticket{background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);position:relative;}
+.ticket::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px);}
+.ticket-notch::after,.ticket-notch::before{content:"";position:absolute;width:16px;height:16px;background:var(--ink);border-radius:50%;top:50%;transform:translateY(-50%);}
+.ticket-notch::before{left:-8px;}
+.ticket-notch::after{right:-8px;}
+
+/* NAV */
+header{position:sticky;top:0;z-index:100;transition:background .3s ease, border-color .3s ease;border-bottom:1px solid transparent;}
+header.scrolled{background:rgba(21,19,15,0.92);backdrop-filter:none;border-bottom-color:var(--line);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;max-width:1240px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:1.35rem;color:var(--paper);}
+.logo-mark{width:26px;height:26px;flex-shrink:0;}
+.navlinks{display:flex;gap:30px;align-items:center;}
+.navlinks a{font-size:0.85rem;font-family:'IBM Plex Mono',monospace;letter-spacing:0.02em;color:var(--paper-dim);transition:color .2s;}
+.navlinks a:hover{color:var(--brass-light);}
+.nav-cta{display:flex;align-items:center;gap:14px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:3px;font-size:0.85rem;font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:0.02em;border:1px solid transparent;transition:transform .15s ease, background .2s ease, border-color .2s ease;}
+.btn-primary{background:var(--brass);color:var(--ink);border-color:var(--brass);}
+.btn-primary:hover{background:var(--brass-light);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--paper);border-color:var(--line-strong);}
+.btn-ghost:hover{border-color:var(--brass);color:var(--brass-light);}
+.menu-toggle{display:none;background:none;border:none;color:var(--paper);}
+.menu-toggle svg{width:24px;height:24px;}
+
+/* HERO */
+.hero{position:relative;z-index:1;padding:80px 0 60px;}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--brass-light);margin-bottom:18px;display:flex;align-items:center;gap:9px;}
+.eyebrow::before{content:"";width:7px;height:7px;background:var(--stamp);border-radius:50%;animation:blink 1.8s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-size:3.1rem;line-height:1.14;margin-bottom:22px;color:var(--paper);}
+.hero h1 em{font-style:italic;color:var(--brass-light);}
+.hero p.lead{font-size:1.08rem;color:var(--paper-dim);max-width:480px;margin-bottom:32px;}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:46px;}
+.trustrow{display:flex;gap:0;border-top:1px solid var(--line);}
+.trust-item{flex:1;padding:16px 20px 0 0;border-right:1px solid var(--line);}
+.trust-item:last-child{border-right:none;}
+.trust-num{font-family:'Fraunces',Georgia,serif;font-size:1.5rem;font-weight:600;color:var(--brass-light);display:block;}
+.trust-label{font-size:0.72rem;font-family:'IBM Plex Mono',monospace;color:var(--paper-dim);}
+
+/* Signatur-Element: Klapptafel "Empfangsbuch" */
+.board{padding:0;overflow:hidden;}
+.board-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);}
+.board-title{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--paper-dim);}
+.board-live{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--success);}
+.board-live span{width:6px;height:6px;border-radius:50%;background:var(--success);animation:blink 1.8s infinite;}
+.board-rows{padding:10px 8px;display:flex;flex-direction:column;gap:8px;min-height:280px;}
+.board-row{display:grid;grid-template-columns:64px 1fr 108px;gap:0;background:var(--ink-2);border:1px solid var(--line);border-radius:3px;overflow:hidden;perspective:400px;}
+.flap{padding:14px 10px;font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;}
+.flap.time{font-size:1rem;font-weight:600;color:var(--brass-light);border-right:1px solid var(--line);justify-content:center;}
+.flap.what{font-size:0.82rem;color:var(--paper);border-right:1px solid var(--line);}
+.flap.status{font-size:0.68rem;letter-spacing:0.05em;justify-content:center;color:var(--paper-dim);text-transform:uppercase;}
+.flap.status.ok{color:var(--success);}
+.board-row.flip-in{animation:flipIn .55s cubic-bezier(.2,.8,.3,1);}
+@keyframes flipIn{
+  0%{transform:rotateX(-90deg);opacity:0;}
+  60%{transform:rotateX(8deg);opacity:1;}
+  100%{transform:rotateX(0);opacity:1;}
+}
+.board-foot{padding:12px 20px;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--paper-dim);display:flex;justify-content:space-between;}
+
+/* Stempel-Motiv */
+.stamp{position:relative;display:inline-flex;align-items:center;justify-content:center;width:78px;height:78px;border:2.5px solid var(--stamp);border-radius:50%;color:var(--stamp-light);transform:rotate(-9deg);font-family:'IBM Plex Mono',monospace;font-size:0.62rem;font-weight:700;letter-spacing:0.04em;text-align:center;line-height:1.25;text-transform:uppercase;opacity:0.92;flex-shrink:0;}
+.stamp::before{content:"";position:absolute;inset:6px;border:1px solid var(--stamp);border-radius:50%;opacity:0.55;}
+
+section{position:relative;z-index:1;padding:96px 0;}
+.section-head{max-width:640px;margin:0 auto 52px;}
+.section-head.center{text-align:center;margin-left:auto;margin-right:auto;}
+.section-head h2{font-size:2.05rem;line-height:1.2;color:var(--paper);}
+.section-head p{color:var(--paper-dim);margin-top:14px;}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease, transform .7s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+/* Chat demo */
+.chat-shell{max-width:480px;margin:0 auto;padding:0;overflow:hidden;}
+.chat-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);}
+.chat-head .av{width:36px;height:36px;border-radius:50%;background:var(--brass);color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:0.9rem;}
+.chat-head .info b{display:block;font-size:0.92rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:600;}
+.chat-head .info span{font-size:0.72rem;color:var(--success);font-family:'IBM Plex Mono',monospace;}
+.chat-body{padding:20px;min-height:300px;display:flex;flex-direction:column;gap:12px;justify-content:flex-end;}
+.msg{max-width:80%;padding:11px 15px;border-radius:3px;font-size:0.88rem;opacity:0;transform:translateY(8px);}
+.msg.show{animation:msgIn .45s ease forwards;}
+@keyframes msgIn{to{opacity:1;transform:translateY(0);}}
+.msg.in{align-self:flex-start;background:var(--ink-2);border:1px solid var(--line);}
+.msg.out{align-self:flex-end;background:var(--brass);color:var(--ink);font-weight:500;}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:12px 15px;opacity:0;}
+.typing.show{animation:msgIn .3s ease forwards;}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--paper-dim);animation:bounce 1.2s infinite;}
+.typing span:nth-child(2){animation-delay:.15s;}
+.typing span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+.chat-quick{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--line);flex-wrap:wrap;}
+.chat-quick span{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;padding:6px 12px;border-radius:3px;background:var(--ink-2);border:1px solid var(--line);color:var(--paper-dim);}
+
+.chat-demo-lead{text-align:center;margin-top:22px;color:var(--paper-dim);font-size:0.92rem;}
+.demo-cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+
+.price-demo-link{
+  font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--brass-light);display:flex;align-items:center;gap:6px;
+  margin-bottom:14px;padding:9px 12px;border:1px solid var(--brass-dim);border-radius:3px;
+  background:rgba(201,154,60,0.08);transition:border-color .2s ease;
+}
+.price-demo-link:hover{border-color:var(--brass);}
+
+/* Function cards */
+.func-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.func-card{padding:26px 22px 22px;transition:border-color .25s ease;cursor:pointer;}
+.func-card:hover{border-color:var(--brass-dim);}
+.func-card .idx{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--stamp-light);margin-bottom:14px;}
+.func-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.func-card h3{font-size:1.05rem;margin-bottom:8px;color:var(--paper);font-weight:600;}
+.func-card ul{list-style:none;font-size:0.82rem;color:var(--paper-dim);display:flex;flex-direction:column;gap:5px;}
+.func-card ul li::before{content:"— ";color:var(--brass-dim);}
+.func-toggle{width:22px;height:22px;flex-shrink:0;border-radius:50%;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;transition:transform .3s ease, border-color .3s ease;}
+.func-toggle svg{width:11px;height:11px;stroke:var(--paper-dim);}
+.func-card.open .func-toggle{transform:rotate(45deg);border-color:var(--brass);}
+.func-example{max-height:0;overflow:hidden;transition:max-height .35s ease, margin .35s ease;}
+.func-card.open .func-example{max-height:200px;margin-top:16px;}
+.func-example-inner{border-top:1px solid var(--line);padding-top:14px;font-size:0.82rem;color:var(--brass-light);line-height:1.5;}
+.func-example-inner b{display:block;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;color:var(--paper-dim);}
+
+/* Steps — als Ablauf im Empfangsbuch, nummeriert mit Fraunces */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+.step{text-align:left;cursor:pointer;background:var(--ink);padding:24px 20px;}
+.step-num{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:600;color:var(--brass-dim);margin-bottom:14px;}
+.step h4{font-size:0.96rem;margin-bottom:8px;color:var(--paper);}
+.step p{font-size:0.8rem;color:var(--paper-dim);}
+.step-detail{max-height:0;overflow:hidden;transition:max-height .35s ease, margin .35s ease;}
+.step.open .step-detail{max-height:220px;margin-top:12px;}
+.step-detail-inner{background:var(--ink-2);border:1px solid var(--line);border-radius:3px;padding:12px 14px;font-size:0.8rem;color:var(--paper-dim);line-height:1.55;}
+.step-more{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--brass-light);display:flex;align-items:center;gap:6px;}
+.step-more span{display:inline-block;transition:transform .3s ease;}
+.step.open .step-more span{transform:rotate(45deg);}
+
+/* Industries slider */
+.slider-wrap{position:relative;}
+.slider{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 6px 16px;scrollbar-width:none;}
+.slider::-webkit-scrollbar{display:none;}
+.ind-card{min-width:220px;scroll-snap-align:start;padding:24px 20px;transition:border-color .25s ease;cursor:grab;}
+.ind-card:hover{border-color:var(--brass-dim);}
+.ind-card .emoji{font-size:1.6rem;margin-bottom:14px;}
+.ind-card h4{font-size:0.92rem;margin-bottom:6px;color:var(--paper);}
+.ind-card p{font-size:0.76rem;color:var(--paper-dim);}
+.slider-arrows{display:flex;gap:10px;justify-content:center;margin-top:18px;}
+.arrow-btn{width:38px;height:38px;border-radius:50%;background:transparent;border:1px solid var(--line-strong);color:var(--paper);display:flex;align-items:center;justify-content:center;transition:border-color .2s;}
+.arrow-btn:hover{border-color:var(--brass);}
+.arrow-btn svg{width:15px;height:15px;}
+
+/* Vorteile */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.testi-card{padding:26px 24px;}
+.testi-card p{font-size:0.92rem;color:var(--paper);margin-bottom:0;font-family:'Fraunces',serif;font-weight:500;line-height:1.5;}
+
+.logo-band{margin-top:56px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);}
+.logo-track{display:flex;gap:56px;width:max-content;animation:scrollLogos 22s linear infinite;align-items:center;}
+.logo-track span{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--paper-dim);white-space:nowrap;opacity:.7;}
+@keyframes scrollLogos{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ROI */
+#roi .wrap{max-width:980px;}
+.roi-box{display:grid;grid-template-columns:1fr 1fr;gap:0;overflow:hidden;}
+.roi-inputs{padding:40px;border-right:1px solid var(--line);}
+.roi-field{margin-bottom:26px;}
+.roi-field label{display:flex;justify-content:space-between;font-size:0.85rem;color:var(--paper-dim);margin-bottom:10px;}
+.roi-field label b{color:var(--brass-light);font-family:'IBM Plex Mono',monospace;font-weight:600;}
+input[type=range]{width:100%;accent-color:var(--brass);}
+.roi-results{padding:40px;display:flex;flex-direction:column;justify-content:center;gap:22px;}
+.roi-result-item .lbl{font-size:0.8rem;color:var(--paper-dim);margin-bottom:4px;}
+.roi-result-item .num{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--brass-light);}
+.roi-note{font-size:0.72rem;color:var(--paper-dim);margin-top:6px;}
+
+/* Pricing */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch;}
+.price-card{padding:32px 26px 26px;display:flex;flex-direction:column;position:relative;}
+.price-card.featured{border-color:var(--brass);}
+.price-name{color:var(--paper-dim);font-family:'IBM Plex Mono',monospace;font-size:0.85rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;}
+.price-amount{font-family:'Fraunces',serif;font-size:2.5rem;font-weight:600;margin-bottom:4px;color:var(--paper);}
+.price-amount span{font-size:0.9rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:400;color:var(--paper-dim);}
+.price-sub{font-size:0.82rem;color:var(--paper-dim);margin-bottom:24px;}
+.price-feats{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:28px;flex:1;}
+.price-feats li{font-size:0.87rem;display:flex;gap:9px;align-items:flex-start;color:var(--paper);}
+.price-feats li::before{content:"✓";color:var(--success);flex-shrink:0;font-weight:700;}
+.price-card .btn{width:100%;}
+.price-more-toggle{background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--brass-light);display:flex;align-items:center;gap:6px;margin-bottom:16px;cursor:pointer;padding:0;}
+.price-more-toggle span{display:inline-block;transition:transform .3s ease;}
+.price-more-toggle.open span{transform:rotate(45deg);}
+.price-more{max-height:0;overflow:hidden;transition:max-height .35s ease, margin .35s ease;}
+.price-more.open{max-height:260px;margin-bottom:16px;}
+.price-more-inner{background:var(--ink-2);border:1px solid var(--line);border-radius:3px;padding:14px 16px;font-size:0.82rem;color:var(--paper-dim);display:flex;flex-direction:column;gap:8px;}
+.price-more-inner li{list-style:none;display:flex;gap:8px;}
+.price-more-inner li::before{content:"·";color:var(--brass-dim);}
+.price-cta-row{display:flex;flex-direction:column;gap:10px;}
+.price-cta-row > div{width:100%;}
+.price-stamp{position:absolute;top:-14px;right:20px;}
+
+/* FAQ */
+.faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);}
+.faq-item{overflow:hidden;background:var(--ink);}
+.faq-q{width:100%;background:none;border:none;color:var(--paper);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;font-size:0.94rem;font-family:'Fraunces',serif;font-weight:600;text-align:left;}
+.faq-q svg{width:16px;height:16px;flex-shrink:0;transition:transform .3s ease;stroke:var(--brass-light);}
+.faq-item.open .faq-q svg{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease, padding .35s ease;padding:0 24px;}
+.faq-item.open .faq-a{max-height:200px;padding:0 24px 20px;}
+.faq-a p{color:var(--paper-dim);font-size:0.87rem;}
+
+/* Contact */
+#kontakt-form{padding:40px;max-width:720px;margin:0 auto;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.form-grid .full{grid-column:1/-1;}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;}
+.field label{font-size:0.78rem;font-family:'IBM Plex Mono',monospace;color:var(--paper-dim);}
+.field input,.field select,.field textarea{
+  background:var(--ink-2);border:1px solid var(--line-strong);border-radius:3px;
+  padding:11px 14px;color:var(--paper);font-family:inherit;font-size:0.9rem;
+}
+.field select option{background:var(--ink-2); color:var(--paper);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brass);outline:none;}
+.field.error input,.field.error select{border-color:var(--stamp);}
+.field .err-msg{font-size:0.72rem;color:var(--stamp-light);display:none;}
+.field.error .err-msg{display:block;}
+#kontakt-form .btn{margin-top:6px;}
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--brass);color:var(--ink);padding:14px 24px;border-radius:3px;font-weight:600;font-size:0.88rem;font-family:'IBM Plex Mono',monospace;
+  opacity:0;pointer-events:none;transition:opacity .3s ease, transform .3s ease;z-index:200;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+footer{border-top:1px solid var(--line);padding:56px 0 30px;position:relative;z-index:1;}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+.foot-brand p{color:var(--paper-dim);font-size:0.85rem;margin-top:12px;max-width:260px;}
+.foot-col h5{font-size:0.8rem;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;color:var(--paper-dim);text-transform:uppercase;letter-spacing:0.04em;}
+.foot-col a{display:block;font-size:0.83rem;color:var(--paper-dim);margin-bottom:10px;}
+.foot-col a:hover{color:var(--brass-light);}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:24px;flex-wrap:wrap;gap:12px;}
+.foot-bottom p{font-size:0.78rem;color:var(--paper-dim);font-family:'IBM Plex Mono',monospace;}
+
+@media (max-width:980px){
+  .hero-grid{grid-template-columns:1fr;}
+  .navlinks{display:none;}
+  .func-grid{grid-template-columns:repeat(2,1fr);}
+  .steps{grid-template-columns:repeat(2,1fr);}
+  .testi-grid,.price-grid{grid-template-columns:1fr;}
+  .roi-box{grid-template-columns:1fr;}
+  .roi-inputs{border-right:none;border-bottom:1px solid var(--line);}
+  .foot-grid{grid-template-columns:1fr 1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .hero h1{font-size:2.3rem;}
+  .board-row{grid-template-columns:52px 1fr 84px;}
+}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
+</style>
+</head>
+<body>
+<div class="bg-ledger"></div>
+<div class="bg-margin"></div>
+
+<header id="siteHeader">
+  <nav>
+    <div class="logo">
+      <svg class="logo-mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="4" fill="none" stroke="#C99A3C" stroke-width="1.6"/><path d="M9 16l5 5 9-10" fill="none" stroke="#C99A3C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Termivox
+    </div>
+    <div class="navlinks">
+      <a href="#funktionen">FUNKTIONEN</a>
+      <a href="#ablauf">ABLAUF</a>
+      <a href="#branchen">BRANCHEN</a>
+      <a href="#preise">PREISE</a>
+      <a href="#bewertungen">VORTEILE</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#kontakt" class="btn btn-ghost" style="padding:10px 18px;">LOGIN</a>
+      <a href="#kontakt" class="btn btn-primary">DEMO STARTEN</a>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menü öffnen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Ihr Empfang — nie geschlossen</div>
+      <h1>Der Anruf kommt.<br><em>Termivox</em> nimmt ab.<br>Sie schneiden weiter Haare.</h1>
+      <p class="lead">Termivox führt Ihr Terminbuch — beantwortet, bucht, verschiebt und storniert, rund um die Uhr. Kein Klingeln mehr, das unbeantwortet bleibt.</p>
+      <div class="hero-cta">
+        <a href="#kontakt" class="btn btn-primary">Kostenlose Demo starten</a>
+        <a href="#funktionen" class="btn btn-ghost">Funktionen ansehen</a>
+      </div>
+      <div class="trustrow">
+        <div class="trust-item"><span class="trust-num">24/7</span><span class="trust-label">ERREICHBAR</span></div>
+        <div class="trust-item"><span class="trust-num">&lt;2 Min</span><span class="trust-label">PRO BUCHUNG</span></div>
+        <div class="trust-item"><span class="trust-num">0</span><span class="trust-label">VERPASSTE ANRUFE</span></div>
+      </div>
+    </div>
+
+    <div class="board ticket reveal">
+      <div class="board-head">
+        <span class="board-title">Empfangsbuch · heute</span>
+        <span class="board-live"><span></span>live</span>
+      </div>
+      <div class="board-rows" id="boardRows"></div>
+      <div class="board-foot"><span id="boardCount">0 Buchungen heute</span><span id="boardUtil">Auslastung 0%</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="chatdemo">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Live-Demo</div>
+      <h2>So klingt ein Gespräch mit Termivox</h2>
+      <p>So läuft ein Gespräch im Website-Chat ab.</p>
+    </div>
+    <div class="chat-shell ticket reveal">
+      <div class="chat-head">
+        <div class="av">TV</div>
+        <div class="info"><b>Termivox Assistent</b><span>ONLINE</span></div>
+      </div>
+      <div class="chat-body" id="chatBody">
+        <div class="msg in" data-i="0">Hallo! Wie kann ich helfen — Termin buchen, verschieben oder Infos zu Preisen?</div>
+        <div class="msg out" data-i="1">Ich hätte gern einen Termin für Haarschnitt &amp; Föhnen diese Woche.</div>
+        <div class="typing" data-i="2"><span></span><span></span><span></span></div>
+        <div class="msg in" data-i="3">Mittwoch 14:30 Uhr bei Sarah wäre frei — passt das?</div>
+        <div class="msg out" data-i="4">Ja, passt perfekt.</div>
+        <div class="msg in" data-i="5">Termin bestätigt ✓ Sie erhalten alle Details direkt hier im Chat.</div>
+      </div>
+      <div class="chat-quick">
+        <span>TERMIN BUCHEN</span><span>PREISE</span><span>ÖFFNUNGSZEITEN</span><span>VERSCHIEBEN</span>
+      </div>
+    </div>
+
+    <p class="chat-demo-lead">Das war nur ein Beispiel-Ablauf — probieren Sie den echten Chat direkt aus:</p>
+    <div class="demo-cta-row">
+      <a href="https://n8n.termivox.com/webhook/d2679026-1274-47af-9ee2-10f952bc1d3d/chat" target="_blank" rel="noopener" class="btn btn-ghost">
+        Standard-Demo testen →
+      </a>
+      <a href="https://n8n.termivox.com/webhook/d3698176-82a4-410a-9ee2-c259164e1cff/chat" target="_blank" rel="noopener" class="btn btn-primary">
+        Pro-Demo testen →
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="funktionen">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Funktionen</div>
+      <h2>Alles, was Ihre Terminverwaltung braucht</h2>
+    </div>
+    <div class="func-grid" id="funcGrid"></div>
+  </div>
+</section>
+
+<section id="ablauf">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Ablauf</div>
+      <h2>Fünf Schritte, kein Aufwand für Sie</h2>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="steps" id="stepsGrid"></div>
+  </div>
+</section>
+
+<section id="branchen">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Branchen</div>
+      <h2>Für jeden terminbasierten Betrieb</h2>
+    </div>
+  </div>
+  <div class="wrap slider-wrap">
+    <div class="slider" id="indSlider"></div>
+    <div class="slider-arrows">
+      <button class="arrow-btn" id="indPrev" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="arrow-btn" id="indNext" aria-label="Weiter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<section id="bewertungen">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Vorteile</div>
+      <h2>Was Termivox für Ihren Betrieb ändert</h2>
+    </div>
+    <div class="testi-grid" id="testiGrid"></div>
+    <div class="logo-band">
+      <div class="logo-track" id="logoTrack"></div>
+    </div>
+  </div>
+</section>
+
+<section id="roi">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">ROI-Rechner</div>
+      <h2>Was Termivox für Ihren Betrieb bedeuten könnte</h2>
+      <p>Beispielrechnung, keine garantierte Einsparung.</p>
+    </div>
+    <div class="roi-box ticket reveal">
+      <div class="roi-inputs">
+        <div class="roi-field">
+          <label>Termine pro Monat <b id="roiApptsVal">160</b></label>
+          <input type="range" id="roiAppts" min="20" max="500" value="160" step="10">
+        </div>
+        <div class="roi-field">
+          <label>Durchschnittspreis <b id="roiPriceVal">45 €</b></label>
+          <input type="range" id="roiPrice" min="15" max="150" value="45" step="5">
+        </div>
+        <div class="roi-field">
+          <label>No-Show-Rate <b id="roiNoshowVal">10 %</b></label>
+          <input type="range" id="roiNoshow" min="0" max="40" value="10" step="1">
+        </div>
+        <div class="roi-field">
+          <label>Automatisierungsgrad <b id="roiAutoVal">80 %</b></label>
+          <input type="range" id="roiAuto" min="20" max="100" value="80" step="5">
+        </div>
+      </div>
+      <div class="roi-results">
+        <div class="roi-result-item"><div class="lbl">Aktueller Monatsumsatz</div><div class="num" id="roiRevenue">0 €</div></div>
+        <div class="roi-result-item"><div class="lbl">Geretteter Umsatz durch weniger No-Shows</div><div class="num" id="roiSaved">0 €</div></div>
+        <div class="roi-result-item"><div class="lbl">Gesparte Zeit pro Woche</div><div class="num" id="roiTime">0 Std.</div></div>
+        <div class="roi-note">Beispielrechnung basierend auf Ihren Angaben — keine garantierte Einsparung.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="preise">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Preise</div>
+      <h2>Ein Tarif für jede Betriebsgröße</h2>
+      <p>Monatlich kündbar. Zzgl. einmaliger Einrichtungsgebühr von 99€.</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card ticket reveal">
+        <div class="price-name">Starter</div>
+        <div class="price-amount">49€<span> /Monat</span></div>
+        <div class="price-sub">Für kleine Unternehmen</div>
+        <ul class="price-feats">
+          <li>KI-Chat rund um die Uhr</li>
+          <li>Termine buchen, verschieben, stornieren</li>
+          <li>Ein Kalender, ein Mitarbeiter</li>
+          <li>Auskunft zu Preisen &amp; Öffnungszeiten</li>
+        </ul>
+        <a href="https://n8n.termivox.com/webhook/d2679026-1274-47af-9ee2-10f952bc1d3d/chat" target="_blank" rel="noopener" class="price-demo-link">Live-Chat testen →</a>
+        <button class="price-more-toggle" type="button"><span>+</span>Details ansehen</button>
+        <div class="price-more"><ul class="price-more-inner">
+          <li>1 Mitarbeiter / 1 Kalender</li>
+          <li>E-Mail-Support, Antwort innerhalb 24h</li>
+          <li>Einrichtung in der Regel innerhalb 2 Werktagen</li>
+          <li>Zusatzfunktionen wie WhatsApp-Anbindung oder Statistiken gegen Aufpreis buchbar</li>
+        </ul></div>
+        <div class="price-cta-row">
+          <div id="paypal-btn-starter"></div>
+          <a href="#kontakt" class="btn btn-ghost">Erst Demo anfragen</a>
+        </div>
+      </div>
+      <div class="price-card ticket featured reveal">
+        <div class="price-stamp stamp">Beliebt</div>
+        <div class="price-name">Professional</div>
+        <div class="price-amount">89€<span> /Monat</span></div>
+        <div class="price-sub">Für etablierte Salons</div>
+        <ul class="price-feats">
+          <li>Alles aus Starter</li>
+          <li>Mehrere Mitarbeiter mit eigenen Kalendern</li>
+          <li>Individuelle Arbeitszeiten pro Mitarbeiter</li>
+          <li>Intelligente automatische Terminzuordnung</li>
+          <li>Alternative-Vorschläge bei Terminkonflikten</li>
+        </ul>
+        <a href="https://n8n.termivox.com/webhook/d3698176-82a4-410a-9ee2-c259164e1cff/chat" target="_blank" rel="noopener" class="price-demo-link">Live-Chat testen →</a>
+        <button class="price-more-toggle" type="button"><span>+</span>Details ansehen</button>
+        <div class="price-more"><ul class="price-more-inner">
+          <li>Mehrere Mitarbeiter / Kalender</li>
+          <li>Priorisierter E-Mail- &amp; Chat-Support</li>
+          <li>Faire, ausgeglichene Auslastung aller Mitarbeiter</li>
+          <li>Zusatzfunktionen wie WhatsApp-Anbindung oder Statistiken gegen Aufpreis buchbar</li>
+        </ul></div>
+        <div class="price-cta-row">
+          <div id="paypal-btn-professional"></div>
+          <a href="#kontakt" class="btn btn-ghost">Erst Demo anfragen</a>
+        </div>
+      </div>
+      <div class="price-card ticket reveal">
+        <div class="price-name">Business</div>
+        <div class="price-amount">149€<span> /Monat</span></div>
+        <div class="price-sub">Für größere Unternehmen</div>
+        <ul class="price-feats">
+          <li>Alles aus Professional</li>
+          <li>Mehrere Standorte</li>
+          <li>Rollen &amp; Berechtigungen</li>
+          <li>Erweiterte Statistiken</li>
+          <li>Bevorzugter Support</li>
+        </ul>
+        <button class="price-more-toggle" type="button"><span>+</span>Details ansehen</button>
+        <div class="price-more"><ul class="price-more-inner">
+          <li>Unbegrenzte Mitarbeiter &amp; Standorte</li>
+          <li>Telefonischer Support</li>
+          <li>Persönliches Onboarding</li>
+          <li>Individuelle Anpassungen auf Anfrage</li>
+        </ul></div>
+        <div class="price-cta-row">
+          <div id="paypal-btn-business"></div>
+          <a href="#kontakt" class="btn btn-ghost">Erst Demo anfragen</a>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;color:var(--paper-dim);font-size:0.82rem;margin-top:24px;">Zahlung monatlich per PayPal. Überweisung auf Anfrage möglich. <a href="https://www.paypal.com/ncp/payment/R7XFW4L58355J" target="_blank" rel="noopener" style="color:var(--brass-light);">Einmalige Einrichtungsgebühr (99€) hier bezahlen</a> oder <a href="#kontakt" style="color:var(--brass-light);">kontaktieren Sie uns</a>.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">FAQ</div>
+      <h2>Häufige Fragen</h2>
+    </div>
+    <div class="faq-list" id="faqList"></div>
+  </div>
+</section>
+
+<section id="kontakt">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Kontakt</div>
+      <h2>Bereit, keinen Anruf mehr zu verpassen?</h2>
+      <p>Wir richten Termivox für Ihren Betrieb ein — meist innerhalb weniger Tage.</p>
+    </div>
+    <form id="kontakt-form" class="ticket reveal" novalidate action="https://formspree.io/f/meeybjrl" method="POST">
+      <div class="form-grid">
+        <div class="field" data-field="name"><label for="f-name">NAME</label><input id="f-name" name="Name" type="text" required><span class="err-msg">Bitte Namen eingeben.</span></div>
+        <div class="field" data-field="unternehmen"><label for="f-unt">UNTERNEHMEN</label><input id="f-unt" name="Unternehmen" type="text" required><span class="err-msg">Bitte Unternehmen eingeben.</span></div>
+        <div class="field" data-field="email"><label for="f-email">E-MAIL</label><input id="f-email" name="E-Mail" type="email" required><span class="err-msg">Bitte gültige E-Mail eingeben.</span></div>
+        <div class="field" data-field="telefon"><label for="f-tel">TELEFONNUMMER</label><input id="f-tel" name="Telefon" type="tel"></div>
+        <div class="field" data-field="branche"><label for="f-branche">BRANCHE</label>
+          <select id="f-branche" name="Branche" required>
+            <option value="">Bitte wählen</option>
+            <option>Friseursalon</option><option>Kosmetikstudio</option><option>Nagelstudio</option>
+            <option>Physiotherapie</option><option>Handwerk</option><option>Praxis</option><option>Sonstiges</option>
+          </select>
+          <span class="err-msg">Bitte Branche wählen.</span>
+        </div>
+        <div class="field" data-field="paket"><label for="f-paket">GEWÜNSCHTES PAKET</label>
+          <select id="f-paket" name="Paket">
+            <option>Starter</option><option selected>Professional</option><option>Business</option><option>Noch unsicher</option>
+          </select>
+        </div>
+        <div class="field" data-field="zahlung"><label for="f-zahlung">BEVORZUGTE ZAHLUNGSWEISE</label>
+          <select id="f-zahlung" name="Zahlungsweise">
+            <option>PayPal</option><option>Überweisung</option><option>Noch unsicher</option>
+          </select>
+        </div>
+        <div class="field full" data-field="nachricht"><label for="f-msg">NACHRICHT</label><textarea id="f-msg" name="Nachricht" rows="4"></textarea></div>
+        <input type="hidden" name="_subject" value="Neue Termivox-Demoanfrage">
+      </div>
+      <button type="submit" class="btn btn-primary">Demo anfragen</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo">
+          <svg class="logo-mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="4" fill="none" stroke="#C99A3C" stroke-width="1.6"/><path d="M9 16l5 5 9-10" fill="none" stroke="#C99A3C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Termivox
+        </div>
+        <p>Der KI-Terminassistent, der Anrufe entgegennimmt, während Sie arbeiten.</p>
+      </div>
+      <div class="foot-col"><h5>Produkt</h5><a href="#funktionen">Funktionen</a><a href="#preise">Preise</a><a href="#faq">FAQ</a></div>
+      <div class="foot-col"><h5>Unternehmen</h5><a href="ueber-uns.html">Über uns</a><a href="#kontakt">Kontakt</a><a href="support.html">Support</a></div>
+      <div class="foot-col"><h5>Rechtliches</h5><a href="datenschutz.html">Datenschutz</a><a href="impressum.html">Impressum</a><a href="agb.html">AGB</a></div>
+    </div>
+    <div class="foot-bottom">
+      <p>© 2026 TERMIVOX. ALLE RECHTE VORBEHALTEN.</p>
+      <p>MADE FOR SALONS, STUDIOS &amp; HANDWERK.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const header = document.getElementById('siteHeader');
+window.addEventListener('scroll', ()=>{ header.classList.toggle('scrolled', window.scrollY > 10); });
+
+document.getElementById('menuToggle').addEventListener('click', ()=>{
+  const nl = document.querySelector('.navlinks');
+  nl.style.display = nl.style.display === 'flex' ? 'none' : 'flex';
+  nl.style.cssText += 'position:absolute;top:64px;left:0;right:0;background:#1C1912;flex-direction:column;padding:20px 32px;border-bottom:1px solid rgba(243,238,226,0.12);';
+});
+
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ============ Empfangsbuch (Klapptafel) — Signatur-Element ============
+   Folgt der echten Tageszeit: ruhig morgens/abends, voll zur Mittagszeit,
+   genau wie ein echter Terminkalender. Keine künstliche Zeitraffung. */
+(function(){
+  const rowsEl = document.getElementById('boardRows');
+  const countEl = document.getElementById('boardCount');
+  const utilEl = document.getElementById('boardUtil');
+  if(!rowsEl) return;
+
+  const services = ['Haarschnitt','Föhnen','Farbe & Strähnen','Bart trimmen','Maniküre','Waschen & Legen','Beratung','Rasur'];
+  const names = ['Sarah','Max','Lisa','Julia','Tom','Nina'];
+  const dailyCapacity = 19;
+  const openHour = 8, closeHour = 20;
+  const maxRows = 5;
+  let rows = [];
+  let bookedToday = 3;
+
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function randTime(){
+    const h = 8 + Math.floor(Math.random()*11);
+    const m = pick(['00','15','30','45']);
+    return String(h).padStart(2,'0')+':'+m;
+  }
+  function targetForNow(){
+    const now = new Date();
+    const hour = now.getHours() + now.getMinutes()/60;
+    if(hour <= openHour || hour >= closeHour) return 1;
+    const progress = (hour - openHour) / (closeHour - openHour);
+    const shape = Math.sin(progress * Math.PI);
+    return Math.max(1, Math.round(1 + shape * (dailyCapacity - 1)));
+  }
+
+  function renderRow(row, animate){
+    const el = document.createElement('div');
+    el.className = 'board-row' + (animate ? ' flip-in' : '');
+    el.innerHTML = `<div class="flap time">${row.time}</div><div class="flap what">${row.service} — ${row.name}</div><div class="flap status ${row.ok?'ok':''}">${row.ok?'Bestätigt':'Wartet'}</div>`;
+    return el;
+  }
+
+  function seed(){
+    for(let i=0;i<3;i++){
+      rows.push({time: randTime(), service: pick(services), name: pick(names), ok:true});
+    }
+    rows.sort((a,b)=>a.time.localeCompare(b.time));
+    rowsEl.innerHTML = '';
+    rows.forEach(r=>rowsEl.appendChild(renderRow(r,false)));
+    updateFoot();
+  }
+  function updateFoot(){
+    countEl.textContent = bookedToday + ' Buchungen heute';
+    const util = Math.max(5, Math.min(97, Math.round((bookedToday/dailyCapacity)*100)));
+    utilEl.textContent = 'Auslastung ' + util + '%';
+  }
+  seed();
+
+  if(reduceMotion) return;
+
+  function tick(){
+    const target = targetForNow();
+    if(bookedToday < target){
+      bookedToday++;
+      const row = {time: randTime(), service: pick(services), name: pick(names), ok:true};
+      rows.push(row);
+      rows.sort((a,b)=>a.time.localeCompare(b.time));
+      if(rows.length > maxRows) rows = rows.slice(rows.length-maxRows);
+      rowsEl.innerHTML = '';
+      rows.forEach((r,idx)=>rowsEl.appendChild(renderRow(r, idx===rows.length-1)));
+      updateFoot();
+    }
+    setTimeout(tick, 9000 + Math.random()*7000);
+  }
+  setTimeout(tick, 6000);
+})();
+
+/* Chat demo loop */
+function runChat(){
+  const items = Array.from(document.querySelectorAll('#chatBody [data-i]'));
+  items.forEach(i=>i.classList.remove('show'));
+  if(reduceMotion){ items.forEach(i=>i.classList.add('show')); return; }
+  let delay = 400;
+  items.forEach((el)=>{
+    setTimeout(()=>el.classList.add('show'), delay);
+    delay += el.classList.contains('typing') ? 900 : 1100;
+  });
+  setTimeout(runChat, delay + 3000);
+}
+runChat();
+
+/* Function cards */
+const functions = [
+  {t:'KI-Kundenservice', items:['Beantwortet Anfragen automatisch','Erkennt Wünsche','Stellt Rückfragen','Antwortet rund um die Uhr'], ex:'Kundin schreibt um 22 Uhr: „Habt ihr morgen früh noch was frei?“ — Termivox antwortet sofort mit passenden Zeiten, statt dass die Nachricht bis zum nächsten Tag liegen bleibt.'},
+  {t:'Terminbuchung', items:['Freie Termine suchen','Kalender prüfen','Mitarbeiter berücksichtigen','Termin automatisch eintragen'], ex:'Ein Kunde bucht im Chat einen Termin für Dienstag 14 Uhr — Termivox prüft in Echtzeit den Kalender und trägt den Termin automatisch ein.'},
+  {t:'Terminverschiebung', items:['Bisherigen Termin finden','Neue Uhrzeit prüfen','Überschneidungen verhindern','Änderung bestätigen'], ex:'„Kann ich auf Freitag verschieben?“ — Termivox findet den bestehenden Termin, prüft die neue Zeit auf Überschneidungen und bestätigt die Änderung sofort.'},
+  {t:'Terminabsage', items:['Termin identifizieren','Stornieren','Kunde &amp; Unternehmen informieren','Für Statistiken behalten'], ex:'Ein Kunde storniert kurzfristig per Chat — Termivox gibt den Slot sofort für andere Kunden frei und informiert Ihr Team.'},
+  {t:'Öffnungszeiten', items:['Wochentage berücksichtigen','Geschlossene Tage erkennen','Feiertage berücksichtigen','Späteste Startzeit prüfen'], ex:'Anfrage an einem Feiertag — Termivox erkennt automatisch, dass geschlossen ist, und schlägt direkt den nächsten freien Tag vor.'},
+  {t:'Mitarbeiterverwaltung', items:['Mitarbeiter anlegen','Aktivieren/deaktivieren','Farbe im Kalender','Verfügbarkeit prüfen'], ex:'Neue Kollegin startet — in wenigen Klicks angelegt, inklusive eigener Kalenderfarbe und individueller Verfügbarkeit.'},
+  {t:'Kundenverwaltung', items:['Kundendaten speichern','Telefon &amp; E-Mail','Notizen','Terminverlauf'], ex:'Ein Stammkunde meldet sich — Termivox kennt seinen Terminverlauf und bevorzugte Uhrzeiten aus vergangenen Buchungen.'},
+  {t:'Automatische Erinnerungen', items:['Erinnerung vor Termin','Per E-Mail','Geplante Versandzeit','Weniger No-Shows','Zusatzfunktion, gegen Aufpreis buchbar'], ex:'Als Zusatzfunktion verschickt Termivox automatisch eine Erinnerung vor dem Termin — spürbar weniger verpasste Termine.'},
+];
+const plusSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+document.getElementById('funcGrid').innerHTML = functions.map((f,i)=>`
+  <div class="func-card ticket reveal" data-idx="${i}">
+    <div class="func-card-head">
+      <div class="idx mono">N°${String(i+1).padStart(2,'0')}</div>
+      <div class="func-toggle">${plusSvg}</div>
+    </div>
+    <h3>${f.t}</h3>
+    <ul>${f.items.map(item=>`<li>${item}</li>`).join('')}</ul>
+    <div class="func-example"><div class="func-example-inner"><b>Beispiel</b>${f.ex}</div></div>
+  </div>`).join('');
+document.querySelectorAll('#funcGrid .reveal').forEach(el=>io.observe(el));
+document.querySelectorAll('.func-card').forEach(card=>{
+  card.addEventListener('click',()=>card.classList.toggle('open'));
+});
+
+/* Steps */
+const steps = [
+  {n:'01', t:'Kunde schreibt', d:'Über den Chat auf Ihrer Website.', detail:'Egal wann die Nachricht ankommt — Termivox liest sie sofort, auch mitten in der Nacht oder am Wochenende, wenn niemand im Betrieb ist.'},
+  {n:'02', t:'KI erkennt das Anliegen', d:'Buchen, verschieben, stornieren, Preisfrage, Öffnungszeiten.', detail:'Beispiel: „Was kostet ein Herrenschnitt?“ wird als Preisfrage erkannt und sofort korrekt beantwortet — ohne Umweg über einen Mitarbeiter.'},
+  {n:'03', t:'Kalender wird geprüft', d:'Öffnungszeiten, Feiertage, Dauer, Mitarbeiter, Pufferzeiten.', detail:'Termivox berücksichtigt automatisch Pufferzeiten zwischen Terminen und die individuelle Verfügbarkeit jedes Mitarbeiters — keine Doppelbuchungen.'},
+  {n:'04', t:'Termin wird bearbeitet', d:'Buchen, verschieben, stornieren oder Alternative anbieten.', detail:'Ist der Wunschtermin belegt, schlägt Termivox automatisch die nächstbesten freien Alternativen vor, statt einfach abzulehnen.'},
+  {n:'05', t:'Bestätigung wird versendet', d:'Datum, Uhrzeit, Leistung, Mitarbeiter, Preis.', detail:'Der Kunde erhält sofort eine Bestätigung mit allen Details direkt im Chat.'},
+];
+document.getElementById('stepsGrid').innerHTML = steps.map(s=>`
+  <div class="step reveal">
+    <div class="step-num">${s.n}</div>
+    <h4>${s.t}</h4>
+    <p>${s.d}</p>
+    <div class="step-more"><span>${plusSvg}</span>Mehr erfahren</div>
+    <div class="step-detail"><div class="step-detail-inner">${s.detail}</div></div>
+  </div>`).join('');
+document.querySelectorAll('#stepsGrid .reveal').forEach(el=>io.observe(el));
+document.querySelectorAll('.step').forEach(step=>{
+  step.addEventListener('click',()=>step.classList.toggle('open'));
+});
+
+document.querySelectorAll('.price-more-toggle').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    btn.classList.toggle('open');
+    btn.nextElementSibling.classList.toggle('open');
+  });
+});
+
+/* Industries */
+const industries = [
+  ['💇','Friseursalons','Schnitt, Farbe & Styling ohne Telefonstress','salons.html'],
+  ['💅','Nagelstudios','Volle Kalender, weniger No-Shows','salons.html'],
+  ['✨','Kosmetikstudios','Behandlungen automatisch geplant','salons.html'],
+  ['🧴','Physiotherapie','Rezept- & Folgetermine im Griff','praxen.html'],
+  ['💆','Massagepraxen','Ruhige Übergabe, klare Slots','praxen.html'],
+  ['🖋️','Tattoo-Studios','Beratung & Sessions koordiniert','salons.html'],
+  ['🏋️','Fitness-Coaches','1:1-Termine & Kurse verwalten','praxen.html'],
+  ['🔧','Handwerker','Vor-Ort-Termine ohne Rückrufchaos','handwerk.html'],
+  ['🚗','Werkstätten','Inspektionen & Reparaturen planen','handwerk.html'],
+  ['📊','Beratungsunternehmen','Erstgespräche automatisch buchen','handwerk.html'],
+  ['🩺','Arztpraxen','Sprechstunden effizient organisiert','praxen.html'],
+  ['🏠','Immobilienmakler','Besichtigungstermine im Griff','handwerk.html'],
+];
+document.getElementById('indSlider').innerHTML = industries.map(([e,t,d,link])=>`
+  <a href="${link}" class="ind-card ticket" style="display:block;"><div class="emoji">${e}</div><h4>${t}</h4><p>${d}</p></a>`).join('');
+const slider = document.getElementById('indSlider');
+document.getElementById('indNext').addEventListener('click',()=>slider.scrollBy({left:250,behavior:'smooth'}));
+document.getElementById('indPrev').addEventListener('click',()=>slider.scrollBy({left:-250,behavior:'smooth'}));
+let isDown=false, startX, scrollLeft;
+slider.addEventListener('mousedown',(e)=>{isDown=true;startX=e.pageX-slider.offsetLeft;scrollLeft=slider.scrollLeft;});
+slider.addEventListener('mouseleave',()=>isDown=false);
+slider.addEventListener('mouseup',()=>isDown=false);
+slider.addEventListener('mousemove',(e)=>{ if(!isDown) return; e.preventDefault(); const x=e.pageX-slider.offsetLeft; slider.scrollLeft = scrollLeft - (x-startX); });
+
+/* Vorteile — keine erfundenen Kundenstimmen */
+const testimonials = [
+  ['Weniger verpasste Anrufe','Anfragen werden auch dann beantwortet, wenn während der Behandlung niemand ans Telefon gehen kann — abends, am Wochenende oder mitten im Termin.'],
+  ['Weniger Zeit am Telefon','Terminanfragen, Umbuchungen und Absagen laufen automatisch — Zeit, die sonst für Rückrufe draufgeht, bleibt für die eigentliche Arbeit.'],
+  ['Keine Doppelbuchungen','Der Kalender wird bei jeder Anfrage in Echtzeit geprüft, bevor ein Termin bestätigt wird.'],
+  ['Erreichbar außerhalb der Öffnungszeiten','Kunden können auch abends oder am Wochenende einen Termin anfragen, statt bis zum nächsten Werktag zu warten.'],
+];
+function renderTesti(list){
+  return list.map(([c,q])=>`<div class="testi-card ticket"><p>„${q}“</p></div>`).join('');
+}
+const testiGrid = document.getElementById('testiGrid');
+let testiVisible = testimonials.slice(0,3);
+let testiPoolIndex = 3;
+testiGrid.innerHTML = renderTesti(testiVisible);
+document.querySelectorAll('#testiGrid .testi-card').forEach((el)=>{ el.classList.add('reveal'); io.observe(el); });
+
+if(!reduceMotion){
+  setInterval(()=>{
+    const slot = Math.floor(Math.random()*testiVisible.length);
+    const next = testimonials[testiPoolIndex % testimonials.length];
+    testiPoolIndex++;
+    testiVisible[slot] = next;
+    const card = testiGrid.children[slot];
+    if(!card) return;
+    card.style.transition = 'opacity .4s ease, transform .4s ease';
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(8px)';
+    setTimeout(()=>{
+      card.outerHTML = renderTesti([next]);
+      const newCard = testiGrid.children[slot];
+      newCard.style.opacity = '0';
+      requestAnimationFrame(()=>{
+        newCard.style.transition = 'opacity .4s ease, transform .4s ease';
+        newCard.style.opacity = '1';
+        newCard.style.transform = 'translateY(0)';
+      });
+    }, 400);
+  }, 6000);
+}
+
+const logos = ['Google Calendar','OpenAI','E-Mail'];
+document.getElementById('logoTrack').innerHTML = [...logos,...logos,...logos].map(l=>`<span>${l}</span>`).join('');
+
+/* ROI calculator */
+const roiAppts=document.getElementById('roiAppts'), roiPrice=document.getElementById('roiPrice'),
+      roiNoshow=document.getElementById('roiNoshow'), roiAuto=document.getElementById('roiAuto');
+function fmtEuro(n){ return n.toLocaleString('de-DE',{maximumFractionDigits:0}) + ' €'; }
+function calcRoi(){
+  const appts=+roiAppts.value, price=+roiPrice.value, noshow=+roiNoshow.value/100, auto=+roiAuto.value/100;
+  document.getElementById('roiApptsVal').textContent = appts;
+  document.getElementById('roiPriceVal').textContent = price + ' €';
+  document.getElementById('roiNoshowVal').textContent = roiNoshow.value + ' %';
+  document.getElementById('roiAutoVal').textContent = roiAuto.value + ' %';
+  const revenue = appts*price;
+  const noshowReductionFactor = 0.6;
+  const savedRevenue = appts*noshow*price*noshowReductionFactor*auto;
+  const hoursPerWeek = (appts/4.33) * 0.08 * auto;
+  document.getElementById('roiRevenue').textContent = fmtEuro(revenue);
+  document.getElementById('roiSaved').textContent = fmtEuro(savedRevenue);
+  document.getElementById('roiTime').textContent = hoursPerWeek.toFixed(1) + ' Std.';
+}
+[roiAppts,roiPrice,roiNoshow,roiAuto].forEach(el=>el.addEventListener('input',calcRoi));
+calcRoi();
+
+/* FAQ */
+const faqs = [
+  ['Was ist Termivox?','Ein KI-Assistent, der Terminanfragen für Salons, Praxen und Handwerksbetriebe automatisch beantwortet und bucht.'],
+  ['Fällt eine einmalige Einrichtungsgebühr an?','Ja, einmalig 99€ für die individuelle Ersteinrichtung Ihres Kalenders und Ihrer Leistungen. Danach nur noch der monatliche Tarifpreis. <a href="https://www.paypal.com/ncp/payment/R7XFW4L58355J" target="_blank" rel="noopener" style="color:var(--brass-light);">Hier bezahlen</a>.'],
+  ['Kann Termivox Termine buchen?','Ja — inklusive Verschiebung, Stornierung und automatischer Bestätigung.'],
+  ['Funktioniert es mit WhatsApp?','WhatsApp-Anbindung ist als Zusatzfunktion gegen Aufpreis buchbar. Im Standard-Umfang läuft der Chat über Ihre Website.'],
+  ['Kann ich mehrere Mitarbeiter verwalten?','Ja, ab dem Professional-Tarif inklusive eigener Kalender pro Mitarbeiter.'],
+  ['Werden Doppelbuchungen verhindert?','Ja, das System prüft Überschneidungen automatisch vor jeder Bestätigung.'],
+  ['Funktioniert es auf dem Handy?','Ja, die gesamte Website und der Chat sind vollständig mobil optimiert.'],
+  ['Kann ich Google Calendar verbinden?','Ja, Termivox synchronisiert sich direkt mit Ihrem bestehenden Kalender.'],
+  ['Sind Kundendaten geschützt?','Ja, alle Daten werden verschlüsselt und DSGVO-konform gespeichert.'],
+];
+document.getElementById('faqList').innerHTML = faqs.map(([q,a])=>`
+  <div class="faq-item reveal">
+    <button class="faq-q"><span>${q}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+    <div class="faq-a"><p>${a}</p></div>
+  </div>`).join('');
+document.querySelectorAll('#faqList .reveal').forEach(el=>io.observe(el));
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item = btn.closest('.faq-item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(o=>o.classList.remove('open'));
+    if(!wasOpen) item.classList.add('open');
+  });
+});
+
+/* Contact form */
+const form = document.getElementById('kontakt-form');
+const toast = document.getElementById('toast');
+form.addEventListener('submit',async (e)=>{
+  e.preventDefault();
+  let valid = true;
+  const req = [['name',document.getElementById('f-name')],['unternehmen',document.getElementById('f-unt')],
+               ['email',document.getElementById('f-email')],['branche',document.getElementById('f-branche')]];
+  req.forEach(([key,el])=>{
+    const field = document.querySelector(`[data-field="${key}"]`);
+    let ok = el.value.trim().length>0;
+    if(key==='email') ok = ok && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+    field.classList.toggle('error', !ok);
+    if(!ok) valid = false;
+  });
+  if(!valid) return;
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const originalLabel = submitBtn.textContent;
+  submitBtn.textContent = 'Wird gesendet …';
+  submitBtn.disabled = true;
+
+  try{
+    const res = await fetch(form.action, {
+      method:'POST',
+      body: new FormData(form),
+      headers: { 'Accept':'application/json' }
+    });
+    if(res.ok){
+      toast.textContent = 'Danke! Wir melden uns in Kürze bei Ihnen.';
+      form.reset();
+    } else {
+      toast.textContent = 'Senden fehlgeschlagen. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt.';
+    }
+  } catch(err){
+    toast.textContent = 'Senden fehlgeschlagen. Bitte prüfen Sie Ihre Internetverbindung.';
+  }
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 4200);
+  submitBtn.textContent = originalLabel;
+  submitBtn.disabled = false;
+});
+</script>
+<script src="https://www.paypal.com/sdk/js?client-id=BAAVn7kHOhWjPfeCYvzNlZfhO4uODYGW2LCfMeZkZgO1-mq-yfIwvyb3SzGzglSBCoi03Mi-0hY0haorwA&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+<script>
+  const paypalPlans = {
+    'paypal-btn-starter': 'P-51L142753T310500UNJ47YAY',
+    'paypal-btn-professional': 'P-15114819BX563343DNJ47TYY',
+    'paypal-btn-business': 'P-3K97997130581231JNJ47VKY'
+  };
+  function renderPaypalButton(containerId, planId){
+    const el = document.getElementById(containerId);
+    if(!el || typeof paypal === 'undefined') return;
+    paypal.Buttons({
+      style: { shape: 'rect', color: 'gold', layout: 'vertical', label: 'subscribe' },
+      createSubscription: function(data, actions){
+        return actions.subscription.create({ plan_id: planId });
+      },
+      onApprove: function(data){
+        alert('Danke für Ihr Abo! Ihre Abonnement-ID: ' + data.subscriptionID + '\nWir melden uns in Kürze zur Einrichtung.');
+      }
+    }).render('#' + containerId);
+  }
+  window.addEventListener('load', function(){
+    Object.keys(paypalPlans).forEach(function(id){ renderPaypalButton(id, paypalPlans[id]); });
+  });
+</script>
+</body>
+</html>
