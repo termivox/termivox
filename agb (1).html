@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGB — Termivox</title>
+<link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15130F; --ink-2:#1C1912; --ink-3:#231F16;
+  --paper:#F3EEE2; --paper-dim:#B9B09A;
+  --brass:#C99A3C; --brass-light:#E2BD6C; --brass-dim:#8A6C2C;
+  --stamp:#A6383D; --stamp-light:#C2534F;
+  --line:rgba(243,238,226,0.12); --line-strong:rgba(243,238,226,0.22);
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink); color:var(--paper); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; line-height:1.6;}
+h1,h2{font-family:'Fraunces',Georgia,serif; font-weight:600; letter-spacing:-0.01em; color:var(--paper);}
+a{color:var(--brass-light);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.wrap{max-width:820px;margin:0 auto;padding:0 32px;}
+.bg-ledger{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:repeating-linear-gradient(180deg, rgba(243,238,226,0.028) 0px, rgba(243,238,226,0.028) 1px, transparent 1px, transparent 34px);
+  mask-image:radial-gradient(ellipse 75% 60% at 50% 0%, #000 30%, transparent 100%);}
+
+header{position:sticky;top:0;z-index:100;background:rgba(21,19,15,0.92);border-bottom:1px solid var(--line);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;max-width:1240px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:1.25rem;color:var(--paper);}
+.logo-mark{width:24px;height:24px;flex-shrink:0;}
+.back-link{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--paper-dim);display:flex;align-items:center;gap:6px;}
+.back-link:hover{color:var(--brass-light);text-decoration:none;}
+
+main{position:relative;z-index:1;padding:64px 0 96px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--brass-light);margin-bottom:14px;}
+h1{font-size:2.2rem;margin-bottom:8px;}
+.stand{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--paper-dim);margin-bottom:44px;}
+
+.legal{background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);position:relative;padding:40px 44px;}
+.legal::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px);}
+.legal h2{font-size:1.15rem;margin-top:34px;margin-bottom:12px;color:var(--brass-light);}
+.legal h2:first-child{margin-top:0;}
+.legal p{font-size:0.92rem;color:var(--paper);margin-bottom:10px;}
+.legal p:last-child{margin-bottom:0;}
+
+footer{border-top:1px solid var(--line);padding:32px 0;position:relative;z-index:1;}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:1240px;margin:0 auto;padding:0 32px;}
+.foot-bottom p{font-size:0.78rem;color:var(--paper-dim);font-family:'IBM Plex Mono',monospace;}
+.foot-links{display:flex;gap:20px;flex-wrap:wrap;}
+.foot-links a{font-size:0.78rem;color:var(--paper-dim);font-family:'IBM Plex Mono',monospace;}
+.foot-links a:hover{color:var(--brass-light);}
+
+@media(max-width:640px){
+  .legal{padding:28px 22px;}
+  h1{font-size:1.7rem;}
+}
+</style>
+</head>
+<body>
+<div class="bg-ledger"></div>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo">
+      <svg class="logo-mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="4" fill="none" stroke="#C99A3C" stroke-width="1.6"/><path d="M9 16l5 5 9-10" fill="none" stroke="#C99A3C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Termivox
+    </a>
+    <a href="index.html" class="back-link">← Zurück zur Startseite</a>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="eyebrow">Rechtliches</div>
+    <h1>Allgemeine Geschäftsbedingungen</h1>
+    <p class="stand">Stand: 10. August 2026</p>
+
+    <div class="legal">
+      <h2>§ 1 Geltungsbereich</h2>
+      <p>(1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB") gelten für alle Verträge zwischen Till Machelett, handelnd unter „Termivox" (nachfolgend „Anbieter"), und Unternehmern im Sinne von § 14 BGB (nachfolgend „Kunde") über die Nutzung der Software-as-a-Service-Lösung „Termivox" zur automatisierten Terminverwaltung.</p>
+      <p>(2) Termivox richtet sich ausschließlich an Unternehmer im Sinne von § 14 BGB, nicht an Verbraucher. Mit Vertragsschluss bestätigt der Kunde, dass er den Vertrag im Rahmen seiner gewerblichen oder selbständigen beruflichen Tätigkeit abschließt.</p>
+      <p>(3) Abweichende, entgegenstehende oder ergänzende Allgemeine Geschäftsbedingungen des Kunden werden nur dann und insoweit Vertragsbestandteil, als der Anbieter ihrer Geltung ausdrücklich schriftlich zugestimmt hat.</p>
+
+      <h2>§ 2 Vertragsschluss</h2>
+      <p>(1) Die Darstellung der Leistungen auf der Website termivox.com stellt kein bindendes Angebot des Anbieters dar, sondern eine unverbindliche Aufforderung an den Kunden, ein Angebot abzugeben.</p>
+      <p>(2) Der Vertrag kommt zustande, indem der Kunde über die auf der Website bereitgestellte Zahlungsfunktion (PayPal-Abonnement) einen der angebotenen Tarife auswählt und den Zahlungsvorgang abschließt. Mit erfolgreichem Abschluss des Zahlungsvorgangs gilt der Vertrag als geschlossen.</p>
+      <p>(3) Der Anbieter behält sich vor, den Vertragsschluss von einer Prüfung der Kundenangaben abhängig zu machen und den Vertrag im Einzelfall abzulehnen, insbesondere wenn begründete Zweifel an der Bonität oder Identität des Kunden bestehen.</p>
+
+      <h2>§ 3 Leistungsbeschreibung</h2>
+      <p>(1) Der Anbieter stellt dem Kunden eine KI-gestützte Software zur automatisierten Terminverwaltung zur Verfügung. Der konkrete Funktionsumfang richtet sich nach dem vom Kunden gewählten Tarif (Starter, Professional oder Business) gemäß der zum Zeitpunkt des Vertragsschlusses geltenden Leistungsbeschreibung auf termivox.com.</p>
+      <p>(2) Die Leistung umfasst insbesondere die automatisierte Bearbeitung von Terminanfragen (Buchung, Verschiebung, Stornierung), die Beantwortung von Standardanfragen (z. B. zu Preisen und Öffnungszeiten) sowie die Anbindung an einen vom Kunden bereitgestellten Kalender.</p>
+      <p>(3) Die einmalige Einrichtung (Ersteinrichtung des Systems entsprechend den vom Kunden mitgeteilten Angaben zu Öffnungszeiten, Dienstleistungen und Kalenderanbindung) ist Teil der Leistung und wird über die erste Zahlung gemäß § 4 abgerechnet.</p>
+      <p>(4) Der Anbieter ist berechtigt, die Leistung im Rahmen des vertraglich geschuldeten Umfangs technisch weiterzuentwickeln, sofern hierdurch der Kernfunktionsumfang nicht wesentlich eingeschränkt wird.</p>
+
+      <h2>§ 4 Preise und Zahlungsbedingungen</h2>
+      <p>(1) Es gelten die zum Zeitpunkt des Vertragsschlusses auf termivox.com ausgewiesenen Preise.</p>
+      <p>(2) Die erste Zahlung umfasst die einmalige Einrichtungsgebühr sowie die Vergütung für den ersten Abrechnungsmonat. Ab dem zweiten Monat wird ausschließlich die monatliche Tarifgebühr fällig.</p>
+      <p>(3) Die Zahlung erfolgt monatlich im Voraus über den vom Kunden gewählten Zahlungsweg (PayPal-Abonnement). Eine Zahlung per Überweisung ist auf Anfrage und nach gesonderter Vereinbarung möglich.</p>
+      <p>(4) Die Einrichtungsgebühr wird auch bei vorzeitiger Kündigung des Vertrags nicht erstattet, da die entsprechende Leistung (individuelle Ersteinrichtung) bereits mit Vertragsbeginn erbracht wird.</p>
+      <p>(5) Gerät der Kunde mit einer fälligen Zahlung in Verzug, ist der Anbieter berechtigt, die Bereitstellung der Leistung nach vorheriger Ankündigung auszusetzen, bis der ausstehende Betrag beglichen ist.</p>
+
+      <h2>§ 5 Vertragslaufzeit und Kündigung</h2>
+      <p>(1) Der Vertrag läuft auf unbestimmte Zeit und kann von beiden Vertragsparteien mit einer Frist von einem Monat zum Ende eines Kalendermonats gekündigt werden.</p>
+      <p>(2) Die Kündigung bedarf der Textform (z. B. E-Mail an termivox@gmail.com).</p>
+      <p>(3) Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt für beide Parteien unberührt.</p>
+      <p>(4) Mit Wirksamwerden der Kündigung endet der Zugriff des Kunden auf die Termivox-Leistungen. Der Anbieter ist nicht verpflichtet, nach Vertragsende Daten des Kunden weiter vorzuhalten, sofern nicht gesetzliche Aufbewahrungspflichten entgegenstehen.</p>
+
+      <h2>§ 6 Mitwirkungspflichten des Kunden</h2>
+      <p>(1) Der Kunde ist verpflichtet, dem Anbieter die für die Einrichtung und den Betrieb erforderlichen Angaben (u. a. Öffnungszeiten, Dienstleistungen und Preise, Zugang zu einem Google-Konto zur Kalenderanbindung) vollständig und wahrheitsgemäß zur Verfügung zu stellen.</p>
+      <p>(2) Der Kunde ist selbst dafür verantwortlich, die von ihm mitgeteilten Angaben (insbesondere Öffnungszeiten und Preise) aktuell zu halten und dem Anbieter Änderungen zeitnah mitzuteilen.</p>
+      <p>(3) Der Kunde ist verpflichtet, die über Termivox gebuchten, verschobenen oder stornierten Termine in eigener Verantwortung zu überprüfen. Der Anbieter empfiehlt, insbesondere in der Anfangsphase, eine regelmäßige Kontrolle des angebundenen Kalenders.</p>
+
+      <h2>§ 7 Verfügbarkeit und Haftung</h2>
+      <p>(1) Der Anbieter bemüht sich um eine hohe Verfügbarkeit der Leistung, garantiert jedoch keine ununterbrochene Verfügbarkeit. Wartungsarbeiten, technische Störungen sowie Ausfälle vorgelagerter Dienste Dritter (z. B. Google, OpenAI, Zahlungsdienstleister) können zu vorübergehenden Einschränkungen führen.</p>
+      <p>(2) Termivox setzt Künstliche Intelligenz zur automatisierten Verarbeitung von Kundenanfragen ein. Der Anbieter weist ausdrücklich darauf hin, dass trotz sorgfältiger Entwicklung und Testung eine fehlerfreie Funktionsweise der KI-gestützten Verarbeitung nicht garantiert werden kann. Insbesondere kann nicht ausgeschlossen werden, dass die KI Anfragen im Einzelfall fehlerhaft interpretiert oder Termine abweichend von der eigentlichen Kundenabsicht bearbeitet.</p>
+      <p>(3) Der Anbieter haftet nur für Schäden, die auf einer vorsätzlichen oder grob fahrlässigen Pflichtverletzung des Anbieters, seiner gesetzlichen Vertreter oder Erfüllungsgehilfen beruhen, sowie für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit.</p>
+      <p>(4) Bei der leicht fahrlässigen Verletzung einer wesentlichen Vertragspflicht (Kardinalpflicht), deren Erfüllung die ordnungsgemäße Durchführung des Vertrags überhaupt erst ermöglicht und auf deren Einhaltung der Kunde regelmäßig vertrauen darf, ist die Haftung des Anbieters auf den bei Vertragsschluss vorhersehbaren, vertragstypischen Schaden begrenzt.</p>
+      <p>(5) Im Übrigen ist die Haftung des Anbieters für leicht fahrlässige Pflichtverletzungen ausgeschlossen. Dies gilt insbesondere für entgangenen Gewinn, ausgebliebene Terminbuchungen oder sonstige mittelbare Schäden, die aus einer fehlerhaften automatisierten Terminverarbeitung resultieren.</p>
+      <p>(6) Die Haftung nach dem Produkthaftungsgesetz bleibt von den vorstehenden Regelungen unberührt.</p>
+
+      <h2>§ 8 Datenschutz</h2>
+      <p>Informationen zur Verarbeitung personenbezogener Daten im Rahmen der Nutzung von Termivox sind der gesonderten Datenschutzerklärung unter <a href="datenschutz.html">termivox.com/datenschutz.html</a> zu entnehmen.</p>
+
+      <h2>§ 9 Änderungen dieser AGB</h2>
+      <p>(1) Der Anbieter behält sich vor, diese AGB mit Wirkung für die Zukunft zu ändern, sofern dies aufgrund geänderter rechtlicher Rahmenbedingungen, technischer Weiterentwicklungen oder einer Anpassung des Leistungsangebots erforderlich wird.</p>
+      <p>(2) Über wesentliche Änderungen wird der Kunde spätestens vier Wochen vor deren Inkrafttreten in Textform (z. B. per E-Mail) informiert. Widerspricht der Kunde nicht innerhalb von vier Wochen nach Zugang der Änderungsmitteilung, gelten die geänderten AGB als angenommen. Auf diese Rechtsfolge wird der Kunde in der Änderungsmitteilung gesondert hingewiesen.</p>
+
+      <h2>§ 10 Schlussbestimmungen</h2>
+      <p>(1) Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts.</p>
+      <p>(2) Ist der Kunde Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches Sondervermögen, ist Gerichtsstand für alle Streitigkeiten aus diesem Vertrag der Sitz des Anbieters.</p>
+      <p>(3) Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen hiervon unberührt.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="foot-bottom">
+    <p>© 2026 TERMIVOX. ALLE RECHTE VORBEHALTEN.</p>
+    <div class="foot-links">
+      <a href="index.html#kontakt">Kontakt</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
