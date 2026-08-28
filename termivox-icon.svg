@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="tvGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#tvGrad)" d="M50 6c24.3 0 44 17.9 44 40s-19.7 40-44 40c-5.2 0-10.2-.8-14.8-2.3L15 90l4.6-19.6C13 63.2 6 52.8 6 46 6 23.9 25.7 6 50 6z"/>
+  <path fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" d="M32 47l12 12 24-24"/>
+</svg>
