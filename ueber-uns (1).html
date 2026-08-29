@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Über uns — Termivox</title>
+<link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15130F; --ink-2:#1C1912; --ink-3:#231F16;
+  --paper:#F3EEE2; --paper-dim:#B9B09A;
+  --brass:#C99A3C; --brass-light:#E2BD6C; --brass-dim:#8A6C2C;
+  --line:rgba(243,238,226,0.12); --line-strong:rgba(243,238,226,0.22);
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink); color:var(--paper); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; line-height:1.6;}
+h1,h2{font-family:'Fraunces',Georgia,serif; font-weight:600; letter-spacing:-0.01em; color:var(--paper);}
+a{color:var(--brass-light);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.wrap{max-width:760px;margin:0 auto;padding:0 32px;}
+.bg-ledger{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:repeating-linear-gradient(180deg, rgba(243,238,226,0.028) 0px, rgba(243,238,226,0.028) 1px, transparent 1px, transparent 34px);
+  mask-image:radial-gradient(ellipse 75% 60% at 50% 0%, #000 30%, transparent 100%);}
+
+header{position:sticky;top:0;z-index:100;background:rgba(21,19,15,0.92);border-bottom:1px solid var(--line);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;max-width:1240px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:1.25rem;color:var(--paper);}
+.logo-mark{width:24px;height:24px;flex-shrink:0;}
+.back-link{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--paper-dim);display:flex;align-items:center;gap:6px;}
+.back-link:hover{color:var(--brass-light);text-decoration:none;}
+
+main{position:relative;z-index:1;padding:64px 0 96px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--brass-light);margin-bottom:14px;}
+h1{font-size:2.3rem;margin-bottom:32px;}
+main p{font-size:0.98rem;color:var(--paper-dim);margin-bottom:18px;max-width:640px;}
+
+.card{background:var(--ink-3);border:1px solid var(--line);border-radius:var(--radius);position:relative;padding:30px 32px;margin-top:36px;}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px);}
+.card p{color:var(--paper);margin-bottom:0;}
+.stats{display:flex;gap:40px;margin-top:22px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px;}
+.stat b{display:block;font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;color:var(--brass-light);}
+.stat span{font-size:0.72rem;font-family:'IBM Plex Mono',monospace;color:var(--paper-dim);text-transform:uppercase;letter-spacing:0.03em;}
+.card .cta{margin-top:22px;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;}
+
+footer{border-top:1px solid var(--line);padding:32px 0;position:relative;z-index:1;}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:1240px;margin:0 auto;padding:0 32px;}
+.foot-bottom p{font-size:0.78rem;color:var(--paper-dim);font-family:'IBM Plex Mono',monospace;}
+.foot-links{display:flex;gap:20px;flex-wrap:wrap;}
+.foot-links a{font-size:0.78rem;color:var(--paper-dim);font-family:'IBM Plex Mono',monospace;}
+.foot-links a:hover{color:var(--brass-light);}
+
+@media(max-width:640px){
+  .card{padding:24px 22px;}
+  h1{font-size:1.8rem;}
+  .stats{gap:28px;}
+}
+</style>
+</head>
+<body>
+<div class="bg-ledger"></div>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo">
+      <svg class="logo-mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="4" fill="none" stroke="#C99A3C" stroke-width="1.6"/><path d="M9 16l5 5 9-10" fill="none" stroke="#C99A3C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Termivox
+    </a>
+    <a href="index.html" class="back-link">← Zurück zur Startseite</a>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="eyebrow">Über Termivox</div>
+    <h1>Über uns</h1>
+
+    <p>Termivox ist entstanden aus einer einfachen Beobachtung: In vielen Salons, Praxen und Handwerksbetrieben kommt genau dann eine Anfrage rein, wenn niemand Zeit hat zu antworten — während der Behandlung, am Wochenende, spät abends. Jede unbeantwortete Anfrage ist ein Termin, der nicht stattfindet.</p>
+    <p>Wir bauen einen KI-Assistenten, der genau diesen Moment übernimmt: Anfragen beantworten, Termine buchen, verschieben und bestätigen — rund um die Uhr, ohne dass jemand ständig ans Handy oder an den Chat muss.</p>
+    <p>Termivox wurde ursprünglich für Friseursalons entwickelt und richtet sich heute an alle terminbasierten Betriebe: von Kosmetikstudios über Physiotherapiepraxen bis hin zu Handwerksbetrieben.</p>
+
+    <div class="card">
+      <p>Fragen zu Termivox? Wir freuen uns über eine Nachricht.</p>
+      <div class="stats">
+        <div class="stat"><b>24/7</b><span>KI erreichbar</span></div>
+        <div class="stat"><b>&lt;2 Min</b><span>pro Buchung</span></div>
+      </div>
+      <p class="cta"><a href="index.html#kontakt">Zum Kontaktformular →</a></p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="foot-bottom">
+    <p>© 2026 TERMIVOX. ALLE RECHTE VORBEHALTEN.</p>
+    <div class="foot-links">
+      <a href="index.html#kontakt">Kontakt</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="agb.html">AGB</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
