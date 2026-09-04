@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Termivox Demo — Standard</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#15130F;}
+</style>
+</head>
+<body>
+<div id="n8n-chat"></div>
+<script type="module">
+  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+  createChat({
+    webhookUrl: 'https://n8n.termivox.com/webhook/d2679026-1274-47af-9ee2-10f952bc1d3d/chat',
+    mode: 'fullscreen',
+    target: '#n8n-chat',
+    metadata: { salon_id: 'test_salon' },
+    initialMessages: ['Hallo! Wie sind unsere Öffnungszeiten? Oder möchten Sie einen Termin buchen?']
+  });
+</script>
+</body>
+</html>
