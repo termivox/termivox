@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termivox — Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+:root{
+  --ink:#15130F; --ink-2:#1C1912; --ink-3:#231F16;
+  --paper:#F3EEE2; --paper-dim:#B9B09A;
+  --brass:#C99A3C; --brass-light:#E2BD6C; --brass-dim:#8A6C2C;
+  --line:rgba(243,238,226,0.12);
+  --good:#7FB07A; --warn:#D9A441; --bad:#C97A6E;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--ink); color:var(--paper); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; padding:32px 24px 64px;}
+h1,h2{font-family:'Fraunces',Georgia,serif; font-weight:600;}
+.wrap{max-width:1040px; margin:0 auto;}
+header{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; flex-wrap:wrap; gap:8px;}
+h1{font-size:1.7rem;}
+.stand{font-family:'IBM Plex Mono',monospace; font-size:0.75rem; color:var(--paper-dim);}
+.sub{color:var(--paper-dim); font-size:0.92rem; margin-bottom:32px;}
+
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:36px;}
+.stat{background:var(--ink-3); border:1px solid var(--line); border-radius:8px; padding:18px 20px;}
+.stat .label{font-size:0.78rem; color:var(--paper-dim); margin-bottom:8px;}
+.stat .value{font-family:'Fraunces',serif; font-size:2rem; font-weight:600; color:var(--brass-light);}
+.stat .value.small{font-size:1.5rem;}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:36px;}
+@media (max-width:760px){.grid2{grid-template-columns:1fr;}}
+
+.section{margin-bottom:32px;}
+.panel{background:var(--ink-3); border:1px solid var(--line); border-radius:8px; padding:22px;}
+.panel h2{font-size:1.05rem; margin-bottom:16px;}
+.chart-box{position:relative; height:220px;}
+
+table{width:100%; border-collapse:collapse;}
+th,td{text-align:left; padding:10px 4px; font-size:0.88rem;}
+th{color:var(--paper-dim); font-weight:500; font-size:0.76rem; border-bottom:1px solid var(--line);}
+tr:not(:last-child) td{border-bottom:1px solid var(--line);}
+.badge{display:inline-block; padding:3px 10px; border-radius:999px; font-family:'IBM Plex Mono',monospace; font-size:0.72rem; font-weight:600;}
+.badge.starter{background:rgba(201,154,60,0.15); color:var(--brass-light);}
+.badge.pro{background:rgba(127,176,122,0.15); color:var(--good);}
+.badge.business{background:rgba(217,164,65,0.2); color:var(--warn);}
+
+.pipeline-row{display:flex; align-items:center; gap:12px; margin-bottom:10px; font-size:0.85rem;}
+.pipeline-label{width:150px; flex-shrink:0; color:var(--paper-dim);}
+.pipeline-bar-bg{flex:1; background:var(--ink-2); border-radius:4px; height:20px; overflow:hidden;}
+.pipeline-bar{height:100%; border-radius:4px; background:var(--brass);}
+.pipeline-count{width:34px; text-align:right; font-family:'IBM Plex Mono',monospace; font-weight:600;}
+
+.note{background:var(--ink-3); border:1px solid var(--brass-dim); border-radius:8px; padding:16px 20px; font-size:0.85rem; color:var(--paper-dim); line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Termivox — Business-Dashboard</h1>
+    <span class="stand">Lade…</span>
+  </header>
+  <p class="sub">Überblick über aktive Kunden, geschätzten Umsatz und Vertriebs-Pipeline — live aus euren Google Sheets.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label">Aktive Kunden</div>
+      <div class="value" id="statKunden">–</div>
+    </div>
+    <div class="stat">
+      <div class="label">Geschätzter MRR</div>
+      <div class="value small" id="statMrr">–</div>
+    </div>
+    <div class="stat">
+      <div class="label">Leads in der Pipeline</div>
+      <div class="value" id="statLeads">–</div>
+    </div>
+    <div class="stat">
+      <div class="label">Server-Fixkosten/Monat</div>
+      <div class="value small">7,52 €</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Kunden nach Tarif</h2>
+      <div class="chart-box"><canvas id="tarifChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Vertriebs-Pipeline</h2>
+      <div id="pipelineList"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Team-Performance <span id="teamMonat" style="font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--paper-dim); font-weight:400;"></span></h2>
+      <table id="teamTable">
+        <tr><th>Vertriebler</th><th>Neukunden</th><th>Anteil</th></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h2>Finanzen <span id="finMonat" style="font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--paper-dim); font-weight:400;"></span></h2>
+      <div class="stats" style="grid-template-columns:repeat(3,1fr); margin-bottom:0;">
+        <div class="stat" style="padding:14px 12px;">
+          <div class="label">Einnahmen</div>
+          <div class="value small" id="finEinnahmen">–</div>
+        </div>
+        <div class="stat" style="padding:14px 12px;">
+          <div class="label">Ausgaben</div>
+          <div class="value small" id="finAusgaben">–</div>
+        </div>
+        <div class="stat" style="padding:14px 12px;">
+          <div class="label">Gewinn</div>
+          <div class="value small" id="finGewinn">–</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="panel">
+      <h2>Kunden nach Tarif — im Detail</h2>
+      <table>
+        <tr><th>Tarif</th><th>Anzahl</th><th>Preis/Monat</th><th>Umsatz/Monat</th></tr>
+        <tr><td><span class="badge starter">Starter</span></td><td id="rowStarter">–</td><td>49 €</td><td id="revStarter">–</td></tr>
+        <tr><td><span class="badge pro">Professional</span></td><td id="rowPro">–</td><td>89 €</td><td id="revPro">–</td></tr>
+        <tr><td><span class="badge business">Business</span></td><td id="rowBusiness">–</td><td>149 €</td><td id="revBusiness">–</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="note" id="statusNote">Lade Live-Daten…</div>
+  </div>
+</div>
+
+<script>
+  const DASHBOARD_API = 'https://n8n.termivox.com/webhook/dashboard-data';
+  let tarifChart;
+
+  const pipelineFarben = {
+    'Noch nicht kontaktiert': '#5A5548',
+    'Nicht erreicht': '#B98A5E',
+    'Demo gezeigt': '#8E7FB0',
+    'Rueckruf vereinbart': '#6FA3C9',
+    'Kunde ueberlegt': '#D9A441',
+    'Kein Interesse': '#C97A6E',
+    'Zusage': '#7FB07A'
+  };
+  const pipelineLabels = {
+    'Noch nicht kontaktiert': 'Noch nicht kontaktiert',
+    'Nicht erreicht': 'Nicht erreicht',
+    'Demo gezeigt': 'Demo gezeigt',
+    'Rueckruf vereinbart': 'Rückruf vereinbart',
+    'Kunde ueberlegt': 'Kunde überlegt',
+    'Kein Interesse': 'Kein Interesse',
+    'Zusage': 'Zusage'
+  };
+
+  async function ladeDaten() {
+    try {
+      const res = await fetch(DASHBOARD_API);
+      const data = await res.json();
+
+      document.getElementById('statKunden').textContent = data.aktiveKunden ?? 0;
+      document.getElementById('statMrr').textContent = (data.mrr ?? 0).toLocaleString('de-DE') + ' €';
+      document.getElementById('statLeads').textContent = data.leadsGesamt ?? 0;
+
+      document.getElementById('rowStarter').textContent = data.starter ?? 0;
+      document.getElementById('revStarter').textContent = ((data.starter ?? 0) * 49).toLocaleString('de-DE') + ' €';
+      document.getElementById('rowPro').textContent = data.professional ?? 0;
+      document.getElementById('revPro').textContent = ((data.professional ?? 0) * 89).toLocaleString('de-DE') + ' €';
+      document.getElementById('rowBusiness').textContent = data.business ?? 0;
+      document.getElementById('revBusiness').textContent = ((data.business ?? 0) * 149).toLocaleString('de-DE') + ' €';
+
+      // Tarif-Donut
+      const tarifWerte = [data.starter ?? 0, data.professional ?? 0, data.business ?? 0];
+      const hatKunden = tarifWerte.some(v => v > 0);
+      const ctx = document.getElementById('tarifChart').getContext('2d');
+      if (tarifChart) tarifChart.destroy();
+      tarifChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Starter', 'Professional', 'Business'],
+          datasets: [{
+            data: hatKunden ? tarifWerte : [1, 1, 1],
+            backgroundColor: hatKunden ? ['#C99A3C', '#7FB07A', '#D9A441'] : ['#2A2519', '#2A2519', '#2A2519'],
+            borderColor: '#231F16',
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#B9B09A', font: { size: 11 }, padding: 14 } },
+            tooltip: { enabled: hatKunden }
+          }
+        }
+      });
+
+      // Pipeline-Balken
+      const pipeline = data.pipeline || {};
+      const maxWert = Math.max(1, ...Object.values(pipeline));
+      const list = document.getElementById('pipelineList');
+      list.innerHTML = '';
+      for (const key of Object.keys(pipelineLabels)) {
+        const wert = pipeline[key] ?? 0;
+        const pct = (wert / maxWert) * 100;
+        const row = document.createElement('div');
+        row.className = 'pipeline-row';
+        row.innerHTML = `
+          <div class="pipeline-label">${pipelineLabels[key]}</div>
+          <div class="pipeline-bar-bg"><div class="pipeline-bar" style="width:${pct}%; background:${pipelineFarben[key]}"></div></div>
+          <div class="pipeline-count">${wert}</div>
+        `;
+        list.appendChild(row);
+      }
+
+      const stand = data.stand ? new Date(data.stand).toLocaleString('de-DE') : '';
+      document.querySelector('.stand').textContent = 'Live · Stand: ' + stand;
+
+      // Team-Performance
+      document.getElementById('teamMonat').textContent = data.monat || '';
+      const teamTable = document.getElementById('teamTable');
+      teamTable.innerHTML = '<tr><th>Vertriebler</th><th>Neukunden</th><th>Anteil</th></tr>';
+      (data.team || []).forEach(person => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${person.name}</td><td>${person.neukunden}</td><td>${person.anteilProzent}%</td>`;
+        teamTable.appendChild(tr);
+      });
+
+      // Finanzen
+      const fin = data.finanzen || { einnahmen: 0, ausgaben: 0, gewinn: 0 };
+      document.getElementById('finMonat').textContent = data.monat || '';
+      document.getElementById('finEinnahmen').textContent = fin.einnahmen.toLocaleString('de-DE') + ' €';
+      document.getElementById('finAusgaben').textContent = fin.ausgaben.toLocaleString('de-DE') + ' €';
+      const gewinnEl = document.getElementById('finGewinn');
+      gewinnEl.textContent = fin.gewinn.toLocaleString('de-DE') + ' €';
+      gewinnEl.style.color = fin.gewinn >= 0 ? 'var(--good)' : 'var(--bad)';
+
+      const note = document.getElementById('statusNote');
+      note.textContent = (data.aktiveKunden ?? 0) === 0
+        ? 'Noch kein echter Kunde im System — die Zahlen aktualisieren sich automatisch, sobald der erste Kunde im Öffnungszeiten-Sheet steht.'
+        : 'Live-Daten direkt aus euren Google Sheets, aktualisiert sich automatisch.';
+    } catch (err) {
+      document.getElementById('statusNote').textContent = 'Live-Daten konnten nicht geladen werden. Bitte später erneut versuchen.';
+    }
+  }
+
+  ladeDaten();
+  setInterval(ladeDaten, 60000);
+</script>
+</body>
+</html>
