@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termivox Live-Demo — Professional</title>
+<link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet">
+<style>
+:root{
+  --ink:#12100D; --ink-2:#191611; --ink-3:#211D17;
+  --paper:#EDE7DC; --paper-dim:#948C7C;
+  --brass:#C9A15D; --brass-light:#DAB471; --brass-dim:#8A7345; --teal:#4FD1C1;
+  --line:rgba(237,231,220,0.12); --line-strong:rgba(237,231,220,0.22);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--ink); color:var(--paper); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;}
+h1,h2{font-family:'Fraunces',Georgia,serif; font-weight:600;}
+a{color:var(--brass-light);}
+header{border-bottom:1px solid var(--line); padding:18px 32px; display:flex; justify-content:space-between; align-items:center;
+  position:sticky; top:0; z-index:10; background:rgba(18,16,13,0.86); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);}
+.logo{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:1.2rem; text-decoration:none; color:var(--paper);}
+.back{font-family:'Space Grotesk',sans-serif; font-size:0.82rem; font-weight:600; color:var(--brass-light); text-decoration:none; display:flex; align-items:center; gap:6px;}
+.back:hover{color:var(--paper);}
+main{max-width:640px; margin:0 auto; padding:48px 24px 80px;}
+.eyebrow{font-family:'Space Grotesk',sans-serif; font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--brass-light); margin-bottom:12px;}
+h1{font-size:1.9rem; margin-bottom:14px;}
+main > p.intro{color:var(--paper-dim); font-size:0.98rem; margin-bottom:32px; max-width:520px;}
+.chat-card{background:var(--ink-3); border:1px solid var(--line); border-radius:8px; overflow:hidden; height:520px; position:relative;}
+.chat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;z-index:2;
+  background:repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px);}
+#n8n-chat{width:100%; height:100%;}
+.cta{margin-top:36px; background:var(--ink-3); border:1px solid var(--brass-dim); border-radius:8px; padding:28px; text-align:center;}
+.cta h2{font-size:1.3rem; margin-bottom:10px;}
+.cta p{color:var(--paper-dim); font-size:0.9rem; margin-bottom:20px;}
+.btn{display:inline-flex; align-items:center; gap:8px; padding:13px 26px; border-radius:3px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:0.85rem; text-decoration:none;}
+.btn-primary{background:var(--brass); color:var(--ink);}
+.btn-primary:hover{background:var(--brass-light);}
+
+.quick{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+.quick button{font-family:'Space Grotesk',sans-serif; font-size:0.72rem; padding:8px 14px; border-radius:999px; background:var(--ink-3); border:1px solid var(--line-strong); color:var(--paper-dim); cursor:pointer; transition:border-color .2s, color .2s;}
+.quick button:hover{border-color:var(--brass); color:var(--brass-light);}
+
+@media (max-width:640px){
+  main{padding:32px 16px 56px;}
+  h1{font-size:1.5rem;}
+  .chat-card{height:min(480px, 65vh);}
+  header{padding:14px 16px;}
+  .logo{font-size:1.05rem;}
+}
+
+/* n8n chat widget theming — durchgehend Schwarz/Gold */
+:root{
+  --chat--color-primary: #C9A15D;
+  --chat--color-secondary: #4FD1C1;
+  --chat--color-white: #EDE7DC;
+  --chat--color-dark: #12100D;
+  --chat--body--background: #12100D;
+  --chat--message--bot--background: #211D17;
+  --chat--message--bot--color: #EDE7DC;
+  --chat--message--user--background: #4FD1C1;
+  --chat--message--user--color: #12100D;
+  --chat--message--pre--background: rgba(0, 0, 0, 0.35);
+  --chat--toggle--background: #C9A15D;
+  --chat--toggle--color: #12100D;
+  --chat--toggle--hover--background: #DAB471;
+  --chat--header--background: #191611;
+  --chat--header--color: #EDE7DC;
+  --chat--textarea--height: 50px;
+}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" class="back">← Zurück zur Startseite</a>
+  <a href="index.html" class="logo">
+    <svg width="22" height="22" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="4" fill="none" stroke="#C9A15D" stroke-width="1.6"/><path d="M9 16l5 5 9-10" fill="none" stroke="#C9A15D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Termivox
+  </a>
+</header>
+<main>
+  <div class="eyebrow">Live-Demo · Professional</div>
+  <h1>Probieren Sie den echten Chat aus</h1>
+  <p class="intro">Das ist keine Simulation — genau dieser Chat würde auf der Website Ihres Betriebs laufen, mit mehreren Mitarbeitern und eigenen Kalendern. Schreiben Sie z. B. "Ich möchte einen Termin buchen" oder "Wie sind eure Öffnungszeiten?".</p>
+
+  <div class="chat-card">
+    <div id="n8n-chat"></div>
+  </div>
+  <div class="quick">
+    <button type="button" onclick="fillChat('Ich möchte einen Termin buchen')">Termin buchen</button>
+    <button type="button" onclick="fillChat('Ich möchte meinen Termin stornieren')">Stornieren</button>
+    <button type="button" onclick="fillChat('Ich möchte meinen Termin verschieben')">Verschieben</button>
+    <button type="button" onclick="fillChat('Wie sind eure Öffnungszeiten?')">Öffnungszeiten</button>
+    <button type="button" onclick="fillChat('Was kostet ein Haarschnitt?')">Preise</button>
+    <button type="button" onclick="fillChat('Wann ist der nächste freie Termin?')">Freie Termine</button>
+  </div>
+
+  <div class="cta">
+    <h2>Überzeugt?</h2>
+    <p>Professional kostet 89€/Monat zzgl. einmaliger Einrichtungsgebühr — eingerichtet innerhalb weniger Tage.</p>
+    <a href="index.html#kontakt" class="btn btn-primary">Jetzt Termin für Einrichtung vereinbaren →</a>
+  </div>
+</main>
+
+<script type="module">
+  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+  createChat({
+    webhookUrl: 'https://n8n.termivox.com/webhook/d3698176-82a4-410a-9ea8-c259164e1cff/chat',
+    target: '#n8n-chat',
+    mode: 'fullscreen',
+    showWelcomeScreen: false,
+    metadata: { salon_id: 'test_salon' },
+    initialMessages: ['Hallo! Wie kann ich Ihnen helfen — Termin buchen, Öffnungszeiten oder Preise?'],
+    i18n: {
+      en: {
+        title: 'Termivox Assistent',
+        subtitle: 'Ihr KI-Terminassistent',
+        footer: '',
+        getStarted: 'Neue Unterhaltung starten',
+        inputPlaceholder: 'Ihre Nachricht...',
+      },
+    },
+  });
+
+  window.fillChat = function(text) {
+    const textarea = document.querySelector('#n8n-chat textarea');
+    if (!textarea) return;
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+    setter.call(textarea, text);
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    textarea.focus();
+  };
+</script>
+</body>
+</html>
