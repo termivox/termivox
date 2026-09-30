@@ -76,7 +76,7 @@ h1{font-size:1.7rem; margin-bottom:8px;}
     <p class="sub">Füllen Sie die Angaben zu Ihrem Betrieb aus — der Chat-Assistent wird danach für Sie vorbereitet.</p>
   </header>
 
-  <div id="erfolg">✓ Vielen Dank! Ihre Angaben sind bei uns eingegangen. Wir melden uns in Kürze mit den nächsten Schritten.</div>
+  <div id="erfolg">✓ Vielen Dank! Sie erhalten in wenigen Minuten eine E-Mail mit Ihrem persönlichen Chat-Link.</div>
   <div id="fehler">Es gab ein Problem beim Absenden. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt an termivox@gmail.com.</div>
 
   <form id="anmeldeForm">
@@ -84,7 +84,7 @@ h1{font-size:1.7rem; margin-bottom:8px;}
       <h2>Ihr Betrieb</h2>
       <div class="field">
         <label>Name des Betriebs</label>
-        <input type="text" id="salonName" required placeholder="z.B. Friseursalon Schmidt">
+        <input type="text" id="salonName" required placeholder="z.B. Schmidt &amp; Söhne">
       </div>
       <div class="field">
         <label>E-Mail-Adresse</label>
@@ -100,7 +100,7 @@ h1{font-size:1.7rem; margin-bottom:8px;}
     <div class="card">
       <h2>Gewünschter Tarif</h2>
       <div class="tarif-options" id="tarifOptions">
-        <div class="tarif-btn" data-tarif="starter">
+        <div class="tarif-btn" data-tarif="standard">
           <div class="name">Starter</div>
           <div class="price">49 €/Monat</div>
         </div>
@@ -205,15 +205,15 @@ h1{font-size:1.7rem; margin-bottom:8px;}
       <div class="row3">
         <div class="field" style="margin-bottom:0;">
           <label>Dienstleistung</label>
-          <input type="text" class="dienst-name" placeholder="z.B. Haare schneiden" oninput="aktualisiereMitarbeiterCheckboxen()">
+          <input type="text" class="dienst-name" placeholder="z.B. Beratungstermin" oninput="aktualisiereMitarbeiterCheckboxen()">
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>Dauer (Min.)</label>
-          <input type="number" class="dienst-dauer" placeholder="30">
+          <input type="number" class="dienst-dauer" placeholder="30" required>
         </div>
         <div class="field" style="margin-bottom:0;">
           <label>Preis (€)</label>
-          <input type="number" class="dienst-preis" placeholder="25">
+          <input type="number" class="dienst-preis" placeholder="25" required>
         </div>
       </div>
     `;
@@ -315,7 +315,7 @@ h1{font-size:1.7rem; margin-bottom:8px;}
       document.getElementById('dienstleistungenSection').style.display = 'block';
       document.getElementById('mitarbeiterSection').style.display = (tarif === 'pro' || tarif === 'business') ? 'block' : 'none';
       document.getElementById('standortSection').style.display = (tarif === 'business') ? 'block' : 'none';
-      document.getElementById('standardKalenderSection').style.display = (tarif === 'starter') ? 'block' : 'none';
+      document.getElementById('standardKalenderSection').style.display = (tarif === 'standard') ? 'block' : 'none';
 
       if (dienstZaehler === 0) dienstHinzufuegen();
       if ((tarif === 'pro' || tarif === 'business') && mitarbeiterZaehler === 0) mitarbeiterHinzufuegen();
@@ -344,7 +344,7 @@ h1{font-size:1.7rem; margin-bottom:8px;}
     const salonName = document.getElementById('salonName').value;
     const kundenId = slugify(salonName) + '_' + Date.now().toString().slice(-5);
 
-    const salon = { kunden_id: kundenId, salon_name: salonName, email: document.getElementById('email').value, tarif: tarif, standort_id: document.getElementById('standortId').value || 'Hauptstandort', calendar_id: document.getElementById('standardKalenderId').value || '', calendar_erstellen: tarif === 'starter' ? document.getElementById('standardKalenderErstellen').checked : false };
+    const salon = { kunden_id: kundenId, salon_name: salonName, email: document.getElementById('email').value, tarif: tarif, standort_id: document.getElementById('standortId').value || 'Hauptstandort', calendar_id: document.getElementById('standardKalenderId').value || '', calendar_erstellen: tarif === 'standard' ? document.getElementById('standardKalenderErstellen').checked : false };
     tage.forEach(tag => {
       const geschlossen = document.getElementById(tag.key + '_geschlossen').checked;
       salon[tag.key + '_von'] = geschlossen ? '' : document.getElementById(tag.key + '_von').value;
