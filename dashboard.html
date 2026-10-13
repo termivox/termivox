@@ -39,7 +39,7 @@
 .icon-btn:hover{border-color:var(--mint)}
 
 /* Kennzahlen */
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:22px 0 8px}
 .kpi{border-radius:20px;padding:16px 14px;text-align:left;color:var(--tx);font:inherit;cursor:default;min-height:44px}
 button.kpi{cursor:pointer}
 .kpi b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:40px;line-height:1;letter-spacing:-.03em}
@@ -88,10 +88,11 @@ button.kpi{cursor:pointer}
   .dtabs{display:none}
   .dock{display:flex}
   .bar h1{font-size:21px}
-  .kpi b{font-size:34px}
+
   .kpis{gap:8px}
   .kpi{padding:14px 10px}
 }
+@media (max-width:430px){.icon-btn{padding:0 10px;font-size:14px}.bar-act{gap:6px}.bar .db-wrap{gap:8px}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
@@ -106,7 +107,7 @@ button.kpi{cursor:pointer}
     <p id="gate-text">Bitte geben Sie Ihre PIN ein.</p>
     <form id="login" novalidate>
       <label class="dfld" for="pin">PIN</label>
-      <input class="inp" id="pin" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" maxlength="64" required>
+      <input class="inp" id="pin" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" required>
       <button class="btn btn-p" type="submit" id="login-btn">Anmelden</button>
       <div class="msg" id="login-msg" role="alert"></div>
     </form>
@@ -130,20 +131,19 @@ button.kpi{cursor:pointer}
 
   <main class="db-wrap" id="inhalt" tabindex="-1">
     <section class="kpis" aria-label="Kennzahlen">
-      <div class="kpi glass"><b id="k-heute">–</b><span>Termine heute</span></div>
-      <div class="kpi glass"><b id="k-woche">–</b><span>Termine diese Woche</span></div>
+      
       <button class="kpi glass warn" type="button" id="k-rr-btn"><b id="k-rr">–</b><span>Rückrufe offen</span></button>
+      <button class="kpi glass" type="button" id="k-ok-btn"><b id="k-ok">–</b><span>Rückrufe erledigt</span></button>
     </section>
 
     <div class="dtabs" role="tablist" aria-label="Bereiche" id="tabs-top">
-      <button class="dtab" role="tab" id="t-termine" aria-controls="p-termine" aria-selected="true" type="button">Termine</button>
-      <button class="dtab" role="tab" id="t-rueckrufe" aria-controls="p-rueckrufe" aria-selected="false" type="button">Rückrufe <span class="cnt" id="c-rr" hidden>0</span></button>
+      <button class="dtab" role="tab" id="t-rueckrufe" aria-controls="p-rueckrufe" aria-selected="true" type="button">Rückrufe <span class="cnt" id="c-rr" hidden>0</span></button>
+      <button class="dtab" role="tab" id="t-termine" aria-controls="p-termine" aria-selected="false" type="button">Termine</button>
     </div>
 
     <div class="msg" id="board-msg" role="status"></div>
 
-    <section class="panel" id="p-termine" role="tabpanel" aria-labelledby="t-termine"></section>
-    <section class="panel" id="p-rueckrufe" role="tabpanel" aria-labelledby="t-rueckrufe" hidden>
+    <section class="panel" id="p-rueckrufe" role="tabpanel" aria-labelledby="t-rueckrufe">
       <div class="seg" role="group" aria-label="Filter">
         <button type="button" data-f="offen" aria-pressed="true">Offen</button>
         <button type="button" data-f="erledigt" aria-pressed="false">Erledigt</button>
@@ -151,11 +151,14 @@ button.kpi{cursor:pointer}
       </div>
       <div id="rr-liste"></div>
     </section>
+    <section class="panel" id="p-termine" role="tabpanel" aria-labelledby="t-termine" hidden>
+      <div class="leer"><strong>Termine folgen bald</strong><br>Sobald die Terminübersicht freigeschaltet ist, sehen Sie Ihre Termine hier.</div>
+    </section>
   </main>
 
   <nav class="dock" role="tablist" aria-label="Bereiche (mobil)" id="tabs-dock">
-    <button class="dtab" role="tab" data-t="termine" aria-selected="true" type="button">Termine</button>
-    <button class="dtab" role="tab" data-t="rueckrufe" aria-selected="false" type="button">Rückrufe <span class="cnt" id="c-rr2" hidden>0</span></button>
+    <button class="dtab" role="tab" data-t="rueckrufe" aria-selected="true" type="button">Rückrufe <span class="cnt" id="c-rr2" hidden>0</span></button>
+    <button class="dtab" role="tab" data-t="termine" aria-selected="false" type="button">Termine</button>
   </nav>
 </div>
 
@@ -165,16 +168,12 @@ button.kpi{cursor:pointer}
 (() => {
   'use strict';
 
-  // ---- Schnittstelle zu n8n (Verträge: dashboard-login, -uebersicht, -rueckrufe, -rueckruf-status) ----
-  // Im Code steht kein Schlüssel und keine PIN. Nach der Anmeldung liefert n8n ein Token,
-  // das nur in dieser Browser-Sitzung (sessionStorage) liegt.
-  const BASE = 'https://n8n.termivox.com/webhook/';
-  const API = {
-    login: BASE + 'dashboard-login',
-    uebersicht: BASE + 'dashboard-uebersicht',
-    rueckrufe: BASE + 'dashboard-rueckrufe',
-    status: BASE + 'dashboard-rueckruf-status'
-  };
+  // ---- Schnittstelle zu n8n ------------------------------------------------
+  // Eine Adresse, alles per POST (JSON), kein Token, kein Authorization-Header.
+  // Die PIN steht weder im Code noch in der URL oder im Browser-Speicher: Sie liegt nur
+  // im Arbeitsspeicher dieser Seite. Nach Neuladen oder Abmelden muss sie neu eingegeben werden.
+  const API = 'https://n8n.termivox.com/webhook/dashboard-api';
+  const BETRIEB_URL = 'https://n8n.termivox.com/webhook/betrieb';   // GET ?kunde=ID -> { name, telefon, farbe }
   const TZ = 'Europe/Berlin';
   const REFRESH_MS = 60000;
 
@@ -182,9 +181,8 @@ button.kpi{cursor:pointer}
   const params = new URLSearchParams(location.search);
   const kunde = (params.get('kunde') || '').trim();
   const kundeOk = /^[A-Za-z0-9_-]{1,64}$/.test(kunde);
-  const TOKEN_KEY = 'termivox_dash_token_' + kunde;
 
-  const state = { token: '', betrieb: null, termine: [], rueckrufe: [], filter: 'offen', tab: 'termine', timer: null };
+  const state = { pin: '', rueckrufe: [], offen: 0, filter: 'offen', timer: null, busy: false };
 
   // ---- Hilfen ---------------------------------------------------------------
   const el = (tag, cls, text) => {
@@ -193,190 +191,127 @@ button.kpi{cursor:pointer}
     if (text != null) e.textContent = text;
     return e;
   };
-  const fmt = (opts) => new Intl.DateTimeFormat('de-DE', Object.assign({ timeZone: TZ }, opts));
-  const fTime = fmt({ hour: '2-digit', minute: '2-digit' });
-  const fDayLong = fmt({ weekday: 'long', day: 'numeric', month: 'long' });
-  const fShort = fmt({ day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-  const fKey = new Intl.DateTimeFormat('sv-SE', { timeZone: TZ });
-  const dayKey = (d) => fKey.format(d);
-  const addDays = (key, n) => { const d = new Date(key + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
-  const toDate = (v) => { const d = new Date(v); return isNaN(d) ? null : d; };
-
+  const fShort = new Intl.DateTimeFormat('de-DE', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const fTime = new Intl.DateTimeFormat('de-DE', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
+  const toDate = (v) => { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d; };
   const telHref = (t) => {
     const s = String(t || '').trim();
     return /^[+0-9 ()\/-]{5,30}$/.test(s) ? 'tel:' + s.replace(/[^+0-9]/g, '') : null;
   };
 
   // ---- Netzwerk -------------------------------------------------------------
-  class AuthError extends Error {}
+  class LoginError extends Error {}   // 401: falsche PIN oder gesperrt, Text kommt von n8n
 
-  async function api(url, opts = {}) {
-    const headers = { 'Content-Type': 'application/json' };
-    if (state.token) headers.Authorization = 'Bearer ' + state.token;
-    const res = await fetch(url, Object.assign({}, opts, { headers }));
+  async function api(body) {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ kunde_id: kunde, pin: state.pin }, body))
+    });
     let data = null;
     try { data = await res.json(); } catch (e) { /* keine JSON-Antwort */ }
-    if (res.status === 401 || res.status === 403) throw new AuthError((data && data.fehler) || 'Bitte melden Sie sich erneut an.');
-    if (!res.ok || (data && data.success === false)) {
-      const e = new Error((data && data.fehler) || 'Fehler ' + res.status);
-      e.serverText = !!(data && data.fehler);
-      throw e;
-    }
-    return data || {};
+    if (res.status === 401) throw new LoginError((data && data.fehler) || 'Anmeldung nicht möglich.');
+    if (!res.ok || !data || data.success !== true || !Array.isArray(data.rueckrufe)) throw new Error('Antwort ' + res.status);
+    return data;
   }
 
-  // ---- Anmeldung ------------------------------------------------------------
-  function setBetrieb(b) {
-    state.betrieb = b || {};
-    $('betrieb').textContent = (b && b.name) || 'Ihr Betrieb';
-    document.title = ((b && b.name) ? b.name + ' – ' : '') + 'Dashboard – Termivox';
-    if (b && /^#[0-9A-Fa-f]{6}$/.test(b.farbe || '')) $('app').style.setProperty('--accent', b.farbe);
+  function uebernehmen(d) {
+    state.rueckrufe = d.rueckrufe;
+    state.offen = Number.isFinite(Number(d.offen)) ? Number(d.offen) : d.rueckrufe.filter((r) => r.status !== 'erledigt').length;
   }
 
-  function zeigeGate(text, isErr) {
+  // ---- Betriebsname und Farbe (öffentliche Betriebs-Abfrage wie im Chat) -----
+  function ladeBetrieb() {
+    fetch(BETRIEB_URL + '?kunde=' + encodeURIComponent(kunde))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((b) => {
+        if (!b || typeof b !== 'object') return;
+        if (typeof b.name === 'string' && b.name.trim()) {
+          $('betrieb').textContent = b.name.trim();
+          document.title = b.name.trim() + ' – Dashboard – Termivox';
+        }
+        if (/^#[0-9A-Fa-f]{6}$/.test(b.farbe || '')) $('app').style.setProperty('--accent', b.farbe);
+      })
+      .catch(() => { /* Standardwerte bleiben */ });
+  }
+
+  // ---- Anmeldung / Abmeldung ------------------------------------------------
+  function stopTimer() { if (state.timer) { clearInterval(state.timer); state.timer = null; } }
+
+  function zeigeGate(text) {
     stopTimer();
     $('board').hidden = true;
     $('gate').hidden = false;
-    if (text) { const m = $('login-msg'); m.textContent = text; m.className = 'msg' + (isErr ? '' : ' ok'); }
-    if (kundeOk) setTimeout(() => $('pin').focus(), 50);
+    $('login-msg').textContent = text || '';
+    setTimeout(() => $('pin').focus(), 50);
   }
-
-  function zeigeBoard() {
-    $('gate').hidden = true;
-    $('board').hidden = false;
-    ladeAlles();
-    stopTimer();
-    state.timer = setInterval(() => { if (!document.hidden) ladeAlles(true); }, REFRESH_MS);
-  }
-
-  function stopTimer() { if (state.timer) { clearInterval(state.timer); state.timer = null; } }
 
   function abmelden(text) {
-    try { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(TOKEN_KEY + '_b'); } catch (e) { /* egal */ }
-    state.token = ''; state.termine = []; state.rueckrufe = [];
+    state.pin = ''; state.rueckrufe = []; state.offen = 0;
     $('pin').value = '';
-    zeigeGate(text || '', true);
+    $('rr-liste').replaceChildren();
+    zeigeGate(text);
   }
 
   $('login').addEventListener('submit', async (e) => {
     e.preventDefault();
     const pin = $('pin').value.trim();
     const msg = $('login-msg');
-    msg.className = 'msg';
-    if (!kundeOk) { msg.textContent = 'Bitte öffnen Sie Ihren persönlichen Link.'; return; }
     if (!pin) { msg.textContent = 'Bitte geben Sie Ihre PIN ein.'; $('pin').focus(); return; }
+    if (!/^[0-9]+$/.test(pin)) { msg.textContent = 'Die PIN besteht nur aus Ziffern.'; $('pin').focus(); return; }
     $('login-btn').disabled = true; msg.textContent = 'Wird geprüft…';
+    state.pin = pin;
     try {
-      const d = await api(API.login, { method: 'POST', body: JSON.stringify({ kunde_id: kunde, pin }) });
-      if (!d.token) throw new Error('kein Token');
-      state.token = d.token;
-      try { sessionStorage.setItem(TOKEN_KEY, d.token); } catch (x) { /* ohne Speicher: Anmeldung gilt bis zum Neuladen */ }
-      setBetrieb(d.betrieb);
-      try { sessionStorage.setItem(TOKEN_KEY + '_b', JSON.stringify(d.betrieb || {})); } catch (x) { /* egal */ }
+      const d = await api({ aktion: 'liste' });
+      uebernehmen(d);
       $('pin').value = ''; msg.textContent = '';
-      zeigeBoard();
+      $('gate').hidden = true; $('board').hidden = false;
+      $('stand').textContent = 'Stand ' + fTime.format(new Date()) + ' Uhr';
+      render();
+      ladeBetrieb();
+      stopTimer();
+      state.timer = setInterval(() => { if (!document.hidden) lade(true); }, REFRESH_MS);
     } catch (err) {
-      msg.textContent = err instanceof AuthError || err.serverText ? err.message : 'Gerade klappt etwas nicht. Bitte versuchen Sie es gleich noch einmal.';
+      state.pin = '';
+      msg.textContent = err instanceof LoginError ? err.message : 'Gerade klappt etwas nicht. Bitte versuchen Sie es gleich noch einmal.';
+      $('pin').value = ''; $('pin').focus();
     } finally {
       $('login-btn').disabled = false;
     }
   });
 
   // ---- Daten laden ----------------------------------------------------------
-  async function ladeAlles(still) {
-    if (!state.token) return;
+  async function lade(still) {
+    if (!state.pin || state.busy) return;
     const msg = $('board-msg');
-    if (!still) { msg.className = 'msg'; msg.textContent = ''; $('stand').textContent = 'Wird geladen…'; }
+    if (!still) { msg.textContent = ''; $('stand').textContent = 'Wird geladen…'; }
     try {
-      const [u, r] = await Promise.all([
-        api(API.uebersicht),
-        api(API.rueckrufe)
-      ]);
-      if (u.betrieb) setBetrieb(u.betrieb);
-      state.termine = Array.isArray(u.termine) ? u.termine : [];
-      state.rueckrufe = Array.isArray(r.rueckrufe) ? r.rueckrufe : (Array.isArray(r) ? r : []);
-      state.kennzahlen = u.kennzahlen || null;
-      const s = toDate(u.stand) || new Date();
-      $('stand').textContent = 'Stand ' + fTime.format(s) + ' Uhr';
+      uebernehmen(await api({ aktion: 'liste' }));
       msg.textContent = '';
+      $('stand').textContent = 'Stand ' + fTime.format(new Date()) + ' Uhr';
       render();
     } catch (err) {
-      if (err instanceof AuthError) { abmelden('Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.'); return; }
-      msg.className = 'msg';
+      if (err instanceof LoginError) { abmelden(err.message); return; }
       msg.textContent = 'Gerade klappt etwas nicht. Die Daten konnten nicht geladen werden. Bitte versuchen Sie es gleich noch einmal.';
       if (!still) $('stand').textContent = 'Nicht aktuell';
     }
   }
 
   // ---- Darstellung ----------------------------------------------------------
-  function offeneRueckrufe() { return state.rueckrufe.filter((r) => r.status !== 'erledigt'); }
-
   function render() {
-    const heute = dayKey(new Date());
-    const aktive = state.termine.filter((t) => t.status !== 'storniert');
-    const k = state.kennzahlen || {};
-    const imHeute = aktive.filter((t) => { const d = toDate(t.start); return d && dayKey(d) === heute; }).length;
-    const bisSonntag = (() => {
-      const wd = new Date(heute + 'T12:00:00Z').getUTCDay();       // 0 = Sonntag
-      return addDays(heute, wd === 0 ? 0 : 7 - wd);
-    })();
-    const inWoche = aktive.filter((t) => { const d = toDate(t.start); if (!d) return false; const kx = dayKey(d); return kx >= heute && kx <= bisSonntag; }).length;
-    const offen = offeneRueckrufe().length;
-
-    $('k-heute').textContent = k.termine_heute != null ? k.termine_heute : imHeute;
-    $('k-woche').textContent = k.termine_woche != null ? k.termine_woche : inWoche;
-    $('k-rr').textContent = k.rueckrufe_offen != null ? k.rueckrufe_offen : offen;
-
-    [$('c-rr'), $('c-rr2')].forEach((c) => { c.textContent = offen; c.hidden = offen === 0; });
-
-    renderTermine(heute);
+    const erledigt = state.rueckrufe.filter((r) => r.status === 'erledigt').length;
+    $('k-rr').textContent = state.offen;
+    $('k-ok').textContent = erledigt;
+    [$('c-rr'), $('c-rr2')].forEach((c) => { c.textContent = state.offen; c.hidden = state.offen === 0; });
     renderRueckrufe();
-  }
-
-  function renderTermine(heute) {
-    const box = $('p-termine');
-    box.replaceChildren();
-    const liste = state.termine
-      .map((t) => ({ t, d: toDate(t.start) }))
-      .filter((x) => x.d)
-      .sort((a, b) => a.d - b.d);
-    if (!liste.length) {
-      box.appendChild(el('div', 'leer', 'Aktuell sind keine Termine eingetragen.'));
-      return;
-    }
-    const morgen = addDays(heute, 1);
-    let last = '';
-    liste.forEach(({ t, d }) => {
-      const key = dayKey(d);
-      if (key !== last) {
-        last = key;
-        const h = el('h2', 'day', key === heute ? 'Heute' : key === morgen ? 'Morgen' : fDayLong.format(d));
-        if (key === heute || key === morgen) h.appendChild(el('small', null, fDayLong.format(d)));
-        box.appendChild(h);
-      }
-      const storno = t.status === 'storniert';
-      const item = el('article', 'item glass' + (storno ? ' off' : ''));
-      const z = el('div', 'zeit', fTime.format(d));
-      const ende = toDate(t.ende);
-      if (ende) z.appendChild(el('small', null, 'bis ' + fTime.format(ende)));
-      const info = el('div', 'info');
-      info.appendChild(el('strong', null, t.kunde_name || 'Ohne Namen'));
-      const zeile = [t.leistung, t.mitarbeiter].filter(Boolean).join(' · ');
-      if (zeile) info.appendChild(el('span', null, zeile));
-      if (storno) info.appendChild(el('span', 'tag cancel', 'Storniert'));
-      item.append(z, info);
-      box.appendChild(item);
-    });
   }
 
   function renderRueckrufe() {
     const box = $('rr-liste');
     box.replaceChildren();
     const f = state.filter;
-    const liste = state.rueckrufe
-      .filter((r) => f === 'alle' || (f === 'offen' ? r.status !== 'erledigt' : r.status === 'erledigt'))
-      .slice()
-      .sort((a, b) => (toDate(b.eingang) || 0) - (toDate(a.eingang) || 0));
+    // Reihenfolge von n8n: neueste zuerst
+    const liste = state.rueckrufe.filter((r) => f === 'alle' || (f === 'offen' ? r.status !== 'erledigt' : r.status === 'erledigt'));
     if (!liste.length) {
       box.appendChild(el('div', 'leer', f === 'erledigt' ? 'Noch keine erledigten Rückrufe.' : f === 'offen' ? 'Keine offenen Rückrufe. Alles erledigt.' : 'Noch keine Rückrufbitten.'));
       return;
@@ -386,8 +321,11 @@ button.kpi{cursor:pointer}
       const card = el('article', 'rr glass' + (erledigt ? ' off' : ''));
       const top = el('div', 'rr-top');
       top.appendChild(el('strong', null, r.name || 'Ohne Namen'));
-      const d = toDate(r.eingang);
+      // n8n liefert "TT.MM.JJ, HH:MM" (schon fertig formatiert). ISO-Zeiten würden umgerechnet.
+      const raw = r.eingang ? String(r.eingang) : '';
+      const d = /^\d{4}-\d{2}-\d{2}/.test(raw) ? toDate(raw) : null;
       if (d) top.appendChild(el('span', 'rr-time', fShort.format(d) + ' Uhr'));
+      else if (raw) top.appendChild(el('span', 'rr-time', raw + (/\d{2}:\d{2}$/.test(raw) ? ' Uhr' : '')));
       card.appendChild(top);
       const href = telHref(r.telefon);
       if (r.telefon) {
@@ -400,66 +338,64 @@ button.kpi{cursor:pointer}
       if (href) { const call = el('a', 'btn btn-p btn-s', 'Anrufen'); call.href = href; act.appendChild(call); }
       const b = el('button', 'btn btn-g btn-s', erledigt ? 'Wieder öffnen' : 'Als erledigt markieren');
       b.type = 'button';
-      b.addEventListener('click', () => setzeStatus(r, erledigt ? 'offen' : 'erledigt', b));
+      b.addEventListener('click', () => setzeStatus(r, erledigt ? 'offen' : 'erledigt'));
       act.appendChild(b);
       card.appendChild(act);
       box.appendChild(card);
     });
   }
 
-  async function setzeStatus(r, neu, btn) {
-    const alt = r.status;
-    btn.disabled = true;
-    r.status = neu; state.kennzahlen = null; render();     // sofort anzeigen, bei Fehler zurücksetzen
+  async function setzeStatus(r, neu) {
+    if (state.busy) return;
+    state.busy = true;
+    const msg = $('board-msg'); msg.textContent = '';
+    const alt = r.status, altOffen = state.offen;
+    r.status = neu; state.offen += neu === 'offen' ? 1 : -1; render();      // sofort anzeigen, bei Fehler zurücksetzen
     try {
-      await api(API.status, { method: 'POST', body: JSON.stringify({ id: r.id, status: neu }) });
+      uebernehmen(await api({ aktion: 'status', id: String(r.id), status: neu }));
+      $('stand').textContent = 'Stand ' + fTime.format(new Date()) + ' Uhr';
+      render();
     } catch (err) {
-      if (err instanceof AuthError) { abmelden('Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.'); return; }
-      r.status = alt; render();
-      const m = $('board-msg'); m.className = 'msg';
-      m.textContent = 'Der Status konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+      if (err instanceof LoginError) { state.busy = false; abmelden(err.message); return; }
+      r.status = alt; state.offen = altOffen; render();
+      msg.textContent = 'Der Status konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+    } finally {
+      state.busy = false;
     }
   }
 
   // ---- Bedienung ------------------------------------------------------------
   function waehleTab(name) {
-    state.dtab = name;
-    $('p-termine').hidden = name !== 'termine';
     $('p-rueckrufe').hidden = name !== 'rueckrufe';
-    $('t-termine').setAttribute('aria-selected', String(name === 'termine'));
+    $('p-termine').hidden = name !== 'termine';
     $('t-rueckrufe').setAttribute('aria-selected', String(name === 'rueckrufe'));
+    $('t-termine').setAttribute('aria-selected', String(name === 'termine'));
     document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.t === name)));
     window.scrollTo({ top: 0 });
   }
-  $('t-termine').addEventListener('click', () => waehleTab('termine'));
   $('t-rueckrufe').addEventListener('click', () => waehleTab('rueckrufe'));
+  $('t-termine').addEventListener('click', () => waehleTab('termine'));
   document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.addEventListener('click', () => waehleTab(b.dataset.t)));
-  $('k-rr-btn').addEventListener('click', () => { state.filter = 'offen'; setzeFilter(); waehleTab('rueckrufe'); });
 
-  function setzeFilter() {
-    document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === state.filter)));
+  function setzeFilter(f) {
+    state.filter = f;
+    document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === f)));
     renderRueckrufe();
   }
-  document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => { state.filter = b.dataset.f; setzeFilter(); }));
+  document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => setzeFilter(b.dataset.f)));
+  $('k-rr-btn').addEventListener('click', () => { setzeFilter('offen'); waehleTab('rueckrufe'); });
+  $('k-ok-btn').addEventListener('click', () => { setzeFilter('erledigt'); waehleTab('rueckrufe'); });
 
-  $('reload').addEventListener('click', () => ladeAlles());
+  $('reload').addEventListener('click', () => lade());
   $('logout').addEventListener('click', () => abmelden(''));
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && state.token && !$('board').hidden) ladeAlles(true); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && state.pin && !$('board').hidden) lade(true); });
 
   // ---- Start ----------------------------------------------------------------
   if (!kundeOk) {
     $('gate-text').textContent = 'Bitte öffnen Sie das Dashboard über Ihren persönlichen Link, den Sie von Termivox erhalten haben.';
-    $('pin').disabled = true; $('login-btn').disabled = true;
     $('login').hidden = true;
   } else {
-    let t = '';
-    try { t = sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { /* kein Speicher */ }
-    if (t) {
-      state.token = t;
-      try { setBetrieb(JSON.parse(sessionStorage.getItem(TOKEN_KEY + '_b') || '{}')); } catch (e) { /* Name kommt mit der Übersicht */ }
-      zeigeBoard();
-    }
-    else setTimeout(() => $('pin').focus(), 50);
+    setTimeout(() => $('pin').focus(), 50);
   }
 })();
 </script>
