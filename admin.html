@@ -95,6 +95,24 @@
 .ko-name{overflow-wrap:anywhere}
 .ko-betrag{white-space:nowrap}
 .ko-sum{font-weight:700;font-size:17px}
+.jb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.jb-n{border-radius:14px;background:rgba(255,255,255,.05);padding:10px 12px}
+.jb-n b{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:20px;line-height:1.15;overflow-wrap:anywhere}
+.jb-n span{font-size:13px;color:var(--mut)}
+.pb-row{margin-top:20px}
+.pb-label{font-size:15px;line-height:1.35;margin-bottom:8px}
+.pb-bar{display:flex;align-items:center;gap:12px}
+.pb-track{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.pb-fill{height:100%;border-radius:999px}
+.pb-fill.mint{background:linear-gradient(90deg,#34E0B8,#7DF0D2)}
+.pb-fill.gelb{background:linear-gradient(90deg,#E8A94B,#F5CE8A)}
+.pb-fill.rot{background:linear-gradient(90deg,#E5564A,#FF8F85)}
+.pb-pct{min-width:52px;text-align:right;font-size:17px}
+.pb-pct.mint{color:var(--mint)}
+.pb-pct.gelb{color:#F5CE8A}
+.pb-pct.rot{color:#FF8F85}
+.jb-warn{margin:18px 0 0;font-size:14px;color:#F5CE8A}
+.jb-hint{margin:10px 4px 0;font-size:13px;line-height:1.45;color:var(--mut)}
 
 /* Reiter */
 .dtabs{display:flex;gap:8px;margin:34px 0 6px}
@@ -138,6 +156,7 @@
   .kpi b{font-size:30px}
   .tb-row{grid-template-columns:100px 1fr 40px;gap:8px}
   .pcard{padding:16px}
+  .jb-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:430px){.icon-btn{padding:0 10px;font-size:14px}.bar-act{gap:6px}.bar .db-wrap{gap:8px}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
@@ -189,6 +208,10 @@
     </section>
 
     <div class="msg" id="board-msg" role="status"></div>
+
+    <h2 class="sec-h" id="jb-h" hidden><span id="jb-titel">Jahresbilanz</span></h2>
+    <section class="pcard glass" id="jahresbilanz" aria-label="Jahresbilanz" hidden></section>
+    <p class="jb-hint" id="jb-hinweis" hidden></p>
 
     <h2 class="sec-h">Tarif-Verteilung <small id="tarif-sub"></small></h2>
     <section class="pcard glass" id="tarife" aria-label="Tarif-Verteilung"></section>
@@ -317,7 +340,7 @@
   function abmelden(text) {
     state.pin = ''; state.daten = null;
     $('pin').value = '';
-    ['tarife', 'betriebe', 'vertriebler', 'kostenliste', 'p-rueckrufe', 'p-termine', 'p-privat'].forEach((id) => $(id).replaceChildren());
+    ['jahresbilanz', 'tarife', 'betriebe', 'vertriebler', 'kostenliste', 'p-rueckrufe', 'p-termine', 'p-privat'].forEach((id) => $(id).replaceChildren());
     waehleTab('rueckrufe');
     zeigeGate(text);
   }
@@ -399,6 +422,7 @@
     $('k-woche').textContent = num(k.termine_woche) != null ? num(k.termine_woche) : '–';
     [$('c-rr'), $('c-rr2')].forEach((c) => { c.textContent = rrOffen; c.hidden = rrOffen === 0; });
 
+    renderJahresbilanz(d.jahresbilanz);
     renderTarife(d.tarife, k);
     renderVertriebler(d.vertriebler);
     renderKostenListe(d.kosten_liste);
@@ -431,6 +455,83 @@
       row.appendChild(val);
       box.appendChild(row);
     });
+  }
+
+  // Karte "Jahresbilanz seit …": nur sichtbar, wenn n8n das Objekt liefert
+  const fEuro0 = (v) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+
+  function datumDe(v) {
+    const z = zeit(v);
+    if (z) return p2(z.d) + '.' + p2(z.mo) + '.' + z.y;
+    return v ? String(v) : '';
+  }
+
+  function fortschritt(label, wert, grenze, prozentRoh, warnung, einheit) {
+    const row = el('div', 'pb-row');
+    row.appendChild(el('div', 'pb-label', label));
+    let p = num(prozentRoh);
+    if (p == null && wert != null && grenze) p = wert / grenze * 100;
+    if (p == null) p = 0;
+    p = Math.max(0, p);
+    const stufe = p >= 100 ? 'rot' : (warnung === true || p >= 80) ? 'gelb' : 'mint';
+    const zeile = el('div', 'pb-bar');
+    const track = el('div', 'pb-track');
+    track.setAttribute('role', 'progressbar');
+    track.setAttribute('aria-label', label);
+    track.setAttribute('aria-valuemin', '0');
+    track.setAttribute('aria-valuemax', '100');
+    track.setAttribute('aria-valuenow', String(Math.round(Math.min(p, 100))));
+    const fill = el('div', 'pb-fill ' + stufe);
+    fill.style.width = Math.min(100, p) + '%';
+    track.appendChild(fill);
+    zeile.appendChild(track);
+    zeile.appendChild(el('b', 'pb-pct ' + stufe, Math.round(p) + ' %'));
+    row.appendChild(zeile);
+    return row;
+  }
+
+  function renderJahresbilanz(jb) {
+    const box = $('jahresbilanz');
+    const kopf = $('jb-h');
+    const hint = $('jb-hinweis');
+    box.replaceChildren();
+    const hat = jb && typeof jb === 'object' && !Array.isArray(jb);
+    box.hidden = kopf.hidden = !hat;
+    if (!hat) { hint.hidden = true; return; }
+    const seit = datumDe(jb.seit);
+    $('jb-titel').textContent = 'Jahresbilanz' + (seit ? ' seit ' + seit : (jb.jahr ? ' ' + jb.jahr : ''));
+
+    const grid = el('div', 'jb-grid');
+    [['Umsatz', jb.umsatz], ['Kosten', jb.kosten], ['Provisionen', jb.provisionen], ['Gewinn', jb.gewinn]].forEach(([l, v]) => {
+      const c = el('div', 'jb-n');
+      const n = num(v);
+      const b = el('b', null, n != null ? fEuro(n) : '–');
+      if (l === 'Gewinn' && n != null && n < 0) b.style.color = '#FFB4A8';
+      c.appendChild(b);
+      c.appendChild(el('span', null, l));
+      grid.appendChild(c);
+    });
+    box.appendChild(grid);
+
+    const gewinn = num(jb.gewinn);
+    const umsatz = num(jb.umsatz);
+    const gGrenze = num(jb.gewerbesteuer_grenze) != null ? num(jb.gewerbesteuer_grenze) : 24500;
+    const kGrenze = num(jb.kleinunternehmer_grenze) != null ? num(jb.kleinunternehmer_grenze) : 25000;
+    if (gewinn != null) {
+      box.appendChild(fortschritt('Gewerbesteuer-Freibetrag: ' + fEuro(gewinn) + ' von ' + fEuro0(gGrenze) + ' Gewinn', gewinn, gGrenze, jb.gewerbesteuer_prozent, jb.gewerbesteuer_warnung));
+    }
+    if (umsatz != null) {
+      box.appendChild(fortschritt('Kleinunternehmer-Grenze: ' + fEuro(umsatz) + ' von ' + fEuro0(kGrenze) + ' Umsatz', umsatz, kGrenze, jb.kleinunternehmer_prozent, jb.kleinunternehmer_warnung));
+    }
+
+    const ohne = num(jb.kunden_ohne_startdatum);
+    if (ohne != null && ohne > 0) {
+      box.appendChild(el('p', 'jb-warn', ohne === 1 ? '1 Kunde ohne Startdatum zählt nicht mit.' : ohne + ' Kunden ohne Startdatum zählen nicht mit.'));
+    }
+
+    const text = typeof jb.hinweis === 'string' ? jb.hinweis.trim() : '';
+    hint.textContent = text;
+    hint.hidden = !text;
   }
 
   // Karte "Vertriebler": nur sichtbar, wenn n8n das Feld liefert (leere Liste: kurzer Hinweis)
