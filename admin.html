@@ -39,10 +39,10 @@
 /* Kennzahlen */
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:22px 0 8px}
 .kpi{border-radius:20px;padding:16px 14px;min-height:44px}
-.kpi:last-child{grid-column:span 2}
 .kpi b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:36px;line-height:1.05;letter-spacing:-.03em;overflow-wrap:anywhere}
 .kpi span{display:block;margin-top:8px;font-size:14px;color:var(--mut);line-height:1.25}
 .kpi.mint b{color:var(--mint)}
+.kpi small{display:block;margin-top:6px;font-size:12px;line-height:1.3;color:var(--mut)}
 
 /* Abschnitte */
 .sec-h{font-size:22px;margin:34px 0 14px}
@@ -80,6 +80,21 @@
 .bz-num b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:22px;line-height:1.1}
 .bz-num span{font-size:12px;color:var(--mut);line-height:1.2;display:block}
 .tel{display:inline-block;font-weight:600;padding:10px 0}
+.bz-vt{margin-top:10px;font-size:14px;color:var(--mut);line-height:1.4}
+.bz-vt b{color:var(--tx);font-weight:600}
+.vt-row{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;min-height:52px;padding:6px 0}
+.vt-row+.vt-row{border-top:1px solid var(--line)}
+.vt-name{font-weight:600;overflow-wrap:anywhere}
+.vt-kunden{color:var(--mut);font-size:15px;white-space:nowrap}
+.vt-prov{text-align:right;line-height:1.2}
+.vt-prov b{display:block;font-size:17px;white-space:nowrap}
+.vt-prov small{font-size:12px;color:var(--mut)}
+.vt-leer{color:var(--mut);padding:10px 0}
+.ko-row{display:flex;justify-content:space-between;gap:16px;align-items:center;min-height:44px}
+.ko-row+.ko-row{border-top:1px solid var(--line)}
+.ko-name{overflow-wrap:anywhere}
+.ko-betrag{white-space:nowrap}
+.ko-sum{font-weight:700;font-size:17px}
 
 /* Reiter */
 .dtabs{display:flex;gap:8px;margin:34px 0 6px}
@@ -109,11 +124,10 @@
 
 /* Feste Leiste am Handy */
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;gap:8px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(8,11,22,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
-.dock .dtab{min-height:54px}
+.dock .dtab{min-height:54px;padding:0 8px;font-size:16px;line-height:1.15}
 
 @media (min-width:900px){
-  .kpis{grid-template-columns:repeat(5,1fr)}
-  .kpi:last-child{grid-column:auto}
+  .kpis{grid-template-columns:repeat(4,1fr)}
 }
 @media (max-width:720px){
   .dtabs{display:none}
@@ -164,8 +178,11 @@
 
   <main class="db-wrap" id="inhalt" tabindex="-1">
     <section class="kpis" aria-label="Kennzahlen">
+      <div class="kpi glass"><b id="k-umsatz">–</b><span>Umsatz diesen Monat</span><small id="k-umsatz-sub" hidden></small></div>
+      <div class="kpi glass"><b id="k-kosten">–</b><span>Kosten</span></div>
+      <div class="kpi glass"><b id="k-prov">–</b><span>Provisionen</span></div>
+      <div class="kpi glass mint"><b id="k-gewinn">–</b><span>Gewinn</span></div>
       <div class="kpi glass"><b id="k-kunden">–</b><span>Aktive Kunden</span></div>
-      <div class="kpi glass"><b id="k-mrr">–</b><span>Umsatz pro Monat</span></div>
       <div class="kpi glass mint"><b id="k-rr">–</b><span>Rückrufe offen</span></div>
       <div class="kpi glass"><b id="k-heute">–</b><span>Termine heute</span></div>
       <div class="kpi glass"><b id="k-woche">–</b><span>Termine diese Woche</span></div>
@@ -176,21 +193,30 @@
     <h2 class="sec-h">Tarif-Verteilung <small id="tarif-sub"></small></h2>
     <section class="pcard glass" id="tarife" aria-label="Tarif-Verteilung"></section>
 
+    <h2 class="sec-h" id="vert-h" hidden>Vertriebler <small id="vert-sub"></small></h2>
+    <section class="pcard glass" id="vertriebler" aria-label="Vertriebler" hidden></section>
+
+    <h2 class="sec-h" id="kosten-h" hidden>Kosten pro Monat</h2>
+    <section class="pcard glass" id="kostenliste" aria-label="Kosten pro Monat" hidden></section>
+
     <h2 class="sec-h">Betriebe <small id="betriebe-sub"></small></h2>
     <section class="biz" id="betriebe" aria-label="Betriebe"></section>
 
     <div class="dtabs" role="tablist" aria-label="Listen" id="tabs-top">
       <button class="dtab" role="tab" id="t-rueckrufe" aria-controls="p-rueckrufe" aria-selected="true" type="button">Rückrufe <span class="cnt" id="c-rr" hidden>0</span></button>
       <button class="dtab" role="tab" id="t-termine" aria-controls="p-termine" aria-selected="false" type="button">Termine</button>
+      <button class="dtab" role="tab" id="t-privat" aria-controls="p-privat" aria-selected="false" type="button">Mein Kalender</button>
     </div>
 
     <section class="panel" id="p-rueckrufe" role="tabpanel" aria-labelledby="t-rueckrufe"></section>
     <section class="panel" id="p-termine" role="tabpanel" aria-labelledby="t-termine" hidden></section>
+    <section class="panel" id="p-privat" role="tabpanel" aria-labelledby="t-privat" hidden></section>
   </main>
 
   <nav class="dock" role="tablist" aria-label="Listen (mobil)" id="tabs-dock">
     <button class="dtab" role="tab" data-t="rueckrufe" aria-selected="true" type="button">Rückrufe <span class="cnt" id="c-rr2" hidden>0</span></button>
     <button class="dtab" role="tab" data-t="termine" aria-selected="false" type="button">Termine</button>
+    <button class="dtab" role="tab" data-t="privat" aria-selected="false" type="button">Mein Kalender</button>
   </nav>
 </div>
 
@@ -225,7 +251,7 @@
   const fParts = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
   const fKey = new Intl.DateTimeFormat('sv-SE', { timeZone: TZ });
   const fDayLong = new Intl.DateTimeFormat('de-DE', { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long' });
-  const fEuro = (v) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: Number.isInteger(v) ? 0 : 2 }).format(v);
+  const fEuro = (v) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
   const addDays = (key, n) => { const d = new Date(key + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
   const mkZeit = (y, mo, d, h, mi) => ({ y, mo, d, h, mi, key: y + '-' + p2(mo) + '-' + p2(d), min: h * 60 + mi });
   const num = (v) => (v != null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
@@ -291,7 +317,7 @@
   function abmelden(text) {
     state.pin = ''; state.daten = null;
     $('pin').value = '';
-    ['tarife', 'betriebe', 'p-rueckrufe', 'p-termine'].forEach((id) => $(id).replaceChildren());
+    ['tarife', 'betriebe', 'vertriebler', 'kostenliste', 'p-rueckrufe', 'p-termine', 'p-privat'].forEach((id) => $(id).replaceChildren());
     waehleTab('rueckrufe');
     zeigeGate(text);
   }
@@ -350,16 +376,36 @@
 
     const rrOffen = num(k.rueckrufe_offen) != null ? num(k.rueckrufe_offen) : arr(d.rueckrufe).filter((r) => r.status !== 'erledigt').length;
     $('k-kunden').textContent = num(k.aktive_kunden) != null ? num(k.aktive_kunden) : '–';
-    $('k-mrr').textContent = num(k.mrr) != null ? fEuro(num(k.mrr)) : '–';
+    // Umsatz, Provisionen, Kosten und Gewinn kommen fertig von n8n (nichts wird hier nachgerechnet)
+    const einr = num(k.einrichtung);
+    const umsatz = num(k.umsatz);
+    const prov = num(k.provisionen);
+    const gewinn = num(k.gewinn);
+    const kosten = num(k.kosten);                // feste Kosten pro Monat, direkt von n8n
+    $('k-umsatz').textContent = umsatz != null ? fEuro(umsatz) : '–';
+    const sub = $('k-umsatz-sub');
+    const teile = [];
+    if (num(k.mrr) != null) teile.push(fEuro(num(k.mrr)) + ' Monatspreise');
+    if (einr != null && einr > 0) teile.push(fEuro(einr) + ' Einrichtung');
+    sub.textContent = teile.join(' + ');
+    sub.hidden = !teile.length;
+    $('k-kosten').textContent = kosten != null ? fEuro(kosten) : '–';
+    $('k-prov').textContent = prov != null ? fEuro(prov) : '–';
+    const gEl = $('k-gewinn');
+    gEl.textContent = gewinn != null ? fEuro(gewinn) : '–';
+    gEl.style.color = gewinn != null && gewinn < 0 ? '#FFB4A8' : '';
     $('k-rr').textContent = rrOffen;
     $('k-heute').textContent = num(k.termine_heute) != null ? num(k.termine_heute) : '–';
     $('k-woche').textContent = num(k.termine_woche) != null ? num(k.termine_woche) : '–';
     [$('c-rr'), $('c-rr2')].forEach((c) => { c.textContent = rrOffen; c.hidden = rrOffen === 0; });
 
     renderTarife(d.tarife, k);
+    renderVertriebler(d.vertriebler);
+    renderKostenListe(d.kosten_liste);
     renderBetriebe(arr(d.betriebe), k);
     renderRueckrufe(arr(d.rueckrufe));
     renderTermine(arr(d.termine));
+    renderPrivat(arr(d.privat_termine));
   }
 
   function renderTarife(t, k) {
@@ -383,6 +429,31 @@
       const val = el('span', 'tb-val');
       val.appendChild(el('b', null, String(wert)));
       row.appendChild(val);
+      box.appendChild(row);
+    });
+  }
+
+  // Karte "Vertriebler": nur sichtbar, wenn n8n das Feld liefert (leere Liste: kurzer Hinweis)
+  function renderVertriebler(v) {
+    const box = $('vertriebler');
+    const kopf = $('vert-h');
+    box.replaceChildren();
+    const hat = Array.isArray(v);
+    box.hidden = kopf.hidden = !hat;
+    if (!hat) return;
+    const liste = arr(v);
+    $('vert-sub').textContent = liste.length ? liste.length + (liste.length === 1 ? ' Person' : ' Personen') : '';
+    if (!liste.length) { box.appendChild(el('div', 'vt-leer', 'Noch keine Vertriebler.')); return; }
+    liste.forEach((p) => {
+      const row = el('div', 'vt-row');
+      row.appendChild(el('span', 'vt-name', p.name ? String(p.name) : 'Ohne Namen'));
+      const kn = num(p.kunden);
+      row.appendChild(el('span', 'vt-kunden', kn != null ? kn + (kn === 1 ? ' Kunde' : ' Kunden') : '–'));
+      const pm = num(p.provision_monat);
+      const pv = el('span', 'vt-prov');
+      pv.appendChild(el('b', null, pm != null ? fEuro(pm) : '–'));
+      pv.appendChild(el('small', null, 'diesen Monat'));
+      row.appendChild(pv);
       box.appendChild(row);
     });
   }
@@ -411,6 +482,23 @@
       if (roh) tags.appendChild(el('span', 'tag' + (tl ? ' ' + tk : ''), tl || roh));
       if (test) tags.appendChild(el('span', 'tag test', 'Test'));
       card.appendChild(tags);
+      // Vertriebler (leer = eigener Kunde; Feld fehlt = nichts anzeigen) und Provision (nur wenn > 0)
+      const vt = typeof b.vertrieb === 'string' ? b.vertrieb.trim() : null;
+      const pm = num(b.provision_monat);
+      if (vt !== null || (pm != null && pm > 0)) {
+        const line = el('div', 'bz-vt');
+        if (vt !== null) {
+          line.appendChild(document.createTextNode('Vertrieb: '));
+          line.appendChild(el('b', null, vt || 'Eigener Kunde'));
+        }
+        if (pm != null && pm > 0) {
+          if (vt !== null) line.appendChild(document.createTextNode(' · '));
+          line.appendChild(document.createTextNode('Provision '));
+          line.appendChild(el('b', null, fEuro(pm)));
+          line.appendChild(document.createTextNode(' diesen Monat'));
+        }
+        card.appendChild(line);
+      }
       const tel = telEl(b.telefon);
       if (tel) card.appendChild(tel);
       else if (b.telefon) card.appendChild(el('div', 'tel', String(b.telefon)));
@@ -453,10 +541,10 @@
     });
   }
 
-  function renderTermine(liste) {
-    const box = $('p-termine');
+  // Gemeinsame Terminliste (Betriebe und privater Kalender): gruppiert nach Heute, Morgen, Datum
+  function renderTerminListe(box, liste, leerText, felder) {
     box.replaceChildren();
-    if (!liste.length) { box.appendChild(el('div', 'leer', 'Aktuell sind keine Termine eingetragen.')); return; }
+    if (!liste.length) { box.appendChild(el('div', 'leer', leerText)); return; }
     const sortiert = liste
       .map((t) => ({ t, z: zeit(t.start) }))
       .sort((a, b) => (a.z && b.z ? (a.z.key < b.z.key ? -1 : a.z.key > b.z.key ? 1 : a.z.min - b.z.min) : a.z ? -1 : b.z ? 1 : 0));
@@ -476,30 +564,74 @@
           box.appendChild(el('h2', 'day', 'Ohne Datum'));
         }
       }
+      const f = felder(t);
       const item = el('article', 'item glass');
       const zt = el('div', 'zeit' + (z && z.ganztag ? ' ganz' : ''), z ? (z.ganztag ? 'Ganztägig' : uhr(z)) : '–');
       const ende = zeit(t.ende);
       if (z && !z.ganztag && ende && !ende.ganztag && ende.key === z.key) zt.appendChild(el('small', null, 'bis ' + uhr(ende)));
       const info = el('div', 'info');
-      info.appendChild(el('strong', null, t.kunde_name || 'Ohne Namen'));
-      const zeile = [t.leistung, t.mitarbeiter].filter(Boolean).join(' · ');
-      if (zeile) info.appendChild(el('span', 'l', zeile));
-      if (t.betrieb) { const tg = el('span', 'tag', String(t.betrieb)); tg.style.marginTop = '8px'; info.appendChild(tg); }
+      info.appendChild(el('strong', null, f.titel));
+      if (f.zeile) info.appendChild(el('span', 'l', f.zeile));
+      if (f.tag) { const tg = el('span', 'tag', f.tag); tg.style.marginTop = '8px'; info.appendChild(tg); }
       item.append(zt, info);
       box.appendChild(item);
     });
+  }
+
+  function renderTermine(liste) {
+    renderTerminListe($('p-termine'), liste, 'Aktuell sind keine Termine eingetragen.', (t) => ({
+      titel: t.kunde_name ? String(t.kunde_name) : 'Ohne Namen',
+      zeile: [t.leistung, t.mitarbeiter].filter(Boolean).join(' · '),
+      tag: t.betrieb ? String(t.betrieb) : ''
+    }));
+  }
+
+  function renderPrivat(liste) {
+    renderTerminListe($('p-privat'), liste, 'Keine privaten Termine in den nächsten 14 Tagen.', (t) => ({
+      titel: t.titel ? String(t.titel) : 'Ohne Titel',
+      zeile: t.ort ? String(t.ort) : '',
+      tag: ''
+    }));
+  }
+
+  // Karte "Kosten pro Monat": nur sichtbar, wenn n8n die Liste liefert
+  function renderKostenListe(v) {
+    const box = $('kostenliste');
+    const kopf = $('kosten-h');
+    box.replaceChildren();
+    const hat = Array.isArray(v);
+    box.hidden = kopf.hidden = !hat;
+    if (!hat) return;
+    const liste = arr(v);
+    if (!liste.length) { box.appendChild(el('div', 'vt-leer', 'Keine Kosten eingetragen.')); return; }
+    let summe = 0;
+    liste.forEach((p) => {
+      const row = el('div', 'ko-row');
+      row.appendChild(el('span', 'ko-name', p.bezeichnung ? String(p.bezeichnung) : 'Ohne Bezeichnung'));
+      const b = num(p.betrag);
+      if (b != null) summe += b;
+      row.appendChild(el('b', 'ko-betrag', b != null ? fEuro(b) : '–'));
+      box.appendChild(row);
+    });
+    const sum = el('div', 'ko-row ko-sum');
+    sum.appendChild(el('span', 'ko-name', 'Summe'));
+    sum.appendChild(el('b', 'ko-betrag', fEuro(summe)));
+    box.appendChild(sum);
   }
 
   // ---- Bedienung ------------------------------------------------------------
   function waehleTab(name) {
     $('p-rueckrufe').hidden = name !== 'rueckrufe';
     $('p-termine').hidden = name !== 'termine';
+    $('p-privat').hidden = name !== 'privat';
     $('t-rueckrufe').setAttribute('aria-selected', String(name === 'rueckrufe'));
     $('t-termine').setAttribute('aria-selected', String(name === 'termine'));
+    $('t-privat').setAttribute('aria-selected', String(name === 'privat'));
     document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.t === name)));
   }
   $('t-rueckrufe').addEventListener('click', () => waehleTab('rueckrufe'));
   $('t-termine').addEventListener('click', () => waehleTab('termine'));
+  $('t-privat').addEventListener('click', () => waehleTab('privat'));
   document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.addEventListener('click', () => {
     waehleTab(b.dataset.t);
     document.querySelector('.panel:not([hidden])').scrollIntoView({ block: 'start' });
