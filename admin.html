@@ -82,6 +82,7 @@
 .tel{display:inline-block;font-weight:600;padding:10px 0}
 .bz-vt{margin-top:10px;font-size:14px;color:var(--mut);line-height:1.4}
 .bz-vt b{color:var(--tx);font-weight:600}
+.bz-ai{margin-top:6px;font-size:13px;color:var(--mut);line-height:1.4}
 .vt-row{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;min-height:52px;padding:6px 0}
 .vt-row+.vt-row{border-top:1px solid var(--line)}
 .vt-name{font-weight:600;overflow-wrap:anywhere}
@@ -599,6 +600,14 @@
           line.appendChild(document.createTextNode(' diesen Monat'));
         }
         card.appendChild(line);
+      }
+      // OpenAI-Nutzung des Betriebs (nur wenn Nachrichten > 0; fehlen die Kosten, nur die Anzahl)
+      const nachr = num(b.nachrichten_monat);
+      if (nachr != null && nachr > 0) {
+        const ok = num(b.openai_kosten_monat);
+        const zahl = new Intl.NumberFormat('de-DE').format(nachr);
+        const text = zahl + (nachr === 1 ? ' Chat-Nachricht' : ' Chat-Nachrichten') + (ok != null ? ', ca. ' + fEuro(ok) + ' OpenAI' : '');
+        card.appendChild(el('div', 'bz-ai', text));
       }
       const tel = telEl(b.telefon);
       if (tel) card.appendChild(tel);
