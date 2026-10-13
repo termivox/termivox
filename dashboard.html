@@ -25,6 +25,7 @@
 .inp{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1.5px solid var(--line);background:rgba(255,255,255,.05);color:var(--tx);font:inherit;font-size:18px;letter-spacing:.04em}
 .inp::placeholder{color:var(--mut);letter-spacing:0}
 .gate-card .btn{width:100%;margin-top:16px}
+.fgrp{margin-bottom:16px}
 .msg{margin-top:14px;color:#FFB4A8;font-size:15px;min-height:1.4em}
 .msg.ok{color:var(--mint)}
 .msg:empty{margin:0;min-height:0}
@@ -106,6 +107,10 @@ button.kpi{cursor:pointer}
     <h1 id="gate-titel">Ihr Dashboard</h1>
     <p id="gate-text">Bitte geben Sie Ihre PIN ein.</p>
     <form id="login" novalidate>
+      <div class="fgrp" id="kunde-feld" hidden>
+        <label class="dfld" for="kunde-id">Betriebs-ID</label>
+        <input class="inp" id="kunde-id" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="60">
+      </div>
       <label class="dfld" for="pin">PIN</label>
       <input class="inp" id="pin" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" required>
       <button class="btn btn-p" type="submit" id="login-btn">Anmelden</button>
@@ -179,8 +184,9 @@ button.kpi{cursor:pointer}
 
   const $ = (id) => document.getElementById(id);
   const params = new URLSearchParams(location.search);
-  const kunde = (params.get('kunde') || '').trim();
-  const kundeOk = /^[A-Za-z0-9_-]{1,64}$/.test(kunde);
+  const urlKunde = (params.get('kunde') || '').trim();
+  const mitIdFeld = !/^[A-Za-z0-9_-]{1,64}$/.test(urlKunde);   // ohne gültigen ?kunde= fragt die Anmeldung die Betriebs-ID ab
+  let kunde = mitIdFeld ? '' : urlKunde;                      // eingegebene ID nur im Arbeitsspeicher, nie in URL oder Speicher
 
   const state = { pin: '', rueckrufe: [], offen: 0, filter: 'offen', timer: null, busy: false };
 
@@ -243,12 +249,13 @@ button.kpi{cursor:pointer}
     $('board').hidden = true;
     $('gate').hidden = false;
     $('login-msg').textContent = text || '';
-    setTimeout(() => $('pin').focus(), 50);
+    setTimeout(() => (mitIdFeld && !$('kunde-id').value ? $('kunde-id') : $('pin')).focus(), 50);
   }
 
   function abmelden(text) {
     state.pin = ''; state.rueckrufe = []; state.offen = 0;
     $('pin').value = '';
+    if (mitIdFeld) { kunde = ''; $('kunde-id').value = ''; }
     $('rr-liste').replaceChildren();
     zeigeGate(text);
   }
@@ -257,6 +264,12 @@ button.kpi{cursor:pointer}
     e.preventDefault();
     const pin = $('pin').value.trim();
     const msg = $('login-msg');
+    if (mitIdFeld) {
+      const id = $('kunde-id').value.trim();
+      if (!id) { msg.textContent = 'Bitte geben Sie Ihre Betriebs-ID ein.'; $('kunde-id').focus(); return; }
+      if (!/^[A-Za-z0-9_-]{1,60}$/.test(id)) { msg.textContent = 'Die Betriebs-ID besteht nur aus Buchstaben, Ziffern, Unterstrich und Bindestrich (höchstens 60 Zeichen).'; $('kunde-id').focus(); return; }
+      kunde = id;
+    }
     if (!pin) { msg.textContent = 'Bitte geben Sie Ihre PIN ein.'; $('pin').focus(); return; }
     if (!/^[0-9]+$/.test(pin)) { msg.textContent = 'Die PIN besteht nur aus Ziffern.'; $('pin').focus(); return; }
     $('login-btn').disabled = true; msg.textContent = 'Wird geprüft…';
@@ -265,6 +278,7 @@ button.kpi{cursor:pointer}
       const d = await api({ aktion: 'liste' });
       uebernehmen(d);
       $('pin').value = ''; msg.textContent = '';
+      if (mitIdFeld) $('kunde-id').value = '';
       $('gate').hidden = true; $('board').hidden = false;
       $('stand').textContent = 'Stand ' + fTime.format(new Date()) + ' Uhr';
       render();
@@ -273,6 +287,7 @@ button.kpi{cursor:pointer}
       state.timer = setInterval(() => { if (!document.hidden) lade(true); }, REFRESH_MS);
     } catch (err) {
       state.pin = '';
+      if (mitIdFeld) kunde = '';
       msg.textContent = err instanceof LoginError ? err.message : 'Gerade klappt etwas nicht. Bitte versuchen Sie es gleich noch einmal.';
       $('pin').value = ''; $('pin').focus();
     } finally {
@@ -391,9 +406,10 @@ button.kpi{cursor:pointer}
   document.addEventListener('visibilitychange', () => { if (!document.hidden && state.pin && !$('board').hidden) lade(true); });
 
   // ---- Start ----------------------------------------------------------------
-  if (!kundeOk) {
-    $('gate-text').textContent = 'Bitte öffnen Sie das Dashboard über Ihren persönlichen Link, den Sie von Termivox erhalten haben.';
-    $('login').hidden = true;
+  if (mitIdFeld) {
+    $('kunde-feld').hidden = false;
+    $('gate-text').textContent = 'Bitte geben Sie Ihre Betriebs-ID und Ihre PIN ein.';
+    setTimeout(() => $('kunde-id').focus(), 50);
   } else {
     setTimeout(() => $('pin').focus(), 50);
   }
