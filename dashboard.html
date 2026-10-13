@@ -1,315 +1,467 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Termivox — Dashboard</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#080B16">
+<title>Dashboard – Termivox</title>
 <link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bricolage-grotesque-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
 <style>
-/* Schriften lokal (OFL-Lizenz in fonts/) – keine Aufrufe an fremde Server */
-@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/bricolage-grotesque-latin-500-normal.woff2) format('woff2')}
-@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/bricolage-grotesque-latin-600-normal.woff2) format('woff2')}
-@font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/bricolage-grotesque-latin-700-normal.woff2) format('woff2')}
-@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/instrument-sans-latin-400-normal.woff2) format('woff2')}
-@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/instrument-sans-latin-500-normal.woff2) format('woff2')}
-@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/instrument-sans-latin-600-normal.woff2) format('woff2')}
-</style>
-<script src="vendor/chart.js/chart.umd.min.js"></script>
-<style>
-:root{
-  --ink:#15130F; --ink-2:#1C1912; --ink-3:#231F16;
-  --paper:#F3EEE2; --paper-dim:#B9B09A;
-  --brass:#C99A3C; --brass-light:#E2BD6C; --brass-dim:#8A6C2C;
-  --line:rgba(243,238,226,0.12);
-  --good:#7FB07A; --warn:#D9A441; --bad:#C97A6E;
+/* Dashboard für den Betrieb – nutzt die Grundlagen aus styles.css */
+.db{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.db-wrap{width:100%;max-width:880px;margin:0 auto;padding:0 20px}
+
+/* Anmeldung */
+.gate{flex:1;display:grid;place-items:center;padding:32px 20px}
+.gate-card{width:100%;max-width:420px;border-radius:24px;padding:32px 26px}
+.gate-card h1{font-size:30px;margin:14px 0 8px}
+.gate-card p{color:var(--mut)}
+.gate-card form{margin-top:22px}
+.dfld{display:block;font-weight:600;font-size:15px;margin:0 0 8px}
+.inp{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1.5px solid var(--line);background:rgba(255,255,255,.05);color:var(--tx);font:inherit;font-size:18px;letter-spacing:.04em}
+.inp::placeholder{color:var(--mut);letter-spacing:0}
+.gate-card .btn{width:100%;margin-top:16px}
+.msg{margin-top:14px;color:#FFB4A8;font-size:15px;min-height:1.4em}
+.msg.ok{color:var(--mint)}
+.msg:empty{margin:0;min-height:0}
+
+/* Kopf */
+.bar{position:sticky;top:0;z-index:20;background:rgba(8,11,22,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);border-top:4px solid var(--accent)}
+.bar .db-wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px}
+.bar h1{font-size:24px;line-height:1.1}
+.bar small{display:block;color:var(--mut);font-size:13px;margin-top:2px}
+.bar-act{display:flex;gap:8px;flex:none}
+.icon-btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--tx);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.icon-btn:hover{border-color:var(--mint)}
+
+/* Kennzahlen */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 8px}
+.kpi{border-radius:20px;padding:16px 14px;text-align:left;color:var(--tx);font:inherit;cursor:default;min-height:44px}
+button.kpi{cursor:pointer}
+.kpi b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:40px;line-height:1;letter-spacing:-.03em}
+.kpi span{display:block;margin-top:8px;font-size:14px;color:var(--mut);line-height:1.25}
+.kpi.warn b{color:var(--mint)}
+
+/* Reiter */
+.dtabs{display:flex;gap:8px;margin:20px 0 6px}
+.dtab{position:relative;flex:1;min-height:52px;padding:0 18px;border-radius:14px;border:1.5px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:17px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.dtab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.cnt{min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--mint);color:#04241B;font-size:14px;font-weight:700;display:inline-grid;place-items:center}
+.panel{padding-bottom:110px}
+
+/* Listen */
+.day{margin:26px 0 10px;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:20px;font-weight:700;letter-spacing:-.02em}
+.day small{color:var(--mut);font-family:'Instrument Sans',system-ui,sans-serif;font-size:14px;font-weight:500;letter-spacing:0;margin-left:8px}
+.item{display:flex;gap:16px;align-items:flex-start;border-radius:18px;padding:14px 16px;margin-bottom:10px}
+.item.off{opacity:.55}
+.zeit{flex:none;min-width:64px;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:22px;font-weight:700;line-height:1.1}
+.zeit small{display:block;font-family:'Instrument Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:var(--mut);margin-top:3px}
+.info{min-width:0;flex:1}
+.info strong{display:block;font-size:18px;overflow-wrap:anywhere}
+.info span{color:var(--mut);font-size:15px;overflow-wrap:anywhere}
+.tag{display:table;margin-top:8px;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600;background:rgba(255,255,255,.08);color:var(--tx)}
+.tag.open{background:rgba(52,224,184,.16);color:var(--mint)}
+.tag.cancel{background:rgba(255,120,100,.16);color:#FFB4A8}
+.leer{margin:26px 0;color:var(--mut);text-align:center;padding:30px 16px;border-radius:18px;border:1px dashed var(--line)}
+
+/* Rückrufe */
+.seg{display:flex;gap:8px;margin:18px 0 6px;flex-wrap:wrap}
+.seg button{min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--mint);color:var(--tx);background:rgba(52,224,184,.1)}
+.rr{border-radius:18px;padding:16px;margin-bottom:12px}
+.rr-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.rr-top strong{font-size:19px;overflow-wrap:anywhere}
+.rr-time{color:var(--mut);font-size:14px;white-space:nowrap}
+.rr p{margin:8px 0 0;color:var(--tx);white-space:pre-line;overflow-wrap:anywhere}
+.rr-act{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.rr-act .btn{flex:1;min-width:150px}
+.rr-tel{margin-top:6px;display:inline-block;font-size:18px;font-weight:600;padding:10px 0}
+
+/* Feste Leiste am Handy */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;gap:8px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(8,11,22,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.dock .dtab{min-height:54px}
+@media (max-width:720px){
+  .dtabs{display:none}
+  .dock{display:flex}
+  .bar h1{font-size:21px}
+  .kpi b{font-size:34px}
+  .kpis{gap:8px}
+  .kpi{padding:14px 10px}
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--ink); color:var(--paper); font-family:'Instrument Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; padding:32px 24px 64px;}
-h1,h2{font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:600;}
-.wrap{max-width:1040px; margin:0 auto;}
-header{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; flex-wrap:wrap; gap:8px;}
-h1{font-size:1.7rem;}
-.stand{font-family:'Instrument Sans',system-ui,sans-serif; font-size:0.75rem; color:var(--paper-dim);}
-.sub{color:var(--paper-dim); font-size:0.92rem; margin-bottom:32px;}
-
-.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:36px;}
-.stat{background:var(--ink-3); border:1px solid var(--line); border-radius:8px; padding:18px 20px;}
-.stat .label{font-size:0.78rem; color:var(--paper-dim); margin-bottom:8px;}
-.stat .value{font-family:'Bricolage Grotesque',system-ui,sans-serif; font-size:2rem; font-weight:600; color:var(--brass-light);}
-.stat .value.small{font-size:1.5rem;}
-
-.grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:36px;}
-@media (max-width:760px){.grid2{grid-template-columns:1fr;}}
-
-.section{margin-bottom:32px;}
-.panel{background:var(--ink-3); border:1px solid var(--line); border-radius:8px; padding:22px;}
-.panel h2{font-size:1.05rem; margin-bottom:16px;}
-.chart-box{position:relative; height:220px;}
-
-table{width:100%; border-collapse:collapse;}
-th,td{text-align:left; padding:10px 4px; font-size:0.88rem;}
-th{color:var(--paper-dim); font-weight:500; font-size:0.76rem; border-bottom:1px solid var(--line);}
-tr:not(:last-child) td{border-bottom:1px solid var(--line);}
-.badge{display:inline-block; padding:3px 10px; border-radius:999px; font-family:'Instrument Sans',system-ui,sans-serif; font-size:0.72rem; font-weight:600;}
-.badge.starter{background:rgba(201,154,60,0.15); color:var(--brass-light);}
-.badge.pro{background:rgba(127,176,122,0.15); color:var(--good);}
-.badge.business{background:rgba(217,164,65,0.2); color:var(--warn);}
-
-.pipeline-row{display:flex; align-items:center; gap:12px; margin-bottom:10px; font-size:0.85rem;}
-.pipeline-label{width:150px; flex-shrink:0; color:var(--paper-dim);}
-.pipeline-bar-bg{flex:1; background:var(--ink-2); border-radius:4px; height:20px; overflow:hidden;}
-.pipeline-bar{height:100%; border-radius:4px; background:var(--brass);}
-.pipeline-count{width:34px; text-align:right; font-family:'Instrument Sans',system-ui,sans-serif; font-weight:600;}
-
-.note{background:var(--ink-3); border:1px solid var(--brass-dim); border-radius:8px; padding:16px 20px; font-size:0.85rem; color:var(--paper-dim); line-height:1.6;}
-
-#loginGate{position:fixed; inset:0; background:var(--ink); display:flex; align-items:center; justify-content:center; z-index:100;}
-#loginGate .box{background:var(--ink-3); border:1px solid var(--line); border-radius:10px; padding:36px 32px; width:100%; max-width:340px; text-align:center;}
-#loginGate h2{font-size:1.3rem; margin-bottom:8px;}
-#loginGate p{color:var(--paper-dim); font-size:0.85rem; margin-bottom:20px;}
-#loginGate input{width:100%; padding:11px 14px; border-radius:5px; border:1px solid var(--line); background:var(--ink-2); color:var(--paper); font-size:0.95rem; margin-bottom:12px;}
-#loginGate button{width:100%; padding:11px; border-radius:5px; border:none; background:var(--brass); color:var(--ink); font-weight:700; font-family:'Instrument Sans',system-ui,sans-serif; font-size:0.85rem; cursor:pointer;}
-#loginGate button:hover{background:var(--brass-light);}
-#loginError{color:var(--bad); font-size:0.8rem; margin-top:10px; min-height:1em;}
-#dashboardContent{display:none;}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<div id="loginGate">
-  <div class="box">
-    <h2>Termivox Dashboard</h2>
-    <p>Bitte Passwort eingeben</p>
-    <input type="password" id="passwordInput" placeholder="Passwort" autofocus>
-    <button onclick="pruefePasswort()">Anmelden</button>
-    <div id="loginError"></div>
+<div class="tv db" id="app">
+
+<!-- Anmeldung mit persönlichem Link (?kunde=…) und PIN -->
+<section class="gate" id="gate" aria-labelledby="gate-titel">
+  <div class="gate-card glass">
+    <span class="eyebrow">Termivox</span>
+    <h1 id="gate-titel">Ihr Dashboard</h1>
+    <p id="gate-text">Bitte geben Sie Ihre PIN ein.</p>
+    <form id="login" novalidate>
+      <label class="dfld" for="pin">PIN</label>
+      <input class="inp" id="pin" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" maxlength="64" required>
+      <button class="btn btn-p" type="submit" id="login-btn">Anmelden</button>
+      <div class="msg" id="login-msg" role="alert"></div>
+    </form>
   </div>
-</div>
+</section>
 
-<div id="dashboardContent">
-<div class="wrap">
-  <header>
-    <h1>Termivox — Business-Dashboard</h1>
-    <span class="stand">Lade…</span>
-  </header>
-  <p class="sub">Überblick über aktive Kunden, geschätzten Umsatz und Vertriebs-Pipeline — live aus euren Google Sheets.</p>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="label">Aktive Kunden</div>
-      <div class="value" id="statKunden">–</div>
-    </div>
-    <div class="stat">
-      <div class="label">Geschätzter MRR</div>
-      <div class="value small" id="statMrr">–</div>
-    </div>
-    <div class="stat">
-      <div class="label">Leads in der Pipeline</div>
-      <div class="value" id="statLeads">–</div>
-    </div>
-    <div class="stat">
-      <div class="label">Server-Fixkosten/Monat</div>
-      <div class="value small">7,52 €</div>
-    </div>
-  </div>
-
-  <div class="grid2">
-    <div class="panel">
-      <h2>Kunden nach Tarif</h2>
-      <div class="chart-box"><canvas id="tarifChart"></canvas></div>
-    </div>
-    <div class="panel">
-      <h2>Vertriebs-Pipeline</h2>
-      <div id="pipelineList"></div>
-    </div>
-  </div>
-
-  <div class="grid2">
-    <div class="panel">
-      <h2>Team-Performance <span id="teamMonat" style="font-family:'Instrument Sans',system-ui,sans-serif; font-size:0.7rem; color:var(--paper-dim); font-weight:400;"></span></h2>
-      <table id="teamTable">
-        <tr><th>Vertriebler</th><th>Neukunden</th><th>Anteil</th></tr>
-      </table>
-    </div>
-    <div class="panel">
-      <h2>Finanzen <span id="finMonat" style="font-family:'Instrument Sans',system-ui,sans-serif; font-size:0.7rem; color:var(--paper-dim); font-weight:400;"></span></h2>
-      <div class="stats" style="grid-template-columns:repeat(3,1fr); margin-bottom:0;">
-        <div class="stat" style="padding:14px 12px;">
-          <div class="label">Einnahmen</div>
-          <div class="value small" id="finEinnahmen">–</div>
-        </div>
-        <div class="stat" style="padding:14px 12px;">
-          <div class="label">Ausgaben</div>
-          <div class="value small" id="finAusgaben">–</div>
-        </div>
-        <div class="stat" style="padding:14px 12px;">
-          <div class="label">Gewinn</div>
-          <div class="value small" id="finGewinn">–</div>
-        </div>
+<!-- Dashboard -->
+<div id="board" hidden>
+  <header class="bar">
+    <div class="db-wrap">
+      <div>
+        <h1 id="betrieb">Ihr Betrieb</h1>
+        <small id="stand">Wird geladen…</small>
+      </div>
+      <div class="bar-act">
+        <button class="icon-btn" type="button" id="reload" aria-label="Aktualisieren">Aktualisieren</button>
+        <button class="icon-btn" type="button" id="logout">Abmelden</button>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div class="section">
-    <div class="panel">
-      <h2>Kunden nach Tarif — im Detail</h2>
-      <table>
-        <tr><th>Tarif</th><th>Anzahl</th><th>Preis/Monat</th><th>Umsatz/Monat</th></tr>
-        <tr><td><span class="badge starter">Starter</span></td><td id="rowStarter">–</td><td>49 €</td><td id="revStarter">–</td></tr>
-        <tr><td><span class="badge pro">Professional</span></td><td id="rowPro">–</td><td>89 €</td><td id="revPro">–</td></tr>
-        <tr><td><span class="badge business">Business</span></td><td id="rowBusiness">–</td><td>149 €</td><td id="revBusiness">–</td></tr>
-      </table>
+  <main class="db-wrap" id="inhalt" tabindex="-1">
+    <section class="kpis" aria-label="Kennzahlen">
+      <div class="kpi glass"><b id="k-heute">–</b><span>Termine heute</span></div>
+      <div class="kpi glass"><b id="k-woche">–</b><span>Termine diese Woche</span></div>
+      <button class="kpi glass warn" type="button" id="k-rr-btn"><b id="k-rr">–</b><span>Rückrufe offen</span></button>
+    </section>
+
+    <div class="dtabs" role="tablist" aria-label="Bereiche" id="tabs-top">
+      <button class="dtab" role="tab" id="t-termine" aria-controls="p-termine" aria-selected="true" type="button">Termine</button>
+      <button class="dtab" role="tab" id="t-rueckrufe" aria-controls="p-rueckrufe" aria-selected="false" type="button">Rückrufe <span class="cnt" id="c-rr" hidden>0</span></button>
     </div>
-  </div>
 
-  <div class="section">
-    <div class="note" id="statusNote">Lade Live-Daten…</div>
-  </div>
+    <div class="msg" id="board-msg" role="status"></div>
+
+    <section class="panel" id="p-termine" role="tabpanel" aria-labelledby="t-termine"></section>
+    <section class="panel" id="p-rueckrufe" role="tabpanel" aria-labelledby="t-rueckrufe" hidden>
+      <div class="seg" role="group" aria-label="Filter">
+        <button type="button" data-f="offen" aria-pressed="true">Offen</button>
+        <button type="button" data-f="erledigt" aria-pressed="false">Erledigt</button>
+        <button type="button" data-f="alle" aria-pressed="false">Alle</button>
+      </div>
+      <div id="rr-liste"></div>
+    </section>
+  </main>
+
+  <nav class="dock" role="tablist" aria-label="Bereiche (mobil)" id="tabs-dock">
+    <button class="dtab" role="tab" data-t="termine" aria-selected="true" type="button">Termine</button>
+    <button class="dtab" role="tab" data-t="rueckrufe" aria-selected="false" type="button">Rückrufe <span class="cnt" id="c-rr2" hidden>0</span></button>
+  </nav>
 </div>
+
 </div>
 
 <script>
-  const DASHBOARD_API = 'https://n8n.termivox.com/webhook/dashboard-data';
-  const GEHEIMER_SCHLUESSEL = '7bad5ef51ceaa08f45b3e752';
-  const DASHBOARD_PASSWORT = 'Till2005m';
-  let tarifChart;
+(() => {
+  'use strict';
 
-  function pruefePasswort() {
-    const eingabe = document.getElementById('passwordInput').value;
-    if (eingabe === DASHBOARD_PASSWORT) {
-      sessionStorage.setItem('termivox_dashboard_auth', 'ok');
-      document.getElementById('loginGate').style.display = 'none';
-      document.getElementById('dashboardContent').style.display = 'block';
-      ladeDaten();
-      setInterval(ladeDaten, 60000);
-    } else {
-      document.getElementById('loginError').textContent = 'Falsches Passwort.';
+  // ---- Schnittstelle zu n8n (Verträge: dashboard-login, -uebersicht, -rueckrufe, -rueckruf-status) ----
+  // Im Code steht kein Schlüssel und keine PIN. Nach der Anmeldung liefert n8n ein Token,
+  // das nur in dieser Browser-Sitzung (sessionStorage) liegt.
+  const BASE = 'https://n8n.termivox.com/webhook/';
+  const API = {
+    login: BASE + 'dashboard-login',
+    uebersicht: BASE + 'dashboard-uebersicht',
+    rueckrufe: BASE + 'dashboard-rueckrufe',
+    status: BASE + 'dashboard-rueckruf-status'
+  };
+  const TZ = 'Europe/Berlin';
+  const REFRESH_MS = 60000;
+
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  const kunde = (params.get('kunde') || '').trim();
+  const kundeOk = /^[A-Za-z0-9_-]{1,64}$/.test(kunde);
+  const TOKEN_KEY = 'termivox_dash_token_' + kunde;
+
+  const state = { token: '', betrieb: null, termine: [], rueckrufe: [], filter: 'offen', tab: 'termine', timer: null };
+
+  // ---- Hilfen ---------------------------------------------------------------
+  const el = (tag, cls, text) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const fmt = (opts) => new Intl.DateTimeFormat('de-DE', Object.assign({ timeZone: TZ }, opts));
+  const fTime = fmt({ hour: '2-digit', minute: '2-digit' });
+  const fDayLong = fmt({ weekday: 'long', day: 'numeric', month: 'long' });
+  const fShort = fmt({ day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const fKey = new Intl.DateTimeFormat('sv-SE', { timeZone: TZ });
+  const dayKey = (d) => fKey.format(d);
+  const addDays = (key, n) => { const d = new Date(key + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+  const toDate = (v) => { const d = new Date(v); return isNaN(d) ? null : d; };
+
+  const telHref = (t) => {
+    const s = String(t || '').trim();
+    return /^[+0-9 ()\/-]{5,30}$/.test(s) ? 'tel:' + s.replace(/[^+0-9]/g, '') : null;
+  };
+
+  // ---- Netzwerk -------------------------------------------------------------
+  class AuthError extends Error {}
+
+  async function api(url, opts = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (state.token) headers.Authorization = 'Bearer ' + state.token;
+    const res = await fetch(url, Object.assign({}, opts, { headers }));
+    let data = null;
+    try { data = await res.json(); } catch (e) { /* keine JSON-Antwort */ }
+    if (res.status === 401 || res.status === 403) throw new AuthError((data && data.fehler) || 'Bitte melden Sie sich erneut an.');
+    if (!res.ok || (data && data.success === false)) {
+      const e = new Error((data && data.fehler) || 'Fehler ' + res.status);
+      e.serverText = !!(data && data.fehler);
+      throw e;
     }
+    return data || {};
   }
 
-  document.getElementById('passwordInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') pruefePasswort();
+  // ---- Anmeldung ------------------------------------------------------------
+  function setBetrieb(b) {
+    state.betrieb = b || {};
+    $('betrieb').textContent = (b && b.name) || 'Ihr Betrieb';
+    document.title = ((b && b.name) ? b.name + ' – ' : '') + 'Dashboard – Termivox';
+    if (b && /^#[0-9A-Fa-f]{6}$/.test(b.farbe || '')) $('app').style.setProperty('--accent', b.farbe);
+  }
+
+  function zeigeGate(text, isErr) {
+    stopTimer();
+    $('board').hidden = true;
+    $('gate').hidden = false;
+    if (text) { const m = $('login-msg'); m.textContent = text; m.className = 'msg' + (isErr ? '' : ' ok'); }
+    if (kundeOk) setTimeout(() => $('pin').focus(), 50);
+  }
+
+  function zeigeBoard() {
+    $('gate').hidden = true;
+    $('board').hidden = false;
+    ladeAlles();
+    stopTimer();
+    state.timer = setInterval(() => { if (!document.hidden) ladeAlles(true); }, REFRESH_MS);
+  }
+
+  function stopTimer() { if (state.timer) { clearInterval(state.timer); state.timer = null; } }
+
+  function abmelden(text) {
+    try { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(TOKEN_KEY + '_b'); } catch (e) { /* egal */ }
+    state.token = ''; state.termine = []; state.rueckrufe = [];
+    $('pin').value = '';
+    zeigeGate(text || '', true);
+  }
+
+  $('login').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pin = $('pin').value.trim();
+    const msg = $('login-msg');
+    msg.className = 'msg';
+    if (!kundeOk) { msg.textContent = 'Bitte öffnen Sie Ihren persönlichen Link.'; return; }
+    if (!pin) { msg.textContent = 'Bitte geben Sie Ihre PIN ein.'; $('pin').focus(); return; }
+    $('login-btn').disabled = true; msg.textContent = 'Wird geprüft…';
+    try {
+      const d = await api(API.login, { method: 'POST', body: JSON.stringify({ kunde_id: kunde, pin }) });
+      if (!d.token) throw new Error('kein Token');
+      state.token = d.token;
+      try { sessionStorage.setItem(TOKEN_KEY, d.token); } catch (x) { /* ohne Speicher: Anmeldung gilt bis zum Neuladen */ }
+      setBetrieb(d.betrieb);
+      try { sessionStorage.setItem(TOKEN_KEY + '_b', JSON.stringify(d.betrieb || {})); } catch (x) { /* egal */ }
+      $('pin').value = ''; msg.textContent = '';
+      zeigeBoard();
+    } catch (err) {
+      msg.textContent = err instanceof AuthError || err.serverText ? err.message : 'Gerade klappt etwas nicht. Bitte versuchen Sie es gleich noch einmal.';
+    } finally {
+      $('login-btn').disabled = false;
+    }
   });
 
-  if (sessionStorage.getItem('termivox_dashboard_auth') === 'ok') {
-    document.getElementById('loginGate').style.display = 'none';
-    document.getElementById('dashboardContent').style.display = 'block';
-    ladeDaten();
-    setInterval(ladeDaten, 60000);
-  }
-
-  const pipelineFarben = {
-    'Noch nicht kontaktiert': '#5A5548',
-    'Nicht erreicht': '#B98A5E',
-    'Demo gezeigt': '#8E7FB0',
-    'Rueckruf vereinbart': '#6FA3C9',
-    'Kunde ueberlegt': '#D9A441',
-    'Kein Interesse': '#C97A6E',
-    'Zusage': '#7FB07A'
-  };
-  const pipelineLabels = {
-    'Noch nicht kontaktiert': 'Noch nicht kontaktiert',
-    'Nicht erreicht': 'Nicht erreicht',
-    'Demo gezeigt': 'Demo gezeigt',
-    'Rueckruf vereinbart': 'Rückruf vereinbart',
-    'Kunde ueberlegt': 'Kunde überlegt',
-    'Kein Interesse': 'Kein Interesse',
-    'Zusage': 'Zusage'
-  };
-
-  async function ladeDaten() {
+  // ---- Daten laden ----------------------------------------------------------
+  async function ladeAlles(still) {
+    if (!state.token) return;
+    const msg = $('board-msg');
+    if (!still) { msg.className = 'msg'; msg.textContent = ''; $('stand').textContent = 'Wird geladen…'; }
     try {
-      const res = await fetch(DASHBOARD_API + '?key=' + GEHEIMER_SCHLUESSEL);
-      const data = await res.json();
-
-      if (data.error) {
-        document.getElementById('statusNote').textContent = 'Zugriff verweigert.';
-        return;
-      }
-
-      document.getElementById('statKunden').textContent = data.aktiveKunden ?? 0;
-      document.getElementById('statMrr').textContent = (data.mrr ?? 0).toLocaleString('de-DE') + ' €';
-      document.getElementById('statLeads').textContent = data.leadsGesamt ?? 0;
-
-      document.getElementById('rowStarter').textContent = data.starter ?? 0;
-      document.getElementById('revStarter').textContent = ((data.starter ?? 0) * 49).toLocaleString('de-DE') + ' €';
-      document.getElementById('rowPro').textContent = data.professional ?? 0;
-      document.getElementById('revPro').textContent = ((data.professional ?? 0) * 89).toLocaleString('de-DE') + ' €';
-      document.getElementById('rowBusiness').textContent = data.business ?? 0;
-      document.getElementById('revBusiness').textContent = ((data.business ?? 0) * 149).toLocaleString('de-DE') + ' €';
-
-      // Tarif-Donut
-      const tarifWerte = [data.starter ?? 0, data.professional ?? 0, data.business ?? 0];
-      const hatKunden = tarifWerte.some(v => v > 0);
-      const ctx = document.getElementById('tarifChart').getContext('2d');
-      if (tarifChart) tarifChart.destroy();
-      tarifChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Starter', 'Professional', 'Business'],
-          datasets: [{
-            data: hatKunden ? tarifWerte : [1, 1, 1],
-            backgroundColor: hatKunden ? ['#C99A3C', '#7FB07A', '#D9A441'] : ['#2A2519', '#2A2519', '#2A2519'],
-            borderColor: '#231F16',
-            borderWidth: 3
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom', labels: { color: '#B9B09A', font: { size: 11 }, padding: 14 } },
-            tooltip: { enabled: hatKunden }
-          }
-        }
-      });
-
-      // Pipeline-Balken
-      const pipeline = data.pipeline || {};
-      const maxWert = Math.max(1, ...Object.values(pipeline));
-      const list = document.getElementById('pipelineList');
-      list.innerHTML = '';
-      for (const key of Object.keys(pipelineLabels)) {
-        const wert = pipeline[key] ?? 0;
-        const pct = (wert / maxWert) * 100;
-        const row = document.createElement('div');
-        row.className = 'pipeline-row';
-        row.innerHTML = `
-          <div class="pipeline-label">${pipelineLabels[key]}</div>
-          <div class="pipeline-bar-bg"><div class="pipeline-bar" style="width:${pct}%; background:${pipelineFarben[key]}"></div></div>
-          <div class="pipeline-count">${wert}</div>
-        `;
-        list.appendChild(row);
-      }
-
-      const stand = data.stand ? new Date(data.stand).toLocaleString('de-DE') : '';
-      document.querySelector('.stand').textContent = 'Live · Stand: ' + stand;
-
-      // Team-Performance
-      document.getElementById('teamMonat').textContent = data.monat || '';
-      const teamTable = document.getElementById('teamTable');
-      teamTable.innerHTML = '<tr><th>Vertriebler</th><th>Neukunden</th><th>Anteil</th></tr>';
-      (data.team || []).forEach(person => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${person.name}</td><td>${person.neukunden}</td><td>${person.anteilProzent}%</td>`;
-        teamTable.appendChild(tr);
-      });
-
-      // Finanzen
-      const fin = data.finanzen || { einnahmen: 0, ausgaben: 0, gewinn: 0 };
-      document.getElementById('finMonat').textContent = data.monat || '';
-      document.getElementById('finEinnahmen').textContent = fin.einnahmen.toLocaleString('de-DE') + ' €';
-      document.getElementById('finAusgaben').textContent = fin.ausgaben.toLocaleString('de-DE') + ' €';
-      const gewinnEl = document.getElementById('finGewinn');
-      gewinnEl.textContent = fin.gewinn.toLocaleString('de-DE') + ' €';
-      gewinnEl.style.color = fin.gewinn >= 0 ? 'var(--good)' : 'var(--bad)';
-
-      const note = document.getElementById('statusNote');
-      note.textContent = (data.aktiveKunden ?? 0) === 0
-        ? 'Noch kein echter Kunde im System — die Zahlen aktualisieren sich automatisch, sobald der erste Kunde im Öffnungszeiten-Sheet steht.'
-        : 'Live-Daten direkt aus euren Google Sheets, aktualisiert sich automatisch.';
+      const [u, r] = await Promise.all([
+        api(API.uebersicht),
+        api(API.rueckrufe)
+      ]);
+      if (u.betrieb) setBetrieb(u.betrieb);
+      state.termine = Array.isArray(u.termine) ? u.termine : [];
+      state.rueckrufe = Array.isArray(r.rueckrufe) ? r.rueckrufe : (Array.isArray(r) ? r : []);
+      state.kennzahlen = u.kennzahlen || null;
+      const s = toDate(u.stand) || new Date();
+      $('stand').textContent = 'Stand ' + fTime.format(s) + ' Uhr';
+      msg.textContent = '';
+      render();
     } catch (err) {
-      document.getElementById('statusNote').textContent = 'Live-Daten konnten nicht geladen werden. Bitte später erneut versuchen.';
+      if (err instanceof AuthError) { abmelden('Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.'); return; }
+      msg.className = 'msg';
+      msg.textContent = 'Gerade klappt etwas nicht. Die Daten konnten nicht geladen werden. Bitte versuchen Sie es gleich noch einmal.';
+      if (!still) $('stand').textContent = 'Nicht aktuell';
     }
   }
+
+  // ---- Darstellung ----------------------------------------------------------
+  function offeneRueckrufe() { return state.rueckrufe.filter((r) => r.status !== 'erledigt'); }
+
+  function render() {
+    const heute = dayKey(new Date());
+    const aktive = state.termine.filter((t) => t.status !== 'storniert');
+    const k = state.kennzahlen || {};
+    const imHeute = aktive.filter((t) => { const d = toDate(t.start); return d && dayKey(d) === heute; }).length;
+    const bisSonntag = (() => {
+      const wd = new Date(heute + 'T12:00:00Z').getUTCDay();       // 0 = Sonntag
+      return addDays(heute, wd === 0 ? 0 : 7 - wd);
+    })();
+    const inWoche = aktive.filter((t) => { const d = toDate(t.start); if (!d) return false; const kx = dayKey(d); return kx >= heute && kx <= bisSonntag; }).length;
+    const offen = offeneRueckrufe().length;
+
+    $('k-heute').textContent = k.termine_heute != null ? k.termine_heute : imHeute;
+    $('k-woche').textContent = k.termine_woche != null ? k.termine_woche : inWoche;
+    $('k-rr').textContent = k.rueckrufe_offen != null ? k.rueckrufe_offen : offen;
+
+    [$('c-rr'), $('c-rr2')].forEach((c) => { c.textContent = offen; c.hidden = offen === 0; });
+
+    renderTermine(heute);
+    renderRueckrufe();
+  }
+
+  function renderTermine(heute) {
+    const box = $('p-termine');
+    box.replaceChildren();
+    const liste = state.termine
+      .map((t) => ({ t, d: toDate(t.start) }))
+      .filter((x) => x.d)
+      .sort((a, b) => a.d - b.d);
+    if (!liste.length) {
+      box.appendChild(el('div', 'leer', 'Aktuell sind keine Termine eingetragen.'));
+      return;
+    }
+    const morgen = addDays(heute, 1);
+    let last = '';
+    liste.forEach(({ t, d }) => {
+      const key = dayKey(d);
+      if (key !== last) {
+        last = key;
+        const h = el('h2', 'day', key === heute ? 'Heute' : key === morgen ? 'Morgen' : fDayLong.format(d));
+        if (key === heute || key === morgen) h.appendChild(el('small', null, fDayLong.format(d)));
+        box.appendChild(h);
+      }
+      const storno = t.status === 'storniert';
+      const item = el('article', 'item glass' + (storno ? ' off' : ''));
+      const z = el('div', 'zeit', fTime.format(d));
+      const ende = toDate(t.ende);
+      if (ende) z.appendChild(el('small', null, 'bis ' + fTime.format(ende)));
+      const info = el('div', 'info');
+      info.appendChild(el('strong', null, t.kunde_name || 'Ohne Namen'));
+      const zeile = [t.leistung, t.mitarbeiter].filter(Boolean).join(' · ');
+      if (zeile) info.appendChild(el('span', null, zeile));
+      if (storno) info.appendChild(el('span', 'tag cancel', 'Storniert'));
+      item.append(z, info);
+      box.appendChild(item);
+    });
+  }
+
+  function renderRueckrufe() {
+    const box = $('rr-liste');
+    box.replaceChildren();
+    const f = state.filter;
+    const liste = state.rueckrufe
+      .filter((r) => f === 'alle' || (f === 'offen' ? r.status !== 'erledigt' : r.status === 'erledigt'))
+      .slice()
+      .sort((a, b) => (toDate(b.eingang) || 0) - (toDate(a.eingang) || 0));
+    if (!liste.length) {
+      box.appendChild(el('div', 'leer', f === 'erledigt' ? 'Noch keine erledigten Rückrufe.' : f === 'offen' ? 'Keine offenen Rückrufe. Alles erledigt.' : 'Noch keine Rückrufbitten.'));
+      return;
+    }
+    liste.forEach((r) => {
+      const erledigt = r.status === 'erledigt';
+      const card = el('article', 'rr glass' + (erledigt ? ' off' : ''));
+      const top = el('div', 'rr-top');
+      top.appendChild(el('strong', null, r.name || 'Ohne Namen'));
+      const d = toDate(r.eingang);
+      if (d) top.appendChild(el('span', 'rr-time', fShort.format(d) + ' Uhr'));
+      card.appendChild(top);
+      const href = telHref(r.telefon);
+      if (r.telefon) {
+        if (href) { const a = el('a', 'rr-tel', r.telefon); a.href = href; card.appendChild(a); }
+        else card.appendChild(el('div', 'rr-tel', r.telefon));
+      }
+      if (r.anliegen) card.appendChild(el('p', null, r.anliegen));
+      card.appendChild(el('span', 'tag ' + (erledigt ? '' : 'open'), erledigt ? 'Erledigt' : 'Offen'));
+      const act = el('div', 'rr-act');
+      if (href) { const call = el('a', 'btn btn-p btn-s', 'Anrufen'); call.href = href; act.appendChild(call); }
+      const b = el('button', 'btn btn-g btn-s', erledigt ? 'Wieder öffnen' : 'Als erledigt markieren');
+      b.type = 'button';
+      b.addEventListener('click', () => setzeStatus(r, erledigt ? 'offen' : 'erledigt', b));
+      act.appendChild(b);
+      card.appendChild(act);
+      box.appendChild(card);
+    });
+  }
+
+  async function setzeStatus(r, neu, btn) {
+    const alt = r.status;
+    btn.disabled = true;
+    r.status = neu; state.kennzahlen = null; render();     // sofort anzeigen, bei Fehler zurücksetzen
+    try {
+      await api(API.status, { method: 'POST', body: JSON.stringify({ id: r.id, status: neu }) });
+    } catch (err) {
+      if (err instanceof AuthError) { abmelden('Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.'); return; }
+      r.status = alt; render();
+      const m = $('board-msg'); m.className = 'msg';
+      m.textContent = 'Der Status konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+    }
+  }
+
+  // ---- Bedienung ------------------------------------------------------------
+  function waehleTab(name) {
+    state.dtab = name;
+    $('p-termine').hidden = name !== 'termine';
+    $('p-rueckrufe').hidden = name !== 'rueckrufe';
+    $('t-termine').setAttribute('aria-selected', String(name === 'termine'));
+    $('t-rueckrufe').setAttribute('aria-selected', String(name === 'rueckrufe'));
+    document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.t === name)));
+    window.scrollTo({ top: 0 });
+  }
+  $('t-termine').addEventListener('click', () => waehleTab('termine'));
+  $('t-rueckrufe').addEventListener('click', () => waehleTab('rueckrufe'));
+  document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.addEventListener('click', () => waehleTab(b.dataset.t)));
+  $('k-rr-btn').addEventListener('click', () => { state.filter = 'offen'; setzeFilter(); waehleTab('rueckrufe'); });
+
+  function setzeFilter() {
+    document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === state.filter)));
+    renderRueckrufe();
+  }
+  document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => { state.filter = b.dataset.f; setzeFilter(); }));
+
+  $('reload').addEventListener('click', () => ladeAlles());
+  $('logout').addEventListener('click', () => abmelden(''));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && state.token && !$('board').hidden) ladeAlles(true); });
+
+  // ---- Start ----------------------------------------------------------------
+  if (!kundeOk) {
+    $('gate-text').textContent = 'Bitte öffnen Sie das Dashboard über Ihren persönlichen Link, den Sie von Termivox erhalten haben.';
+    $('pin').disabled = true; $('login-btn').disabled = true;
+    $('login').hidden = true;
+  } else {
+    let t = '';
+    try { t = sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { /* kein Speicher */ }
+    if (t) {
+      state.token = t;
+      try { setBetrieb(JSON.parse(sessionStorage.getItem(TOKEN_KEY + '_b') || '{}')); } catch (e) { /* Name kommt mit der Übersicht */ }
+      zeigeBoard();
+    }
+    else setTimeout(() => $('pin').focus(), 50);
+  }
+})();
 </script>
 </body>
 </html>
