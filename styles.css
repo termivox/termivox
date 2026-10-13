@@ -512,3 +512,54 @@ main:focus{outline:none}
 @keyframes rv{from{opacity:0;transform:translateY(60px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes untilt{to{transform:rotateX(0) scale(1)}}
 @keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ---------- 9. Unterseiten: Rechtliches, Support, Über uns ---------- */
+body[data-page="recht"] .foot{margin-top:40px}
+.pg-sec{padding-top:110px;padding-bottom:40px}
+.pg{max-width:860px}
+.pg h1{font-size:clamp(36px,6.5vw,64px);font-weight:700;margin-top:18px}
+.pg .stand{color:var(--mut);font-size:15px;margin-top:14px}
+.pg-head{margin-bottom:34px}
+.pg>p{font-size:18px;line-height:1.65;margin:0 0 18px;color:var(--tx)}
+.pg>h1+p{margin-top:22px}
+
+/* Rechtstexte */
+.pg .legal{border-radius:24px;padding:44px 48px;margin-top:34px}
+.legal h2{font-size:22px;margin:40px 0 14px;scroll-margin-top:100px}
+.legal h2:first-child{margin-top:0}
+.legal h3{font-size:18px;margin:24px 0 10px}
+.legal p{font-size:16px;line-height:1.7;margin:0 0 12px;color:var(--tx)}
+.legal p:last-child{margin-bottom:0}
+.legal a{overflow-wrap:anywhere}
+.legal ul:not(.index):not(.m-elements):not(.glossary){margin:10px 0 16px 22px;padding:0;font-size:16px;line-height:1.7}
+.legal ul:not(.index):not(.m-elements):not(.glossary) li{margin-bottom:6px}
+.legal ul.index{list-style:none;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:20px 26px;columns:2;column-gap:32px;margin:0 0 8px}
+.legal ul.index li{break-inside:avoid}
+.legal ul.index a{display:inline-block;padding:7px 0;font-size:15px;color:var(--mut);text-decoration:none}
+.legal ul.index a:hover{color:var(--tx)}
+.legal ul.m-elements{list-style:none;background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid var(--mint);border-radius:16px;padding:20px 24px;margin:16px 0;font-size:15px;line-height:1.65}
+.legal ul.m-elements li{margin-bottom:12px}
+.legal ul.m-elements li:last-child{margin-bottom:0}
+.legal ul.m-elements strong{color:var(--mint);font-weight:600}
+.legal ul.glossary{list-style:none;padding:0;margin:18px 0 0}
+.legal ul.glossary li{margin-bottom:18px;font-size:15px;line-height:1.65;color:var(--mut)}
+.legal ul.glossary strong{display:block;color:var(--tx);font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:600;margin-bottom:4px}
+.legal p.seal{margin-top:36px;font-size:13px;color:var(--mut)}
+.legal p.seal a{color:var(--mut)}
+
+/* Karten (Support, Über uns) */
+.pg-card{border-radius:22px;padding:28px 30px;margin-top:16px}
+.pg-card h2{font-size:22px;margin:0 0 10px}
+.pg-card p{font-size:17px;line-height:1.6;color:var(--mut);margin:0}
+.pg-card p+p{margin-top:12px}
+.pg-card .stats{margin-top:26px;justify-content:flex-start}
+.pg-card .cta{margin-top:24px;font-weight:600}
+.pg-card .cta a{display:inline-flex;align-items:center;min-height:44px}
+
+@media (max-width:640px){
+  .pg-sec{padding-top:90px}
+  .pg .legal{padding:26px 20px;border-radius:20px}
+  .legal ul.index{columns:1;padding:16px 18px}
+  .legal ul.m-elements{padding:16px 16px}
+  .pg-card{padding:22px 20px}
+}
