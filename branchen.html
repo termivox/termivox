@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branchen – Termivox</title>
+<meta name="description" content="So klingt Termivox in Ihrer Branche: Beispielgespräche für Friseursalon, Kosmetikstudio, Nagelstudio, Physiotherapie, Handwerk und Praxis.">
+<meta name="theme-color" content="#080B16">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%2334E0B8'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bricolage-grotesque-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<noscript><style>.menu-btn{display:none!important}</style></noscript>
+<script src="script.js" defer></script>
+</head>
+<body data-page="branchen">
+<div class="tv">
+<a class="skip" href="#inhalt">Zum Inhalt</a>
+
+<header class="navw">
+  <div class="nav">
+    <a class="logo" href="index.html" aria-label="Termivox – Startseite"><span class="logo-dot" aria-hidden="true"></span>Termivox</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="hauptmenue"><span class="menu-ic" aria-hidden="true"><i></i><i></i><i></i></span>Menü</button>
+    <nav class="nav-links" id="hauptmenue" aria-label="Hauptmenü">
+      <ul>
+        <li><a href="index.html">Start</a></li>
+        <li><a href="funktionen.html">Funktionen</a></li>
+        <li><a href="branchen.html" class="on" aria-current="page">Branchen</a></li>
+        <li><a href="preise.html">Preise</a></li>
+      </ul>
+      <div class="nav-extra">
+        <a class="btn btn-g btn-s" href="dashboard.html">Login</a>
+        <a class="btn btn-p btn-s" href="pilot.html">Kostenlos testen</a>
+      </div>
+    </nav>
+    <div class="nav-act">
+      <a class="btn btn-g btn-s" href="dashboard.html">Login</a>
+      <a class="btn btn-p btn-s" href="pilot.html">Kostenlos testen</a>
+    </div>
+  </div>
+</header>
+
+<main id="inhalt" tabindex="-1">
+
+<section class="sec sec-first" id="branchen" aria-labelledby="branchen-titel">
+  <div class="wrap">
+    <div class="head rv"><span class="eyebrow">Branchen</span>
+      <h1 class="h2" id="branchen-titel">So klingt Termivox in <span class="grad">Ihrer Branche</span></h1>
+      <p class="lead">Wählen Sie Ihre Branche und sehen Sie ein Beispielgespräch.</p></div>
+    <div class="demo rv">
+      <div class="tabs" role="group" aria-label="Branche wählen">
+        <button class="tab" type="button" aria-pressed="true" aria-controls="chat-1"><span>Friseursalon</span><span aria-hidden="true">&rarr;</span></button>
+        <button class="tab" type="button" aria-pressed="false" aria-controls="chat-2"><span>Kosmetikstudio</span><span aria-hidden="true">&rarr;</span></button>
+        <button class="tab" type="button" aria-pressed="false" aria-controls="chat-3"><span>Nagelstudio</span><span aria-hidden="true">&rarr;</span></button>
+        <button class="tab" type="button" aria-pressed="false" aria-controls="chat-4"><span>Physiotherapie</span><span aria-hidden="true">&rarr;</span></button>
+        <button class="tab" type="button" aria-pressed="false" aria-controls="chat-5"><span>Handwerk</span><span aria-hidden="true">&rarr;</span></button>
+        <button class="tab" type="button" aria-pressed="false" aria-controls="chat-6"><span>Praxis</span><span aria-hidden="true">&rarr;</span></button>
+      </div>
+      <div class="demo-r">
+        <div class="chatbox glass glowb" aria-live="polite">
+
+          <div class="chat-panel" id="chat-1">
+            <div class="chat-head"><div class="chat-av" aria-hidden="true">T</div><div><div class="chat-name">Salon Beispiel</div><div class="chat-sub">Beispielgespräch Friseursalon</div></div></div>
+            <div class="msgs">
+              <div class="m m-u"><span class="sr">Kunde: </span>Hallo, habt ihr am Mittwoch noch was frei für Haarschnitt und Föhnen?</div>
+              <div class="m m-b"><span class="sr">Termivox: </span>Gern! Am Mittwoch hat Sarah um 14:30 Uhr einen Termin frei. Passt das?</div>
+              <div class="m m-u"><span class="sr">Kunde: </span>Ja, perfekt!</div>
+              <div class="m m-ok"><span class="sr">Termivox: </span>Gebucht: Haarschnitt &amp; Föhnen, Mittwoch 14:30 Uhr bei Sarah.</div>
+            </div>
+          </div>
+
+          <div class="chat-panel" id="chat-2" hidden>
+            <div class="chat-head"><div class="chat-av" aria-hidden="true">T</div><div><div class="chat-name">Studio Beispiel</div><div class="chat-sub">Beispielgespräch Kosmetikstudio</div></div></div>
+            <div class="msgs">
+              <div class="m m-u"><span class="sr">Kunde: </span>Ich möchte eine Gesichtsbehandlung buchen, am liebsten samstags.</div>
+              <div class="m m-b"><span class="sr">Termivox: </span>Samstag ist leider schon voll. Ich hätte Freitag um 16:00 Uhr oder Samstag in zwei Wochen um 10:00 Uhr.</div>
+              <div class="m m-u"><span class="sr">Kunde: </span>Dann Freitag bitte.</div>
+              <div class="m m-ok"><span class="sr">Termivox: </span>Gebucht: Gesichtsbehandlung, Freitag 16:00 Uhr. Eine Erinnerung kommt am Vortag.</div>
+            </div>
+          </div>
+
+          <div class="chat-panel" id="chat-3" hidden>
+            <div class="chat-head"><div class="chat-av" aria-hidden="true">T</div><div><div class="chat-name">Nagelstudio Beispiel</div><div class="chat-sub">Beispielgespräch Nagelstudio</div></div></div>
+            <div class="msgs">
+              <div class="m m-u"><span class="sr">Kunde: </span>Kann ich meine Gelnägel am Donnerstag auffüllen lassen?</div>
+              <div class="m m-b"><span class="sr">Termivox: </span>Ja, Donnerstag um 11:00 oder 15:30 Uhr ist frei. Was passt besser?</div>
+              <div class="m m-u"><span class="sr">Kunde: </span>15:30 bitte. Und wie lange dauert das?</div>
+              <div class="m m-ok"><span class="sr">Termivox: </span>Gebucht für Donnerstag 15:30 Uhr. Die Behandlung dauert etwa eine Stunde.</div>
+            </div>
+          </div>
+
+          <div class="chat-panel" id="chat-4" hidden>
+            <div class="chat-head"><div class="chat-av" aria-hidden="true">T</div><div><div class="chat-name">Praxis Beispiel</div><div class="chat-sub">Beispielgespräch Physiotherapie</div></div></div>
+            <div class="msgs">
+              <div class="m m-u"><span class="sr">Kunde: </span>Ich muss meinen Termin am Montag verschieben.</div>
+              <div class="m m-b"><span class="sr">Termivox: </span>Kein Problem. Ich kann Ihnen Dienstag 9:00 Uhr oder Mittwoch 13:30 Uhr anbieten.</div>
+              <div class="m m-u"><span class="sr">Kunde: </span>Dienstag passt.</div>
+              <div class="m m-ok"><span class="sr">Termivox: </span>Verschoben auf Dienstag, 9:00 Uhr. Der alte Termin ist storniert.</div>
+            </div>
+          </div>
+
+          <div class="chat-panel" id="chat-5" hidden>
+            <div class="chat-head"><div class="chat-av" aria-hidden="true">T</div><div><div class="chat-name">Betrieb Beispiel</div><div class="chat-sub">Beispielgespräch Handwerk</div></div></div>
+            <div class="msgs">
+              <div class="m m-u"><span class="sr">Kunde: </span>Wir brauchen jemanden, der sich eine Wand für eine neue Tür ansieht.</div>
+              <div class="m m-b"><span class="sr">Termivox: </span>Gern. Ich buche Ihnen einen Besichtigungstermin. Wie lautet die Adresse, und wann passt es Ihnen?</div>
+              <div class="m m-u"><span class="sr">Kunde: </span>Nächste Woche vormittags.</div>
+              <div class="m m-ok"><span class="sr">Termivox: </span>Ich habe Ihre Anfrage notiert und schlage Dienstag Vormittag vor. Der Betrieb bestätigt den Termin.</div>
+            </div>
+          </div>
+
+          <div class="chat-panel" id="chat-6" hidden>
+            <div class="chat-head"><div class="chat-av" aria-hidden="true">T</div><div><div class="chat-name">Praxis Beispiel</div><div class="chat-sub">Beispielgespräch Praxis</div></div></div>
+            <div class="msgs">
+              <div class="m m-u"><span class="sr">Kunde: </span>Haben Sie nächste Woche einen Termin für die Kontrolle?</div>
+              <div class="m m-b"><span class="sr">Termivox: </span>Ja, am Mittwoch um 10:15 Uhr oder am Donnerstag um 14:00 Uhr. Was passt Ihnen besser?</div>
+              <div class="m m-u"><span class="sr">Kunde: </span>Mittwoch.</div>
+              <div class="m m-ok"><span class="sr">Termivox: </span>Gebucht: Kontrolle, Mittwoch 10:15 Uhr. Wir erinnern Sie am Vortag.</div>
+            </div>
+          </div>
+
+        </div>
+        <p class="demo-note">Echten Live-Chat ausprobieren: <a class="ilink" href="demo-standard.html">Starter-Demo</a> · <a class="ilink" href="demo-pro.html">Professional-Demo</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-tight" id="situationen" aria-labelledby="situationen-titel">
+  <div class="wrap">
+    <div class="head rv"><span class="eyebrow">Typische Situationen</span>
+      <h2 class="h2" id="situationen-titel">Für jeden <span class="grad">terminbasierten</span> Betrieb</h2></div>
+    <div class="bento">
+      <div class="bc s2 rv"><div><h3>Friseursalon</h3><p class="p-gap">Beide Hände sind belegt, das Telefon klingelt trotzdem.</p></div><div class="situ"><b>Termivox:</b> bucht, verschiebt und nennt Preise und Zeiten.</div></div>
+      <div class="bc s2 rv"><div><h3>Kosmetikstudio</h3><p class="p-gap">Behandlungen dauern unterschiedlich lang, Anfragen kommen abends.</p></div><div class="situ"><b>Termivox:</b> schlägt die passende Zeit je Behandlung vor.</div></div>
+      <div class="bc s2 rv"><div><h3>Nagelstudio</h3><p class="p-gap">Viele Stammkundinnen kommen im festen Rhythmus.</p></div><div class="situ"><b>Termivox:</b> bietet Folgetermine an und erinnert daran.</div></div>
+      <div class="bc s2 rv"><div><h3>Physiotherapie</h3><p class="p-gap">Zwischen den Behandlungen gibt es kaum Zeit für Rückfragen.</p></div><div class="situ"><b>Termivox:</b> verschiebt Termine und füllt freie Plätze über die Warteliste.</div></div>
+      <div class="bc s2 rv"><div><h3>Handwerk</h3><p class="p-gap">Auf der Baustelle ist niemand am Telefon.</p></div><div class="situ"><b>Termivox:</b> nimmt Anfragen an und vereinbart Besichtigungstermine.</div></div>
+      <div class="bc s2 rv"><div><h3>Praxis</h3><p class="p-gap">Viele Routinefragen zu Öffnungszeiten und Kontrollterminen.</p></div><div class="situ"><b>Termivox:</b> beantwortet Routinefragen und koordiniert die Termine.</div></div>
+      <div class="bc s6 rv"><div><h3>Ein anderer Betrieb mit Terminen?</h3><p class="p-gap">Termivox passt sich Ihren Leistungen, Zeiten und Mitarbeitern an. Sprechen Sie uns an.</p></div><div><a class="btn btn-p" href="pilot.html">Kostenlos testen</a></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="cta-titel">
+  <div class="cta glowb rv">
+    <i aria-hidden="true"></i><i aria-hidden="true"></i>
+    <h2 class="h2" id="cta-titel">Bereit, keine Anfrage mehr zu <span class="shine">verpassen</span>?</h2>
+    <p class="lead">Richten Sie Termivox ein, und Ihre Kunden können ab sofort rund um die Uhr buchen.</p>
+    <div class="btn-row">
+      <a class="btn btn-p" href="pilot.html">Kostenlos testen</a>
+      <a class="btn btn-g" href="preise.html">Preise ansehen</a>
+    </div>
+    <p class="cta-mail">Fragen? <a class="ilink" href="mailto:termivox@gmail.com">termivox@gmail.com</a></p>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-g">
+      <div class="foot-about">
+        <a class="logo" href="index.html" aria-label="Termivox – Startseite"><span class="logo-dot" aria-hidden="true"></span>Termivox</a>
+        <p>Der KI-Terminassistent, der Anfragen beantwortet, während Sie arbeiten.</p>
+      </div>
+      <nav aria-labelledby="fh-produkt">
+        <h2 class="foot-h" id="fh-produkt">Produkt</h2>
+        <ul class="foot-l">
+          <li><a href="funktionen.html">Funktionen</a></li>
+          <li><a href="branchen.html">Branchen</a></li>
+          <li><a href="preise.html">Preise</a></li>
+          <li><a href="pilot.html">Pilotprogramm</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="fh-unternehmen">
+        <h2 class="foot-h" id="fh-unternehmen">Unternehmen</h2>
+        <ul class="foot-l">
+          <li><a href="ueber-uns.html">Über uns</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="mailto:termivox@gmail.com">Kontakt</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="fh-recht">
+        <h2 class="foot-h" id="fh-recht">Rechtliches</h2>
+        <ul class="foot-l">
+          <li><a href="datenschutz.html">Datenschutz</a></li>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="agb.html">AGB</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="foot-b">
+      <span>© 2026 Termivox. Alle Rechte vorbehalten.</span>
+      <span>Made for Salons, Studios &amp; Handwerk.</span>
+    </div>
+    <svg class="giant" viewBox="0 0 1000 190" aria-hidden="true" focusable="false"><defs><linearGradient id="giant-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><text x="500" y="182" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" fill="url(#giant-g)">Termivox</text></svg>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
