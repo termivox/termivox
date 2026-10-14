@@ -74,6 +74,11 @@
 .tag.professional{background:rgba(52,224,184,.16);color:var(--mint)}
 .tag.business{background:rgba(232,169,75,.2);color:#F5CE8A}
 .tag.test{background:rgba(255,255,255,.12);color:var(--mut)}
+.tag.s-test{background:rgba(80,150,255,.2);color:#9CC4FF}
+.tag.s-offen{background:rgba(232,169,75,.2);color:#F5CE8A}
+.tag.s-bald{background:rgba(255,255,255,.1);color:var(--mut)}
+.tag.s-zahlend{background:rgba(52,224,184,.16);color:var(--mint)}
+.tag.s-fehlt{background:rgba(229,86,74,.2);color:#FF8F85}
 .tag.open{background:rgba(52,224,184,.16);color:var(--mint)}
 .bz-num{display:flex;gap:10px;margin-top:14px}
 .bz-num div{flex:1;border-radius:12px;background:rgba(255,255,255,.05);padding:8px 10px}
@@ -202,7 +207,7 @@
       <div class="kpi glass"><b id="k-kosten">–</b><span>Kosten</span></div>
       <div class="kpi glass"><b id="k-prov">–</b><span>Provisionen</span></div>
       <div class="kpi glass mint"><b id="k-gewinn">–</b><span>Gewinn</span></div>
-      <div class="kpi glass"><b id="k-kunden">–</b><span>Aktive Kunden</span></div>
+      <div class="kpi glass"><b id="k-kunden">–</b><span>Aktive Kunden</span><small id="k-test-sub" hidden></small><small id="k-ent-sub" hidden></small></div>
       <div class="kpi glass mint"><b id="k-rr">–</b><span>Rückrufe offen</span></div>
       <div class="kpi glass"><b id="k-heute">–</b><span>Termine heute</span></div>
       <div class="kpi glass"><b id="k-woche">–</b><span>Termine diese Woche</span></div>
@@ -400,6 +405,11 @@
 
     const rrOffen = num(k.rueckrufe_offen) != null ? num(k.rueckrufe_offen) : arr(d.rueckrufe).filter((r) => r.status !== 'erledigt').length;
     $('k-kunden').textContent = num(k.aktive_kunden) != null ? num(k.aktive_kunden) : '–';
+    [['k-test-sub', 'Im Testmonat', k.kunden_im_testmonat], ['k-ent-sub', 'Entscheidung offen', k.kunden_entscheidung_offen]].forEach(([id, text, v]) => {
+      const e = $(id);
+      e.textContent = num(v) != null ? text + ': ' + num(v) : '';
+      e.hidden = num(v) == null;
+    });
     // Umsatz, Provisionen, Kosten und Gewinn kommen fertig von n8n (nichts wird hier nachgerechnet)
     const einr = num(k.einrichtung);
     const umsatz = num(k.umsatz);
@@ -560,6 +570,20 @@
     });
   }
 
+  // Status eines Betriebs -> [Farbklasse, Text]; unbekannt oder fehlend: keine Marke
+  function statusMarke(b) {
+    const s = typeof b.status === 'string' ? b.status.trim() : '';
+    const mit = (text, datum) => (zeit(datum) ? text + ' ' + datumDe(datum) : null);
+    switch (s) {
+      case 'testmonat': return ['s-test', mit('Testmonat bis', b.testmonat_bis) || 'Testmonat'];
+      case 'entscheidung_offen': return ['s-offen', 'Entscheidung offen'];
+      case 'zahlt_bald': return ['s-bald', mit('Zahlt ab', b.zahlt_ab) || 'Zahlt bald'];
+      case 'zahlend': return ['s-zahlend', 'Zahlend'];
+      case 'ohne_startdatum': return ['s-fehlt', 'Startdatum fehlt'];
+      default: return null;
+    }
+  }
+
   function renderBetriebe(liste, k) {
     const box = $('betriebe');
     box.replaceChildren();
@@ -582,6 +606,11 @@
       const tk = roh.toLowerCase();
       const tl = (TARIFE.find((x) => x[0] === tk) || [])[1];
       if (roh) tags.appendChild(el('span', 'tag' + (tl ? ' ' + tk : ''), tl || roh));
+      // Status-Marke (bei Test-Betrieben bleibt nur "Test")
+      if (!test) {
+        const st = statusMarke(b);
+        if (st) tags.appendChild(el('span', 'tag ' + st[0], st[1]));
+      }
       if (test) tags.appendChild(el('span', 'tag test', 'Test'));
       card.appendChild(tags);
       // Vertriebler (leer = eigener Kunde; Feld fehlt = nichts anzeigen) und Provision (nur wenn > 0)
