@@ -151,10 +151,92 @@
     update();
   }
 
+  /* 6. Pilot-Formular: sendet die Anfrage ohne Neuladen per POST an n8n.
+        Keine Zugangsdaten im Code; die Adresse ist ein öffentlicher Webhook. */
+  function pilotForm() {
+    var form = document.getElementById('pilot-form');
+    if (!form || !window.fetch) return;
+    var URL = 'https://n8n.termivox.com/webhook/pilot-anfrage';
+    var NETZ = 'Das hat gerade nicht geklappt. Bitte versuchen Sie es später noch einmal oder schreiben Sie uns.';
+    var btn = form.querySelector('button[type="submit"]');
+    var fehler = document.getElementById('pform-fehler');
+    var danke = document.getElementById('pform-danke');
+    var sub = document.querySelector('.pform-sub');
+    var label = btn.textContent;
+    var sendet = false;
+
+    function zeigeFehler(text) { fehler.textContent = text; fehler.hidden = false; }
+    function frei() { sendet = false; btn.disabled = false; btn.removeAttribute('aria-disabled'); btn.textContent = label; }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (sendet) return;
+      fehler.hidden = true;
+      fehler.textContent = '';
+      var f = form.elements;
+
+      // Pflichtfelder: leere Angaben (auch nur Leerzeichen) und fehlende Zustimmung abfangen
+      var pflicht = ['betrieb', 'ort', 'ansprechperson', 'kontakt'];
+      for (var i = 0; i < pflicht.length; i++) {
+        if (!String(f[pflicht[i]].value || '').trim()) {
+          zeigeFehler('Bitte füllen Sie alle Felder aus.');
+          f[pflicht[i]].focus();
+          return;
+        }
+      }
+      if (!f.datenschutz.checked) {
+        zeigeFehler('Bitte bestätigen Sie die Datenschutzerklärung.');
+        f.datenschutz.focus();
+        return;
+      }
+
+      sendet = true;
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+      btn.textContent = 'Wird gesendet…';
+
+      var body = {
+        betrieb: String(f.betrieb.value).trim(),
+        branche: f.branche.value,
+        ort: String(f.ort.value).trim(),
+        ansprechperson: String(f.ansprechperson.value).trim(),
+        kontakt: String(f.kontakt.value).trim(),
+        datenschutz: !!f.datenschutz.checked,
+        website: f.website.value
+      };
+
+      fetch(URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+        .then(function (res) {
+          return res.json().then(function (d) { return d; }, function () { return null; });
+        })
+        .then(function (d) {
+          if (d && d.success === true) {
+            form.hidden = true;
+            if (sub) sub.hidden = true;
+            danke.hidden = false;
+            danke.focus();
+            return;
+          }
+          var text = d && d.success === false && typeof d.error === 'string' ? d.error.trim() : '';
+          zeigeFehler(text || NETZ);
+          frei();
+        })
+        .catch(function () {
+          zeigeFehler(NETZ);
+          frei();
+        });
+    });
+  }
+
   legacyAnchors();
   window.addEventListener('hashchange', legacyAnchors);
   mobileMenu();
   branchTabs();
   faq();
   calculator();
+  pilotForm();
 })();
