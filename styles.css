@@ -354,6 +354,7 @@ main:focus{outline:none}
 .cta .h2{max-width:900px;margin:0 auto}
 .cta .lead{margin:26px auto 0}
 .cta-mail{margin-top:32px;color:var(--mut);font-size:15px}
+.cta-hint{margin:22px auto 0;max-width:560px;color:var(--mut);font-size:15px}
 
 /* ---------- 6. Footer ---------- */
 .foot{padding:80px 0 0;margin-top:140px;border-top:1px solid var(--line);overflow:hidden}
