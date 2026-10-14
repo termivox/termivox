@@ -65,23 +65,34 @@
         <div class="pform glass glowb">
           <h2 id="pform-titel">Pilotplatz anfragen</h2>
           <p class="pform-sub">Wir melden uns persönlich bei Ihnen.</p>
-          <!-- Bewusst kein Formular-Element: Die Anfrage wird noch nicht übertragen oder gespeichert. -->
-          <fieldset disabled aria-describedby="pform-soon">
-            <legend class="sr">Angaben zu Ihrem Betrieb (Formular noch nicht verfügbar)</legend>
-            <label for="f1">Name des Betriebs</label>
-            <input id="f1" class="in" type="text" autocomplete="organization">
-            <label for="f2">Branche</label>
-            <select id="f2" class="in"><option>Friseursalon</option><option>Kosmetikstudio</option><option>Nagelstudio</option><option>Physiotherapie</option><option>Handwerk</option><option>Praxis</option><option>Sonstiges</option></select>
-            <label for="f3">Ort</label>
-            <input id="f3" class="in" type="text" autocomplete="address-level2">
-            <label for="f4">Ansprechperson</label>
-            <input id="f4" class="in" type="text" autocomplete="name">
-            <label for="f5">Telefon oder E-Mail</label>
-            <input id="f5" class="in" type="text">
-            <button class="btn btn-p" type="button" disabled aria-disabled="true" aria-describedby="pform-soon">Pilotplatz anfragen</button>
-          </fieldset>
-          <p class="soon" id="pform-soon">Bald verfügbar</p>
-          <p class="pform-mail">Bis dahin erreichen Sie uns per E-Mail: <a class="ilink" href="mailto:termivox@gmail.com">termivox@gmail.com</a></p>
+          <form id="pilot-form" action="#" method="post" novalidate>
+            <fieldset>
+              <legend class="sr">Angaben zu Ihrem Betrieb</legend>
+              <label for="f1">Name des Betriebs</label>
+              <input id="f1" name="betrieb" class="in" type="text" autocomplete="organization" required maxlength="120">
+              <label for="f2">Branche</label>
+              <select id="f2" name="branche" class="in"><option>Friseursalon</option><option>Kosmetikstudio</option><option>Nagelstudio</option><option>Physiotherapie</option><option>Handwerk</option><option>Praxis</option><option>Sonstiges</option></select>
+              <label for="f3">Ort</label>
+              <input id="f3" name="ort" class="in" type="text" autocomplete="address-level2" required maxlength="80">
+              <label for="f4">Ansprechperson</label>
+              <input id="f4" name="ansprechperson" class="in" type="text" autocomplete="name" required maxlength="80">
+              <label for="f5">Telefon oder E-Mail</label>
+              <input id="f5" name="kontakt" class="in" type="text" autocomplete="email" required maxlength="120">
+              <!-- Spam-Falle: für Menschen unsichtbar, bleibt immer leer -->
+              <div class="pform-hp" aria-hidden="true">
+                <label for="f7">Website</label>
+                <input id="f7" name="website" type="text" tabindex="-1" autocomplete="off" value="">
+              </div>
+              <label class="pform-check" for="f6">
+                <input id="f6" name="datenschutz" type="checkbox" required>
+                <span>Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und stimme zu.</span>
+              </label>
+              <p class="pform-fehler" id="pform-fehler" role="alert" hidden></p>
+              <button class="btn btn-p" type="submit">Pilotplatz anfragen</button>
+            </fieldset>
+          </form>
+          <p class="soon pform-danke" id="pform-danke" role="status" tabindex="-1" hidden>Danke! Ihre Anfrage ist angekommen. Wir melden uns persönlich bei Ihnen.</p>
+          <p class="pform-mail">Oder schreiben Sie uns direkt per E-Mail: <a class="ilink" href="mailto:termivox@gmail.com">termivox@gmail.com</a></p>
         </div>
       </div>
     </div>
