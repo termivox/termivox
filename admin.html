@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#080B16">
+<title>Admin – Termivox</title>
+<link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bricolage-grotesque-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Persönliches Termivox-Dashboard (Inhaber) – nutzt die Grundlagen aus styles.css */
+.db{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.db-wrap{width:100%;max-width:1040px;margin:0 auto;padding:0 20px}
+
+/* Anmeldung */
+.gate{flex:1;display:grid;place-items:center;padding:32px 20px}
+.gate-card{width:100%;max-width:420px;border-radius:24px;padding:32px 26px}
+.gate-card h1{font-size:30px;margin:14px 0 8px}
+.gate-card p{color:var(--mut)}
+.gate-card form{margin-top:22px}
+.dfld{display:block;font-weight:600;font-size:15px;margin:0 0 8px}
+.inp{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1.5px solid var(--line);background:rgba(255,255,255,.05);color:var(--tx);font:inherit;font-size:18px;letter-spacing:.04em}
+.gate-card .btn{width:100%;margin-top:16px}
+.msg{margin-top:14px;color:#FFB4A8;font-size:15px;min-height:1.4em}
+.msg:empty{margin:0;min-height:0}
+
+/* Kopf */
+.bar{position:sticky;top:0;z-index:20;background:rgba(8,11,22,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);border-top:4px solid var(--accent)}
+.bar .db-wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px}
+.bar h1{font-size:24px;line-height:1.1}
+.bar small{display:block;color:var(--mut);font-size:13px;margin-top:2px}
+.bar-act{display:flex;gap:8px;flex:none}
+.icon-btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--tx);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.icon-btn:hover{border-color:var(--mint)}
+
+/* Kennzahlen */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:22px 0 8px}
+.kpi{border-radius:20px;padding:16px 14px;min-height:44px}
+.kpi b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:36px;line-height:1.05;letter-spacing:-.03em;overflow-wrap:anywhere}
+.kpi span{display:block;margin-top:8px;font-size:14px;color:var(--mut);line-height:1.25}
+.kpi.mint b{color:var(--mint)}
+.kpi small{display:block;margin-top:6px;font-size:12px;line-height:1.3;color:var(--mut)}
+
+/* Abschnitte */
+.sec-h{font-size:22px;margin:34px 0 14px}
+.sec-h small{font-family:'Instrument Sans',system-ui,sans-serif;font-size:14px;font-weight:500;letter-spacing:0;color:var(--mut);margin-left:8px}
+.pcard{border-radius:20px;padding:20px 22px}
+
+/* Tarif-Verteilung */
+.tb-row{display:grid;grid-template-columns:120px 1fr 56px;gap:12px;align-items:center;min-height:44px}
+.tb-row+.tb-row{margin-top:6px}
+.tb-name{font-weight:600;line-height:1.2}
+.tb-name small{display:block;font-weight:400;font-size:12px;color:var(--mut)}
+.tb-track{height:16px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+.tb-fill{height:100%;min-width:0;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--hi))}
+.tb-row:nth-child(2) .tb-fill{background:linear-gradient(90deg,#34E0B8,#7DF0D2)}
+.tb-row:nth-child(3) .tb-fill{background:linear-gradient(90deg,#E8A94B,#F5CE8A)}
+.tb-val{text-align:right;color:var(--mut);font-size:15px}
+.tb-val b{color:var(--tx);font-size:18px;margin-right:4px}
+
+/* Betriebe */
+.biz{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.bz{border-radius:20px;padding:18px 18px 14px}
+.bz.test{opacity:.6}
+.bz-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.bz-top strong{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:20px;line-height:1.2;overflow-wrap:anywhere}
+.bz small{display:block;color:var(--mut);font-size:13px;overflow-wrap:anywhere}
+.bz-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600;background:rgba(255,255,255,.08);color:var(--tx)}
+.tag.starter{background:rgba(106,88,245,.25);color:#C9C1FF}
+.tag.professional{background:rgba(52,224,184,.16);color:var(--mint)}
+.tag.business{background:rgba(232,169,75,.2);color:#F5CE8A}
+.tag.test{background:rgba(255,255,255,.12);color:var(--mut)}
+.tag.s-test{background:rgba(80,150,255,.2);color:#9CC4FF}
+.tag.s-offen{background:rgba(232,169,75,.2);color:#F5CE8A}
+.tag.s-bald{background:rgba(255,255,255,.1);color:var(--mut)}
+.tag.s-zahlend{background:rgba(52,224,184,.16);color:var(--mint)}
+.tag.s-fehlt{background:rgba(229,86,74,.2);color:#FF8F85}
+.tag.open{background:rgba(52,224,184,.16);color:var(--mint)}
+.bz-num{display:flex;gap:10px;margin-top:14px}
+.bz-num div{flex:1;border-radius:12px;background:rgba(255,255,255,.05);padding:8px 10px}
+.bz-num b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:22px;line-height:1.1}
+.bz-num span{font-size:12px;color:var(--mut);line-height:1.2;display:block}
+.tel{display:inline-block;font-weight:600;padding:10px 0}
+.bz-vt{margin-top:10px;font-size:14px;color:var(--mut);line-height:1.4}
+.bz-vt b{color:var(--tx);font-weight:600}
+.bz-ai{margin-top:6px;font-size:13px;color:var(--mut);line-height:1.4}
+.vt-row{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;min-height:52px;padding:6px 0}
+.vt-row+.vt-row{border-top:1px solid var(--line)}
+.vt-name{font-weight:600;overflow-wrap:anywhere}
+.vt-kunden{color:var(--mut);font-size:15px;white-space:nowrap}
+.vt-prov{text-align:right;line-height:1.2}
+.vt-prov b{display:block;font-size:17px;white-space:nowrap}
+.vt-prov small{font-size:12px;color:var(--mut)}
+.vt-leer{color:var(--mut);padding:10px 0}
+.ko-row{display:flex;justify-content:space-between;gap:16px;align-items:center;min-height:44px}
+.ko-row+.ko-row{border-top:1px solid var(--line)}
+.ko-name{overflow-wrap:anywhere}
+.ko-betrag{white-space:nowrap}
+.ko-sum{font-weight:700;font-size:17px}
+.jb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.jb-n{border-radius:14px;background:rgba(255,255,255,.05);padding:10px 12px}
+.jb-n b{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:20px;line-height:1.15;overflow-wrap:anywhere}
+.jb-n span{font-size:13px;color:var(--mut)}
+.pb-row{margin-top:20px}
+.pb-label{font-size:15px;line-height:1.35;margin-bottom:8px}
+.pb-bar{display:flex;align-items:center;gap:12px}
+.pb-track{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.pb-fill{height:100%;border-radius:999px}
+.pb-fill.mint{background:linear-gradient(90deg,#34E0B8,#7DF0D2)}
+.pb-fill.gelb{background:linear-gradient(90deg,#E8A94B,#F5CE8A)}
+.pb-fill.rot{background:linear-gradient(90deg,#E5564A,#FF8F85)}
+.pb-pct{min-width:52px;text-align:right;font-size:17px}
+.pb-pct.mint{color:var(--mint)}
+.pb-pct.gelb{color:#F5CE8A}
+.pb-pct.rot{color:#FF8F85}
+.jb-warn{margin:18px 0 0;font-size:14px;color:#F5CE8A}
+.jb-hint{margin:10px 4px 0;font-size:13px;line-height:1.45;color:var(--mut)}
+
+/* Reiter */
+.dtabs{display:flex;gap:8px;margin:34px 0 6px}
+.dtab{position:relative;flex:1;min-height:52px;padding:0 18px;border-radius:14px;border:1.5px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:17px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.dtab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.cnt{min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--mint);color:#04241B;font-size:14px;font-weight:700;display:inline-grid;place-items:center}
+.panel{padding-bottom:110px;scroll-margin-top:90px}
+
+/* Listen */
+.day{margin:26px 0 10px;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:20px;font-weight:700;letter-spacing:-.02em}
+.day small{color:var(--mut);font-family:'Instrument Sans',system-ui,sans-serif;font-size:14px;font-weight:500;letter-spacing:0;margin-left:8px}
+.item{display:flex;gap:16px;align-items:flex-start;border-radius:18px;padding:14px 16px;margin-bottom:10px}
+.zeit{flex:none;min-width:64px;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:22px;font-weight:700;line-height:1.1}
+.zeit.ganz{font-size:16px;line-height:1.3}
+.zeit small{display:block;font-family:'Instrument Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:var(--mut);margin-top:3px}
+.info{min-width:0;flex:1}
+.info strong{display:block;font-size:18px;overflow-wrap:anywhere}
+.info span.l{display:block;color:var(--mut);font-size:15px;overflow-wrap:anywhere}
+.rr{border-radius:18px;padding:16px;margin-bottom:12px}
+.rr.off{opacity:.55}
+.rr-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.rr-top strong{font-size:19px;overflow-wrap:anywhere}
+.rr-time{color:var(--mut);font-size:14px;white-space:nowrap}
+.rr p{margin:8px 0 0;color:var(--tx);white-space:pre-line;overflow-wrap:anywhere}
+.rr .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.leer{margin:26px 0;color:var(--mut);text-align:center;padding:30px 16px;border-radius:18px;border:1px dashed var(--line)}
+/* Reiter Termine: Betriebe-Tabelle mit aufklappbaren Terminen */
+.bt{width:100%;border-collapse:separate;border-spacing:0 8px;margin-top:10px}
+.bt th{text-align:right;font-size:13px;font-weight:600;color:var(--mut);padding:0 14px 2px;vertical-align:bottom}
+.bt th:first-child{text-align:left}
+.bt-row{cursor:pointer}
+.bt-row td{padding:12px 14px;background:rgba(255,255,255,.05);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.bt-row td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}
+.bt-row td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
+.bt-row:hover td{background:rgba(255,255,255,.08)}
+.bt-num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.bt-name{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0;background:none;border:0;color:var(--tx);font:inherit;font-weight:600;font-size:17px;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+.bt-chev{flex:none;width:0;height:0;border-left:7px solid var(--mut);border-top:5px solid transparent;border-bottom:5px solid transparent;transition:transform .15s}
+.bt-name[aria-expanded="true"] .bt-chev{transform:rotate(90deg)}
+.bt-detail td{padding:0 14px 6px}
+.bt-liste{border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);padding:6px 14px}
+.bt-t{display:flex;gap:14px;align-items:baseline;padding:9px 0}
+.bt-t+.bt-t{border-top:1px solid var(--line)}
+.bt-zeit{flex:none;min-width:84px;font-weight:700;font-variant-numeric:tabular-nums}
+.bt-wer{min-width:0}
+.bt-wer strong{display:block;overflow-wrap:anywhere}
+.bt-wer small{display:block;color:var(--mut);font-size:14px;overflow-wrap:anywhere}
+.bt-leer{color:var(--mut);padding:10px 0}
+
+/* Feste Leiste am Handy */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;gap:8px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(8,11,22,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.dock .dtab{min-height:54px;padding:0 8px;font-size:16px;line-height:1.15}
+
+@media (min-width:900px){
+  .kpis{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:720px){
+  .dtabs{display:none}
+  .dock{display:flex}
+  .bar h1{font-size:21px}
+  .kpis{gap:8px}
+  .kpi{padding:14px 12px}
+  .kpi b{font-size:30px}
+  .tb-row{grid-template-columns:100px 1fr 40px;gap:8px}
+  .pcard{padding:16px}
+  .bt thead{display:none}
+  .bt,.bt tbody,.bt tr,.bt td{display:block}
+  .bt{border-spacing:0}
+  .bt .bt-row{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;padding:14px;margin-top:10px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.05)}
+  .bt-row td,.bt-row td:first-child,.bt-row td:last-child{padding:0;border:0;border-radius:0;background:none}
+  .bt-row td:first-child{grid-column:1/-1}
+  .bt-num{text-align:left}
+  .bt-num::before{content:attr(data-label);display:block;font-size:12px;font-weight:400;color:var(--mut);line-height:1.3}
+  .bt-detail{margin-top:6px}
+  .bt-detail[hidden]{display:none}
+  .bt-detail td{padding:0}
+  .bt-zeit{min-width:76px}
+  .jb-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:430px){.icon-btn{padding:0 10px;font-size:14px}.bar-act{gap:6px}.bar .db-wrap{gap:8px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="tv db" id="app">
+
+<!-- Anmeldung nur mit PIN -->
+<section class="gate" id="gate" aria-labelledby="gate-titel">
+  <div class="gate-card glass">
+    <span class="eyebrow">Termivox</span>
+    <h1 id="gate-titel">Admin</h1>
+    <p>Bitte geben Sie Ihre PIN ein.</p>
+    <form id="login" novalidate>
+      <label class="dfld" for="pin">PIN</label>
+      <input class="inp" id="pin" type="password" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="12" minlength="12" required>
+      <button class="btn btn-p" type="submit" id="login-btn">Anmelden</button>
+      <div class="msg" id="login-msg" role="alert"></div>
+    </form>
+  </div>
+</section>
+
+<!-- Dashboard -->
+<div id="board" hidden>
+  <header class="bar">
+    <div class="db-wrap">
+      <div>
+        <h1>Termivox Admin</h1>
+        <small id="stand">Wird geladen…</small>
+      </div>
+      <div class="bar-act">
+        <button class="icon-btn" type="button" id="reload" aria-label="Aktualisieren">Aktualisieren</button>
+        <button class="icon-btn" type="button" id="logout">Abmelden</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="db-wrap" id="inhalt" tabindex="-1">
+    <section class="kpis" aria-label="Kennzahlen">
+      <div class="kpi glass"><b id="k-umsatz">–</b><span>Umsatz diesen Monat</span><small id="k-umsatz-sub" hidden></small></div>
+      <div class="kpi glass"><b id="k-kosten">–</b><span>Kosten</span></div>
+      <div class="kpi glass"><b id="k-prov">–</b><span>Provisionen</span></div>
+      <div class="kpi glass mint"><b id="k-gewinn">–</b><span>Gewinn</span></div>
+      <div class="kpi glass"><b id="k-kunden">–</b><span>Aktive Kunden</span><small id="k-test-sub" hidden></small><small id="k-ent-sub" hidden></small></div>
+      <div class="kpi glass mint"><b id="k-rr">–</b><span>Rückrufe offen</span></div>
+      <div class="kpi glass"><b id="k-heute">–</b><span>Termine heute</span></div>
+      <div class="kpi glass"><b id="k-woche">–</b><span>Termine diese Woche</span></div>
+    </section>
+
+    <div class="msg" id="board-msg" role="status"></div>
+
+    <h2 class="sec-h" id="jb-h" hidden><span id="jb-titel">Jahresbilanz</span></h2>
+    <section class="pcard glass" id="jahresbilanz" aria-label="Jahresbilanz" hidden></section>
+    <p class="jb-hint" id="jb-hinweis" hidden></p>
+
+    <h2 class="sec-h">Tarif-Verteilung <small id="tarif-sub"></small></h2>
+    <section class="pcard glass" id="tarife" aria-label="Tarif-Verteilung"></section>
+
+    <h2 class="sec-h" id="vert-h" hidden>Vertriebler <small id="vert-sub"></small></h2>
+    <section class="pcard glass" id="vertriebler" aria-label="Vertriebler" hidden></section>
+
+    <h2 class="sec-h" id="kosten-h" hidden>Kosten pro Monat</h2>
+    <section class="pcard glass" id="kostenliste" aria-label="Kosten pro Monat" hidden></section>
+
+    <h2 class="sec-h">Betriebe <small id="betriebe-sub"></small></h2>
+    <section class="biz" id="betriebe" aria-label="Betriebe"></section>
+
+    <div class="dtabs" role="tablist" aria-label="Listen" id="tabs-top">
+      <button class="dtab" role="tab" id="t-rueckrufe" aria-controls="p-rueckrufe" aria-selected="true" type="button">Rückrufe <span class="cnt" id="c-rr" hidden>0</span></button>
+      <button class="dtab" role="tab" id="t-termine" aria-controls="p-termine" aria-selected="false" type="button">Termine</button>
+      <button class="dtab" role="tab" id="t-privat" aria-controls="p-privat" aria-selected="false" type="button">Mein Kalender</button>
+    </div>
+
+    <section class="panel" id="p-rueckrufe" role="tabpanel" aria-labelledby="t-rueckrufe"></section>
+    <section class="panel" id="p-termine" role="tabpanel" aria-labelledby="t-termine" hidden></section>
+    <section class="panel" id="p-privat" role="tabpanel" aria-labelledby="t-privat" hidden></section>
+  </main>
+
+  <nav class="dock" role="tablist" aria-label="Listen (mobil)" id="tabs-dock">
+    <button class="dtab" role="tab" data-t="rueckrufe" aria-selected="true" type="button">Rückrufe <span class="cnt" id="c-rr2" hidden>0</span></button>
+    <button class="dtab" role="tab" data-t="termine" aria-selected="false" type="button">Termine</button>
+    <button class="dtab" role="tab" data-t="privat" aria-selected="false" type="button">Mein Kalender</button>
+  </nav>
+</div>
+
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---- Schnittstelle zu n8n ------------------------------------------------
+  // POST, JSON, kein Token. Die PIN steht weder im Code noch in der URL oder im Browser-Speicher:
+  // Sie liegt nur im Arbeitsspeicher dieser Seite. Nach Neuladen oder Abmelden muss sie neu eingegeben werden.
+  const API = 'https://n8n.termivox.com/webhook/dashboard-api';
+  const KUNDE_ID = 'admin';
+  const TZ = 'Europe/Berlin';
+  const REFRESH_MS = 60000;
+  const TARIFE = [['starter', 'Starter'], ['professional', 'Professional'], ['business', 'Business']];
+
+  const $ = (id) => document.getElementById(id);
+  const state = { pin: '', daten: null, timer: null, busy: false, offen: new Set(), letzterStand: null };
+
+  // ---- Hilfen ---------------------------------------------------------------
+  const el = (tag, cls, text) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  };
+  const p2 = (n) => String(n).padStart(2, '0');
+  const fTime = new Intl.DateTimeFormat('de-DE', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
+  const fShort = new Intl.DateTimeFormat('de-DE', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const fParts = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  const fKey = new Intl.DateTimeFormat('sv-SE', { timeZone: TZ });
+  const fDayLong = new Intl.DateTimeFormat('de-DE', { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long' });
+  const fEuro = (v) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
+  const addDays = (key, n) => { const d = new Date(key + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+  const mkZeit = (y, mo, d, h, mi) => ({ y, mo, d, h, mi, key: y + '-' + p2(mo) + '-' + p2(d), min: h * 60 + mi });
+  const num = (v) => (v != null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
+  const telHref = (t) => {
+    const s = String(t || '').trim();
+    return /^[+0-9 ()\/-]{5,30}$/.test(s) ? 'tel:' + s.replace(/[^+0-9]/g, '') : null;
+  };
+  const telEl = (t, cls) => {
+    const href = telHref(t);
+    if (!href) return null;
+    const a = el('a', cls || 'tel', String(t).trim());
+    a.href = href;
+    return a;
+  };
+
+  // Zeitangaben: ISO mit Zeitzone (nach Europe/Berlin umgerechnet), ISO ohne Zeitzone, nur Datum (ganztägig),
+  // "TT.MM.JJ, HH:MM". Alles andere: null.
+  function zeit(v) {
+    if (v == null || v === '') return null;
+    const s = String(v).trim();
+    let m;
+    if ((m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/))) { const z = mkZeit(+m[1], +m[2], +m[3], 0, 0); z.ganztag = true; z.min = -1; return z; }
+    if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})$/.test(s)) {
+      const d = new Date(s.replace(' ', 'T'));
+      if (isNaN(d)) return null;
+      const p = {};
+      fParts.formatToParts(d).forEach((x) => { p[x.type] = x.value; });
+      return mkZeit(+p.year, +p.month, +p.day, +p.hour, +p.minute);
+    }
+    if ((m = s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/))) return mkZeit(+m[1], +m[2], +m[3], +m[4], +m[5]);
+    if ((m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4}),?\s+(\d{1,2}):(\d{2})/))) return mkZeit(+m[3] < 100 ? 2000 + +m[3] : +m[3], +m[2], +m[1], +m[4], +m[5]);
+    return null;
+  }
+  const uhr = (z) => p2(z.h) + ':' + p2(z.mi);
+
+  // ---- Netzwerk -------------------------------------------------------------
+  class LoginError extends Error {}   // 401: falsche PIN oder gesperrt, Text kommt von n8n
+
+  async function holeAdmin() {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kunde_id: KUNDE_ID, pin: state.pin, aktion: 'admin' })
+    });
+    let d = null;
+    try { d = await res.json(); } catch (e) { /* keine JSON-Antwort */ }
+    if (res.status === 401) throw new LoginError((d && d.fehler) || 'Anmeldung nicht möglich.');
+    if (!res.ok || !d || d.success !== true) throw new Error('Antwort ' + res.status);
+    return d;
+  }
+
+  // ---- Anmeldung / Abmeldung ------------------------------------------------
+  function stopTimer() { if (state.timer) { clearInterval(state.timer); state.timer = null; } }
+
+  // Automatische Aktualisierung: alle 60 Sekunden, solange die Seite sichtbar und angemeldet ist
+  function starteTimer() {
+    stopTimer();
+    state.timer = setInterval(() => { if (document.visibilityState === 'visible') lade(true); }, REFRESH_MS);
+  }
+
+  // Vergleichswert der Daten ohne den Zeitstempel "stand"
+  const signatur = (d) => JSON.stringify(Object.assign({}, d, { stand: null }));
+
+  function zeigeGate(text) {
+    stopTimer();
+    $('board').hidden = true;
+    $('gate').hidden = false;
+    $('login-msg').textContent = text || '';
+    setTimeout(() => $('pin').focus(), 50);
+  }
+
+  function abmelden(text) {
+    state.pin = ''; state.daten = null; state.letzterStand = null; state.offen.clear();
+    $('pin').value = '';
+    ['jahresbilanz', 'tarife', 'betriebe', 'vertriebler', 'kostenliste', 'p-rueckrufe', 'p-termine', 'p-privat'].forEach((id) => $(id).replaceChildren());
+    waehleTab('rueckrufe');
+    zeigeGate(text);
+  }
+
+  $('login').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pin = $('pin').value;                 // unverändert: Groß-/Kleinschreibung bleibt, nichts wird umgewandelt
+    const msg = $('login-msg');
+    if (!pin) { msg.textContent = 'Bitte geben Sie Ihre PIN ein.'; $('pin').focus(); return; }
+    if (!/^[A-Za-z0-9]{12}$/.test(pin)) { msg.textContent = 'Die PIN besteht aus genau 12 Buchstaben und Ziffern.'; $('pin').focus(); return; }
+    $('login-btn').disabled = true; msg.textContent = 'Wird geprüft…';
+    state.pin = pin;
+    try {
+      state.daten = await holeAdmin();
+      $('pin').value = ''; msg.textContent = '';
+      $('gate').hidden = true; $('board').hidden = false;
+      state.letzterStand = signatur(state.daten);
+      render();
+      starteTimer();
+    } catch (err) {
+      state.pin = '';
+      msg.textContent = err instanceof LoginError ? err.message : 'Gerade klappt etwas nicht. Bitte versuchen Sie es gleich noch einmal.';
+      $('pin').value = ''; $('pin').focus();
+    } finally {
+      $('login-btn').disabled = false;
+    }
+  });
+
+  async function lade(still) {
+    if (!state.pin || state.busy) return;
+    state.busy = true;
+    const msg = $('board-msg');
+    if (!still) { msg.textContent = ''; $('stand').textContent = 'Wird geladen…'; }
+    try {
+      const d = await holeAdmin();
+      const sig = signatur(d);
+      const geaendert = sig !== state.letzterStand;
+      state.daten = d;
+      state.letzterStand = sig;
+      msg.textContent = '';
+      // Bei der automatischen Aktualisierung nur neu zeichnen, wenn sich Daten geändert haben (kein Springen)
+      if (geaendert || !still) render(); else zeigeStand();
+      if (!state.timer) starteTimer();            // nach einem Fehler und manuellem Neuladen läuft es wieder an
+    } catch (err) {
+      if (err instanceof LoginError) { state.busy = false; abmelden(err.message); return; }
+      // Fehlgeschlagen: automatisches Laden sofort stoppen und nicht wiederholen (Schutz vor der Sperre)
+      stopTimer();
+      msg.textContent = 'Gerade klappt etwas nicht. Das automatische Aktualisieren ist angehalten. Mit „Aktualisieren“ laden Sie neu.';
+      $('stand').textContent = 'Nicht aktuell';
+    } finally {
+      state.busy = false;
+    }
+  }
+
+  // ---- Darstellung ----------------------------------------------------------
+  const arr = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x === 'object') : []);
+
+  // "Stand HH:MM Uhr" oben (Zeit vom Server, sonst jetzt)
+  function zeigeStand() {
+    const sz = zeit((state.daten || {}).stand);
+    $('stand').textContent = 'Stand ' + (sz ? uhr(sz) : fTime.format(new Date())) + ' Uhr';
+  }
+
+  function render() {
+    const d = state.daten || {};
+    const k = d.kennzahlen || {};
+    zeigeStand();
+
+    const rrOffen = num(k.rueckrufe_offen) != null ? num(k.rueckrufe_offen) : arr(d.rueckrufe).filter((r) => r.status !== 'erledigt').length;
+    $('k-kunden').textContent = num(k.aktive_kunden) != null ? num(k.aktive_kunden) : '–';
+    [['k-test-sub', 'Im Testmonat', k.kunden_im_testmonat], ['k-ent-sub', 'Entscheidung offen', k.kunden_entscheidung_offen]].forEach(([id, text, v]) => {
+      const e = $(id);
+      e.textContent = num(v) != null ? text + ': ' + num(v) : '';
+      e.hidden = num(v) == null;
+    });
+    // Umsatz, Provisionen, Kosten und Gewinn kommen fertig von n8n (nichts wird hier nachgerechnet)
+    const einr = num(k.einrichtung);
+    const umsatz = num(k.umsatz);
+    const prov = num(k.provisionen);
+    const gewinn = num(k.gewinn);
+    const kosten = num(k.kosten);                // feste Kosten pro Monat, direkt von n8n
+    $('k-umsatz').textContent = umsatz != null ? fEuro(umsatz) : '–';
+    const sub = $('k-umsatz-sub');
+    const teile = [];
+    if (num(k.mrr) != null) teile.push(fEuro(num(k.mrr)) + ' Monatspreise');
+    if (einr != null && einr > 0) teile.push(fEuro(einr) + ' Einrichtung');
+    sub.textContent = teile.join(' + ');
+    sub.hidden = !teile.length;
+    $('k-kosten').textContent = kosten != null ? fEuro(kosten) : '–';
+    $('k-prov').textContent = prov != null ? fEuro(prov) : '–';
+    const gEl = $('k-gewinn');
+    gEl.textContent = gewinn != null ? fEuro(gewinn) : '–';
+    gEl.style.color = gewinn != null && gewinn < 0 ? '#FFB4A8' : '';
+    $('k-rr').textContent = rrOffen;
+    $('k-heute').textContent = num(k.termine_heute) != null ? num(k.termine_heute) : '–';
+    $('k-woche').textContent = num(k.termine_woche) != null ? num(k.termine_woche) : '–';
+    [$('c-rr'), $('c-rr2')].forEach((c) => { c.textContent = rrOffen; c.hidden = rrOffen === 0; });
+
+    renderJahresbilanz(d.jahresbilanz);
+    renderTarife(d.tarife, k);
+    renderVertriebler(d.vertriebler);
+    renderKostenListe(d.kosten_liste);
+    renderBetriebe(arr(d.betriebe), k);
+    renderRueckrufe(arr(d.rueckrufe));
+    renderTermine(arr(d.betriebe), arr(d.termine));
+    renderPrivat(arr(d.privat_termine));
+  }
+
+  function renderTarife(t, k) {
+    const box = $('tarife');
+    box.replaceChildren();
+    const werte = TARIFE.map(([key, label]) => [key, label, num(t && t[key]) || 0]);
+    const max = Math.max(1, ...werte.map((w) => w[2]));
+    const summe = werte.reduce((s, w) => s + w[2], 0);
+    $('tarif-sub').textContent = summe + (summe === 1 ? ' Kunde' : ' Kunden');
+    werte.forEach(([key, label, wert]) => {
+      const row = el('div', 'tb-row');
+      const nameEl = el('span', 'tb-name', label);
+      const preis = num((k.preise && typeof k.preise === 'object' ? k.preise : {})[key]);
+      if (preis != null) nameEl.appendChild(el('small', null, fEuro(preis) + '/Monat'));
+      row.appendChild(nameEl);
+      const track = el('div', 'tb-track');
+      const fill = el('div', 'tb-fill');
+      fill.style.width = (wert / max * 100) + '%';
+      track.appendChild(fill);
+      row.appendChild(track);
+      const val = el('span', 'tb-val');
+      val.appendChild(el('b', null, String(wert)));
+      row.appendChild(val);
+      box.appendChild(row);
+    });
+  }
+
+  // Karte "Jahresbilanz seit …": nur sichtbar, wenn n8n das Objekt liefert
+  const fEuro0 = (v) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+
+  function datumDe(v) {
+    const z = zeit(v);
+    if (z) return p2(z.d) + '.' + p2(z.mo) + '.' + z.y;
+    return v ? String(v) : '';
+  }
+
+  function fortschritt(label, wert, grenze, prozentRoh, warnung, einheit) {
+    const row = el('div', 'pb-row');
+    row.appendChild(el('div', 'pb-label', label));
+    let p = num(prozentRoh);
+    if (p == null && wert != null && grenze) p = wert / grenze * 100;
+    if (p == null) p = 0;
+    p = Math.max(0, p);
+    const stufe = p >= 100 ? 'rot' : (warnung === true || p >= 80) ? 'gelb' : 'mint';
+    const zeile = el('div', 'pb-bar');
+    const track = el('div', 'pb-track');
+    track.setAttribute('role', 'progressbar');
+    track.setAttribute('aria-label', label);
+    track.setAttribute('aria-valuemin', '0');
+    track.setAttribute('aria-valuemax', '100');
+    track.setAttribute('aria-valuenow', String(Math.round(Math.min(p, 100))));
+    const fill = el('div', 'pb-fill ' + stufe);
+    fill.style.width = Math.min(100, p) + '%';
+    track.appendChild(fill);
+    zeile.appendChild(track);
+    zeile.appendChild(el('b', 'pb-pct ' + stufe, Math.round(p) + ' %'));
+    row.appendChild(zeile);
+    return row;
+  }
+
+  function renderJahresbilanz(jb) {
+    const box = $('jahresbilanz');
+    const kopf = $('jb-h');
+    const hint = $('jb-hinweis');
+    box.replaceChildren();
+    const hat = jb && typeof jb === 'object' && !Array.isArray(jb);
+    box.hidden = kopf.hidden = !hat;
+    if (!hat) { hint.hidden = true; return; }
+    const seit = datumDe(jb.seit);
+    $('jb-titel').textContent = 'Jahresbilanz' + (seit ? ' seit ' + seit : (jb.jahr ? ' ' + jb.jahr : ''));
+
+    const grid = el('div', 'jb-grid');
+    [['Umsatz', jb.umsatz], ['Kosten', jb.kosten], ['Provisionen', jb.provisionen], ['Gewinn', jb.gewinn]].forEach(([l, v]) => {
+      const c = el('div', 'jb-n');
+      const n = num(v);
+      const b = el('b', null, n != null ? fEuro(n) : '–');
+      if (l === 'Gewinn' && n != null && n < 0) b.style.color = '#FFB4A8';
+      c.appendChild(b);
+      c.appendChild(el('span', null, l));
+      grid.appendChild(c);
+    });
+    box.appendChild(grid);
+
+    const gewinn = num(jb.gewinn);
+    const umsatz = num(jb.umsatz);
+    const gGrenze = num(jb.gewerbesteuer_grenze) != null ? num(jb.gewerbesteuer_grenze) : 24500;
+    const kGrenze = num(jb.kleinunternehmer_grenze) != null ? num(jb.kleinunternehmer_grenze) : 25000;
+    if (gewinn != null) {
+      // Bei Verlust zeigt der Balken 0 (die Zahlen oben in der Karte behalten das Minus)
+      const gewinnBalken = Math.max(0, gewinn);
+      box.appendChild(fortschritt('Gewerbesteuer-Freibetrag: ' + fEuro(gewinnBalken) + ' von ' + fEuro0(gGrenze) + ' Gewinn', gewinnBalken, gGrenze, jb.gewerbesteuer_prozent, jb.gewerbesteuer_warnung));
+    }
+    if (umsatz != null) {
+      box.appendChild(fortschritt('Kleinunternehmer-Grenze: ' + fEuro(umsatz) + ' von ' + fEuro0(kGrenze) + ' Umsatz', umsatz, kGrenze, jb.kleinunternehmer_prozent, jb.kleinunternehmer_warnung));
+    }
+
+    const ohne = num(jb.kunden_ohne_startdatum);
+    if (ohne != null && ohne > 0) {
+      box.appendChild(el('p', 'jb-warn', ohne === 1 ? '1 Kunde ohne Startdatum zählt nicht mit.' : ohne + ' Kunden ohne Startdatum zählen nicht mit.'));
+    }
+
+    const text = typeof jb.hinweis === 'string' ? jb.hinweis.trim() : '';
+    hint.textContent = text;
+    hint.hidden = !text;
+  }
+
+  // Karte "Vertriebler": nur sichtbar, wenn n8n das Feld liefert (leere Liste: kurzer Hinweis)
+  function renderVertriebler(v) {
+    const box = $('vertriebler');
+    const kopf = $('vert-h');
+    box.replaceChildren();
+    const hat = Array.isArray(v);
+    box.hidden = kopf.hidden = !hat;
+    if (!hat) return;
+    const liste = arr(v);
+    $('vert-sub').textContent = liste.length ? liste.length + (liste.length === 1 ? ' Person' : ' Personen') : '';
+    if (!liste.length) { box.appendChild(el('div', 'vt-leer', 'Noch keine Vertriebler.')); return; }
+    liste.forEach((p) => {
+      const row = el('div', 'vt-row');
+      row.appendChild(el('span', 'vt-name', p.name ? String(p.name) : 'Ohne Namen'));
+      const kn = num(p.kunden);
+      row.appendChild(el('span', 'vt-kunden', kn != null ? kn + (kn === 1 ? ' Kunde' : ' Kunden') : '–'));
+      const pm = num(p.provision_monat);
+      const pv = el('span', 'vt-prov');
+      pv.appendChild(el('b', null, pm != null ? fEuro(pm) : '–'));
+      pv.appendChild(el('small', null, 'diesen Monat'));
+      row.appendChild(pv);
+      box.appendChild(row);
+    });
+  }
+
+  // Status eines Betriebs -> [Farbklasse, Text]; unbekannt oder fehlend: keine Marke
+  function statusMarke(b) {
+    const s = typeof b.status === 'string' ? b.status.trim() : '';
+    const mit = (text, datum) => (zeit(datum) ? text + ' ' + datumDe(datum) : null);
+    switch (s) {
+      case 'testmonat': return ['s-test', mit('Testmonat bis', b.testmonat_bis) || 'Testmonat'];
+      case 'entscheidung_offen': return ['s-offen', 'Entscheidung offen'];
+      case 'zahlt_bald': return ['s-bald', mit('Zahlt ab', b.zahlt_ab) || 'Zahlt bald'];
+      case 'zahlend': return ['s-zahlend', 'Zahlend'];
+      case 'ohne_startdatum': return ['s-fehlt', 'Startdatum fehlt'];
+      default: return null;
+    }
+  }
+
+  function renderBetriebe(liste, k) {
+    const box = $('betriebe');
+    box.replaceChildren();
+    const echte = liste.filter((b) => !b.test).length;
+    $('betriebe-sub').textContent = liste.length ? echte + ' aktiv' + (liste.length > echte ? ', ' + (liste.length - echte) + ' Test' : '') : '';
+    if (!liste.length) { box.appendChild(el('div', 'leer', 'Noch keine Betriebe eingetragen.')); box.style.display = 'block'; return; }
+    box.style.display = '';
+    liste.forEach((b) => {
+      const test = !!b.test;
+      const card = el('article', 'bz glass' + (test ? ' test' : ''));
+      const top = el('div', 'bz-top');
+      const nm = el('div');
+      nm.appendChild(el('strong', null, b.name || b.kunde_id || 'Ohne Namen'));
+      if (b.kunde_id) nm.appendChild(el('small', null, b.kunde_id));
+      top.appendChild(nm);
+      card.appendChild(top);
+      const tags = el('div', 'bz-tags');
+      // Bekannte Tarife (starter, professional, business) bekommen Namen und Farbe, alles andere wird neutral angezeigt
+      const roh = typeof b.tarif === 'string' || typeof b.tarif === 'number' ? String(b.tarif).trim() : '';
+      const tk = roh.toLowerCase();
+      const tl = (TARIFE.find((x) => x[0] === tk) || [])[1];
+      if (roh) tags.appendChild(el('span', 'tag' + (tl ? ' ' + tk : ''), tl || roh));
+      // Status-Marke (bei Test-Betrieben bleibt nur "Test")
+      if (!test) {
+        const st = statusMarke(b);
+        if (st) tags.appendChild(el('span', 'tag ' + st[0], st[1]));
+      }
+      if (test) tags.appendChild(el('span', 'tag test', 'Test'));
+      card.appendChild(tags);
+      // Vertriebler (leer = eigener Kunde; Feld fehlt = nichts anzeigen) und Provision (nur wenn > 0)
+      const vt = typeof b.vertrieb === 'string' ? b.vertrieb.trim() : null;
+      const pm = num(b.provision_monat);
+      if (vt !== null || (pm != null && pm > 0)) {
+        const line = el('div', 'bz-vt');
+        if (vt !== null) {
+          line.appendChild(document.createTextNode('Vertrieb: '));
+          line.appendChild(el('b', null, vt || 'Eigener Kunde'));
+        }
+        if (pm != null && pm > 0) {
+          if (vt !== null) line.appendChild(document.createTextNode(' · '));
+          line.appendChild(document.createTextNode('Provision '));
+          line.appendChild(el('b', null, fEuro(pm)));
+          line.appendChild(document.createTextNode(' diesen Monat'));
+        }
+        card.appendChild(line);
+      }
+      // OpenAI-Nutzung des Betriebs (nur wenn Nachrichten > 0; fehlen die Kosten, nur die Anzahl)
+      const nachr = num(b.nachrichten_monat);
+      if (nachr != null && nachr > 0) {
+        const ok = num(b.openai_kosten_monat);
+        const zahl = new Intl.NumberFormat('de-DE').format(nachr);
+        const text = zahl + (nachr === 1 ? ' Chat-Nachricht' : ' Chat-Nachrichten') + (ok != null ? ', ca. ' + fEuro(ok) + ' OpenAI' : '');
+        card.appendChild(el('div', 'bz-ai', text));
+      }
+      const tel = telEl(b.telefon);
+      if (tel) card.appendChild(tel);
+      else if (b.telefon) card.appendChild(el('div', 'tel', String(b.telefon)));
+      const nums = el('div', 'bz-num');
+      [['Termine heute', b.termine_heute], ['Termine Woche', b.termine_woche], ['Rückrufe offen', b.rueckrufe_offen]].forEach(([l, v]) => {
+        const c = el('div');
+        c.appendChild(el('b', null, num(v) != null ? String(num(v)) : '–'));
+        c.appendChild(el('span', null, l));
+        nums.appendChild(c);
+      });
+      card.appendChild(nums);
+      box.appendChild(card);
+    });
+  }
+
+  function renderRueckrufe(liste) {
+    const box = $('p-rueckrufe');
+    box.replaceChildren();
+    if (!liste.length) { box.appendChild(el('div', 'leer', 'Keine Rückrufbitten vorhanden.')); return; }
+    liste.forEach((r) => {
+      const erledigt = r.status === 'erledigt';
+      const card = el('article', 'rr glass' + (erledigt ? ' off' : ''));
+      const top = el('div', 'rr-top');
+      top.appendChild(el('strong', null, r.name || 'Ohne Namen'));
+      // n8n liefert "TT.MM.JJ, HH:MM" (fertig formatiert); ISO würde umgerechnet
+      const raw = r.eingang ? String(r.eingang) : '';
+      const z = /^\d{4}-\d{2}-\d{2}[T ]/.test(raw) ? zeit(raw) : null;
+      if (z) top.appendChild(el('span', 'rr-time', p2(z.d) + '.' + p2(z.mo) + '., ' + uhr(z) + ' Uhr'));
+      else if (raw) top.appendChild(el('span', 'rr-time', raw + (/\d{2}:\d{2}$/.test(raw) ? ' Uhr' : '')));
+      card.appendChild(top);
+      const tel = telEl(r.telefon);
+      if (tel) card.appendChild(tel);
+      else if (r.telefon) card.appendChild(el('div', 'tel', String(r.telefon)));
+      if (r.anliegen) card.appendChild(el('p', null, String(r.anliegen)));
+      const tags = el('div', 'tags');
+      if (r.betrieb) tags.appendChild(el('span', 'tag', String(r.betrieb)));
+      tags.appendChild(el('span', 'tag ' + (erledigt ? '' : 'open'), erledigt ? 'Erledigt' : 'Offen'));
+      card.appendChild(tags);
+      box.appendChild(card);
+    });
+  }
+
+  // Gemeinsame Terminliste (Betriebe und privater Kalender): gruppiert nach Heute, Morgen, Datum
+  function renderTerminListe(box, liste, leerText, felder) {
+    box.replaceChildren();
+    if (!liste.length) { box.appendChild(el('div', 'leer', leerText)); return; }
+    const sortiert = liste
+      .map((t) => ({ t, z: zeit(t.start) }))
+      .sort((a, b) => (a.z && b.z ? (a.z.key < b.z.key ? -1 : a.z.key > b.z.key ? 1 : a.z.min - b.z.min) : a.z ? -1 : b.z ? 1 : 0));
+    const heute = fKey.format(new Date());
+    const morgen = addDays(heute, 1);
+    let letzte = null;
+    sortiert.forEach(({ t, z }) => {
+      const key = z ? z.key : '?';
+      if (key !== letzte) {
+        letzte = key;
+        if (z) {
+          const lang = fDayLong.format(new Date(Date.UTC(z.y, z.mo - 1, z.d, 12)));
+          const h = el('h2', 'day', key === heute ? 'Heute' : key === morgen ? 'Morgen' : lang);
+          if (key === heute || key === morgen) h.appendChild(el('small', null, lang));
+          box.appendChild(h);
+        } else {
+          box.appendChild(el('h2', 'day', 'Ohne Datum'));
+        }
+      }
+      const f = felder(t);
+      const item = el('article', 'item glass');
+      const zt = el('div', 'zeit' + (z && z.ganztag ? ' ganz' : ''), z ? (z.ganztag ? 'Ganztägig' : uhr(z)) : '–');
+      const ende = zeit(t.ende);
+      if (z && !z.ganztag && ende && !ende.ganztag && ende.key === z.key) zt.appendChild(el('small', null, 'bis ' + uhr(ende)));
+      const info = el('div', 'info');
+      info.appendChild(el('strong', null, f.titel));
+      if (f.zeile) info.appendChild(el('span', 'l', f.zeile));
+      if (f.tag) { const tg = el('span', 'tag', f.tag); tg.style.marginTop = '8px'; info.appendChild(tg); }
+      item.append(zt, info);
+      box.appendChild(item);
+    });
+  }
+
+  // Reiter "Termine": eine Zeile pro Betrieb; Klick klappt die Termine dieses Betriebs auf/zu.
+  // Aufgeklappte Zeilen merkt sich state.offen (nur im Arbeitsspeicher), damit die Aktualisierung nichts zuklappt.
+  const fDayShort = new Intl.DateTimeFormat('de-DE', { timeZone: 'UTC', weekday: 'short', day: '2-digit', month: '2-digit' });
+
+  function termineDetail(b, termine) {
+    const box = el('div', 'bt-liste');
+    const name = b.name ? String(b.name) : (b.kunde_id ? String(b.kunde_id) : '');
+    const heute = fKey.format(new Date());
+    const eigene = termine
+      .filter((t) => name && String(t.betrieb || '') === name)
+      .map((t) => ({ t, z: zeit(t.start) }))
+      .sort((a, c) => (a.z && c.z ? (a.z.key < c.z.key ? -1 : a.z.key > c.z.key ? 1 : a.z.min - c.z.min) : a.z ? -1 : c.z ? 1 : 0));
+    if (!eigene.length) { box.appendChild(el('div', 'bt-leer', 'Keine Termine in der Liste')); return box; }
+    eigene.forEach(({ t, z }) => {
+      const row = el('div', 'bt-t');
+      let zeitText = '–';
+      if (z) {
+        zeitText = z.ganztag ? 'Ganztägig' : uhr(z);
+        if (z.key !== heute) zeitText = fDayShort.format(new Date(Date.UTC(z.y, z.mo - 1, z.d, 12))) + ' ' + zeitText;
+      }
+      row.appendChild(el('span', 'bt-zeit', zeitText));
+      const wer = el('span', 'bt-wer');
+      wer.appendChild(el('strong', null, t.kunde_name ? String(t.kunde_name) : 'Ohne Namen'));
+      if (t.leistung) wer.appendChild(el('small', null, String(t.leistung)));
+      row.appendChild(wer);
+      box.appendChild(row);
+    });
+    return box;
+  }
+
+  function renderTermine(betriebe, termine) {
+    const box = $('p-termine');
+    box.replaceChildren();
+    if (!betriebe.length) { box.appendChild(el('div', 'leer', 'Noch keine Betriebe eingetragen.')); return; }
+    const sortiert = betriebe.filter((b) => !b.test).concat(betriebe.filter((b) => b.test));   // Test-Betriebe unten
+
+    const table = el('table', 'bt');
+    const kopf = el('thead');
+    const hr = el('tr');
+    ['Betrieb', 'Termine heute', 'Termine Woche', 'Rückrufe offen', 'Chat-Nachrichten im Monat'].forEach((h) => hr.appendChild(el('th', null, h)));
+    kopf.appendChild(hr);
+    table.appendChild(kopf);
+
+    const body = el('tbody');
+    sortiert.forEach((b, i) => {
+      const key = String(b.kunde_id || b.name || i);
+      const offen = state.offen.has(key);
+      const detailId = 'bt-d-' + i;
+
+      const tr = el('tr', 'bt-row');
+      const c0 = el('td');
+      const btn = el('button', 'bt-name');
+      btn.type = 'button';
+      btn.setAttribute('aria-expanded', String(offen));
+      btn.setAttribute('aria-controls', detailId);
+      btn.appendChild(el('span', 'bt-chev'));
+      btn.appendChild(el('span', null, b.name ? String(b.name) : (b.kunde_id ? String(b.kunde_id) : 'Ohne Namen')));
+      if (b.test) btn.appendChild(el('span', 'tag test', 'Test'));
+      c0.appendChild(btn);
+      tr.appendChild(c0);
+      [['Termine heute', b.termine_heute], ['Termine Woche', b.termine_woche], ['Rückrufe offen', b.rueckrufe_offen], ['Chat-Nachrichten im Monat', b.nachrichten_monat]].forEach(([label, v]) => {
+        const td = el('td', 'bt-num', num(v) != null ? new Intl.NumberFormat('de-DE').format(num(v)) : '–');
+        td.setAttribute('data-label', label);
+        tr.appendChild(td);
+      });
+
+      const dtr = el('tr', 'bt-detail');
+      dtr.id = detailId;
+      dtr.hidden = !offen;
+      const dtd = el('td');
+      dtd.colSpan = 5;
+      dtd.appendChild(termineDetail(b, termine));
+      dtr.appendChild(dtd);
+
+      tr.addEventListener('click', () => {
+        const jetzt = dtr.hidden;                 // war zu -> wird aufgeklappt
+        dtr.hidden = !jetzt;
+        btn.setAttribute('aria-expanded', String(jetzt));
+        if (jetzt) state.offen.add(key); else state.offen.delete(key);
+      });
+      body.append(tr, dtr);
+    });
+    table.appendChild(body);
+    box.appendChild(table);
+  }
+
+  function renderPrivat(liste) {
+    renderTerminListe($('p-privat'), liste, 'Keine privaten Termine in den nächsten 14 Tagen.', (t) => ({
+      titel: t.titel ? String(t.titel) : 'Ohne Titel',
+      zeile: t.ort ? String(t.ort) : '',
+      tag: ''
+    }));
+  }
+
+  // Karte "Kosten pro Monat": nur sichtbar, wenn n8n die Liste liefert
+  function renderKostenListe(v) {
+    const box = $('kostenliste');
+    const kopf = $('kosten-h');
+    box.replaceChildren();
+    const hat = Array.isArray(v);
+    box.hidden = kopf.hidden = !hat;
+    if (!hat) return;
+    const liste = arr(v);
+    if (!liste.length) { box.appendChild(el('div', 'vt-leer', 'Keine Kosten eingetragen.')); return; }
+    let summe = 0;
+    liste.forEach((p) => {
+      const row = el('div', 'ko-row');
+      row.appendChild(el('span', 'ko-name', p.bezeichnung ? String(p.bezeichnung) : 'Ohne Bezeichnung'));
+      const b = num(p.betrag);
+      if (b != null) summe += b;
+      row.appendChild(el('b', 'ko-betrag', b != null ? fEuro(b) : '–'));
+      box.appendChild(row);
+    });
+    const sum = el('div', 'ko-row ko-sum');
+    sum.appendChild(el('span', 'ko-name', 'Summe'));
+    sum.appendChild(el('b', 'ko-betrag', fEuro(summe)));
+    box.appendChild(sum);
+  }
+
+  // ---- Bedienung ------------------------------------------------------------
+  function waehleTab(name) {
+    $('p-rueckrufe').hidden = name !== 'rueckrufe';
+    $('p-termine').hidden = name !== 'termine';
+    $('p-privat').hidden = name !== 'privat';
+    $('t-rueckrufe').setAttribute('aria-selected', String(name === 'rueckrufe'));
+    $('t-termine').setAttribute('aria-selected', String(name === 'termine'));
+    $('t-privat').setAttribute('aria-selected', String(name === 'privat'));
+    document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.t === name)));
+  }
+  $('t-rueckrufe').addEventListener('click', () => waehleTab('rueckrufe'));
+  $('t-termine').addEventListener('click', () => waehleTab('termine'));
+  $('t-privat').addEventListener('click', () => waehleTab('privat'));
+  document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.addEventListener('click', () => {
+    waehleTab(b.dataset.t);
+    document.querySelector('.panel:not([hidden])').scrollIntoView({ block: 'start' });
+  }));
+
+  $('reload').addEventListener('click', () => lade());
+  $('logout').addEventListener('click', () => abmelden(''));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.pin && state.timer && !$('board').hidden) lade(true); });
+
+  setTimeout(() => $('pin').focus(), 50);
+})();
+</script>
+</body>
+</html>
