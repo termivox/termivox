@@ -232,6 +232,127 @@
     });
   }
 
+  /* 7. Ortsvorschläge im Pilot-Formular (Feld "Ort").
+        Die Liste orte.json liegt auf der Seite selbst (Quelle: GeoNames, CC BY 4.0) und wird erst
+        beim ersten Klick ins Feld geladen. Eingaben gehen an keinen Dritten. Freie Eingabe bleibt möglich. */
+  function ortSuche() {
+    var input = document.getElementById('f3');
+    var liste = document.getElementById('orte-liste');
+    if (!input || !liste || !window.fetch) return;
+
+    var MAX = 8, MIN = 3;
+    var orte = null, laden = null;
+    var treffer = [], aktiv = -1;
+
+    function klein(s) { return String(s).toLocaleLowerCase('de'); }
+
+    // Orte erst bei Bedarf laden (einmalig); Ergebnis als Promise, damit schnelles Tippen wartet
+    function ladeOrte() {
+      if (orte) return Promise.resolve(orte);
+      if (!laden) {
+        laden = fetch('orte.json')
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (d) { orte = Array.isArray(d) ? d : []; return orte; })
+          .catch(function () { laden = null; orte = null; return []; });   // ohne Liste: freie Eingabe
+      }
+      return laden;
+    }
+
+    function schliessen() {
+      liste.hidden = true;
+      liste.textContent = '';
+      treffer = [];
+      aktiv = -1;
+      input.setAttribute('aria-expanded', 'false');
+      input.removeAttribute('aria-activedescendant');
+    }
+
+    function markieren(i) {
+      var punkte = liste.children;
+      for (var k = 0; k < punkte.length; k++) punkte[k].setAttribute('aria-selected', k === i ? 'true' : 'false');
+      aktiv = i;
+      if (i >= 0 && punkte[i]) {
+        input.setAttribute('aria-activedescendant', punkte[i].id);
+        if (punkte[i].scrollIntoView) punkte[i].scrollIntoView({ block: 'nearest' });
+      } else {
+        input.removeAttribute('aria-activedescendant');
+      }
+    }
+
+    function waehlen(name) {
+      input.value = name;
+      schliessen();
+      input.focus();
+    }
+
+    function zeigen(q) {
+      var ql = klein(q);
+      treffer = [];
+      for (var i = 0; i < orte.length && treffer.length < MAX; i++) {
+        if (klein(orte[i]).indexOf(ql) === 0) treffer.push(orte[i]);   // Liste ist nach Größe sortiert
+      }
+      liste.textContent = '';
+      if (!treffer.length) { schliessen(); return; }
+      treffer.forEach(function (name, i) {
+        var li = document.createElement('li');
+        li.id = 'orte-o-' + i;
+        li.setAttribute('role', 'option');
+        li.setAttribute('aria-selected', 'false');
+        var b = document.createElement('b');
+        b.textContent = name.slice(0, q.length);
+        li.appendChild(b);
+        li.appendChild(document.createTextNode(name.slice(q.length)));
+        li.addEventListener('click', function () { waehlen(name); });
+        liste.appendChild(li);
+      });
+      liste.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      aktiv = -1;
+      input.removeAttribute('aria-activedescendant');
+    }
+
+    function aktualisieren() {
+      var q = input.value.replace(/^\s+/, '');
+      if (q.replace(/\s+$/, '').length < MIN) { schliessen(); return; }
+      ladeOrte().then(function () {
+        // Eingabe könnte sich während des Ladens geändert haben
+        var jetzt = input.value.replace(/^\s+/, '');
+        if (jetzt.replace(/\s+$/, '').length < MIN) { schliessen(); return; }
+        if (orte && orte.length) zeigen(jetzt); else schliessen();
+      });
+    }
+
+    input.addEventListener('focus', ladeOrte);
+    input.addEventListener('click', ladeOrte);
+    input.addEventListener('input', aktualisieren);
+
+    input.addEventListener('keydown', function (e) {
+      var offen = !liste.hidden && treffer.length > 0;
+      if (e.key === 'ArrowDown') {
+        if (!offen) { aktualisieren(); return; }
+        e.preventDefault();
+        markieren(aktiv + 1 >= treffer.length ? 0 : aktiv + 1);
+      } else if (e.key === 'ArrowUp') {
+        if (!offen) return;
+        e.preventDefault();
+        markieren(aktiv <= 0 ? treffer.length - 1 : aktiv - 1);
+      } else if (e.key === 'Enter') {
+        if (offen && aktiv >= 0) { e.preventDefault(); waehlen(treffer[aktiv]); }   // ohne Auswahl: normales Absenden
+      } else if (e.key === 'Escape') {
+        if (offen) { e.preventDefault(); schliessen(); }
+      } else if (e.key === 'Tab') {
+        schliessen();
+      }
+    });
+
+    // Klick/Tippen auf die Liste darf das Feld nicht verlassen (sonst schließt sich die Liste zu früh)
+    liste.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    input.addEventListener('blur', function () { setTimeout(schliessen, 120); });
+    document.addEventListener('click', function (e) {
+      if (e.target !== input && !liste.contains(e.target)) schliessen();
+    });
+  }
+
   legacyAnchors();
   window.addEventListener('hashchange', legacyAnchors);
   mobileMenu();
@@ -239,4 +360,5 @@
   faq();
   calculator();
   pilotForm();
+  ortSuche();
 })();

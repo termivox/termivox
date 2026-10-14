@@ -73,7 +73,10 @@
               <label for="f2">Branche</label>
               <select id="f2" name="branche" class="in"><option>Friseursalon</option><option>Kosmetikstudio</option><option>Nagelstudio</option><option>Physiotherapie</option><option>Handwerk</option><option>Praxis</option><option>Sonstiges</option></select>
               <label for="f3">Ort</label>
-              <input id="f3" name="ort" class="in" type="text" autocomplete="address-level2" required maxlength="80">
+              <div class="ort-wrap">
+                <input id="f3" name="ort" class="in" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" required maxlength="80" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="orte-liste">
+                <ul class="ort-liste" id="orte-liste" role="listbox" aria-label="Ortsvorschläge" hidden></ul>
+              </div>
               <label for="f4">Ansprechperson</label>
               <input id="f4" name="ansprechperson" class="in" type="text" autocomplete="name" required maxlength="80">
               <label for="f5">Telefon oder E-Mail</label>
@@ -136,6 +139,7 @@
     <div class="foot-b">
       <span>© 2026 Termivox. Alle Rechte vorbehalten.</span>
       <span>Made for Salons, Studios &amp; Handwerk.</span>
+      <span>Ortsdaten: <a class="ilink" href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a>, <a class="ilink" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></span>
     </div>
     <svg class="giant" viewBox="0 0 1000 190" aria-hidden="true" focusable="false"><defs><linearGradient id="giant-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><text x="500" y="182" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" fill="url(#giant-g)">Termivox</text></svg>
   </div>
