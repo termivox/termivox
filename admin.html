@@ -145,6 +145,28 @@
 .rr p{margin:8px 0 0;color:var(--tx);white-space:pre-line;overflow-wrap:anywhere}
 .rr .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .leer{margin:26px 0;color:var(--mut);text-align:center;padding:30px 16px;border-radius:18px;border:1px dashed var(--line)}
+/* Reiter Termine: Betriebe-Tabelle mit aufklappbaren Terminen */
+.bt{width:100%;border-collapse:separate;border-spacing:0 8px;margin-top:10px}
+.bt th{text-align:right;font-size:13px;font-weight:600;color:var(--mut);padding:0 14px 2px;vertical-align:bottom}
+.bt th:first-child{text-align:left}
+.bt-row{cursor:pointer}
+.bt-row td{padding:12px 14px;background:rgba(255,255,255,.05);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.bt-row td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}
+.bt-row td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
+.bt-row:hover td{background:rgba(255,255,255,.08)}
+.bt-num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.bt-name{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0;background:none;border:0;color:var(--tx);font:inherit;font-weight:600;font-size:17px;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+.bt-chev{flex:none;width:0;height:0;border-left:7px solid var(--mut);border-top:5px solid transparent;border-bottom:5px solid transparent;transition:transform .15s}
+.bt-name[aria-expanded="true"] .bt-chev{transform:rotate(90deg)}
+.bt-detail td{padding:0 14px 6px}
+.bt-liste{border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);padding:6px 14px}
+.bt-t{display:flex;gap:14px;align-items:baseline;padding:9px 0}
+.bt-t+.bt-t{border-top:1px solid var(--line)}
+.bt-zeit{flex:none;min-width:84px;font-weight:700;font-variant-numeric:tabular-nums}
+.bt-wer{min-width:0}
+.bt-wer strong{display:block;overflow-wrap:anywhere}
+.bt-wer small{display:block;color:var(--mut);font-size:14px;overflow-wrap:anywhere}
+.bt-leer{color:var(--mut);padding:10px 0}
 
 /* Feste Leiste am Handy */
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;gap:8px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(8,11,22,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
@@ -162,6 +184,18 @@
   .kpi b{font-size:30px}
   .tb-row{grid-template-columns:100px 1fr 40px;gap:8px}
   .pcard{padding:16px}
+  .bt thead{display:none}
+  .bt,.bt tbody,.bt tr,.bt td{display:block}
+  .bt{border-spacing:0}
+  .bt .bt-row{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;padding:14px;margin-top:10px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.05)}
+  .bt-row td,.bt-row td:first-child,.bt-row td:last-child{padding:0;border:0;border-radius:0;background:none}
+  .bt-row td:first-child{grid-column:1/-1}
+  .bt-num{text-align:left}
+  .bt-num::before{content:attr(data-label);display:block;font-size:12px;font-weight:400;color:var(--mut);line-height:1.3}
+  .bt-detail{margin-top:6px}
+  .bt-detail[hidden]{display:none}
+  .bt-detail td{padding:0}
+  .bt-zeit{min-width:76px}
   .jb-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:430px){.icon-btn{padding:0 10px;font-size:14px}.bar-act{gap:6px}.bar .db-wrap{gap:8px}}
@@ -265,7 +299,7 @@
   const TARIFE = [['starter', 'Starter'], ['professional', 'Professional'], ['business', 'Business']];
 
   const $ = (id) => document.getElementById(id);
-  const state = { pin: '', daten: null, timer: null, busy: false };
+  const state = { pin: '', daten: null, timer: null, busy: false, offen: new Set(), letzterStand: null };
 
   // ---- Hilfen ---------------------------------------------------------------
   const el = (tag, cls, text) => {
@@ -335,6 +369,15 @@
   // ---- Anmeldung / Abmeldung ------------------------------------------------
   function stopTimer() { if (state.timer) { clearInterval(state.timer); state.timer = null; } }
 
+  // Automatische Aktualisierung: alle 60 Sekunden, solange die Seite sichtbar und angemeldet ist
+  function starteTimer() {
+    stopTimer();
+    state.timer = setInterval(() => { if (document.visibilityState === 'visible') lade(true); }, REFRESH_MS);
+  }
+
+  // Vergleichswert der Daten ohne den Zeitstempel "stand"
+  const signatur = (d) => JSON.stringify(Object.assign({}, d, { stand: null }));
+
   function zeigeGate(text) {
     stopTimer();
     $('board').hidden = true;
@@ -344,7 +387,7 @@
   }
 
   function abmelden(text) {
-    state.pin = ''; state.daten = null;
+    state.pin = ''; state.daten = null; state.letzterStand = null; state.offen.clear();
     $('pin').value = '';
     ['jahresbilanz', 'tarife', 'betriebe', 'vertriebler', 'kostenliste', 'p-rueckrufe', 'p-termine', 'p-privat'].forEach((id) => $(id).replaceChildren());
     waehleTab('rueckrufe');
@@ -363,9 +406,9 @@
       state.daten = await holeAdmin();
       $('pin').value = ''; msg.textContent = '';
       $('gate').hidden = true; $('board').hidden = false;
+      state.letzterStand = signatur(state.daten);
       render();
-      stopTimer();
-      state.timer = setInterval(() => { if (!document.hidden) lade(true); }, REFRESH_MS);
+      starteTimer();
     } catch (err) {
       state.pin = '';
       msg.textContent = err instanceof LoginError ? err.message : 'Gerade klappt etwas nicht. Bitte versuchen Sie es gleich noch einmal.';
@@ -381,13 +424,21 @@
     const msg = $('board-msg');
     if (!still) { msg.textContent = ''; $('stand').textContent = 'Wird geladen…'; }
     try {
-      state.daten = await holeAdmin();
+      const d = await holeAdmin();
+      const sig = signatur(d);
+      const geaendert = sig !== state.letzterStand;
+      state.daten = d;
+      state.letzterStand = sig;
       msg.textContent = '';
-      render();
+      // Bei der automatischen Aktualisierung nur neu zeichnen, wenn sich Daten geändert haben (kein Springen)
+      if (geaendert || !still) render(); else zeigeStand();
+      if (!state.timer) starteTimer();            // nach einem Fehler und manuellem Neuladen läuft es wieder an
     } catch (err) {
       if (err instanceof LoginError) { state.busy = false; abmelden(err.message); return; }
-      msg.textContent = 'Gerade klappt etwas nicht. Die Daten konnten nicht geladen werden. Bitte versuchen Sie es gleich noch einmal.';
-      if (!still) $('stand').textContent = 'Nicht aktuell';
+      // Fehlgeschlagen: automatisches Laden sofort stoppen und nicht wiederholen (Schutz vor der Sperre)
+      stopTimer();
+      msg.textContent = 'Gerade klappt etwas nicht. Das automatische Aktualisieren ist angehalten. Mit „Aktualisieren“ laden Sie neu.';
+      $('stand').textContent = 'Nicht aktuell';
     } finally {
       state.busy = false;
     }
@@ -396,12 +447,16 @@
   // ---- Darstellung ----------------------------------------------------------
   const arr = (v) => (Array.isArray(v) ? v.filter((x) => x && typeof x === 'object') : []);
 
+  // "Stand HH:MM Uhr" oben (Zeit vom Server, sonst jetzt)
+  function zeigeStand() {
+    const sz = zeit((state.daten || {}).stand);
+    $('stand').textContent = 'Stand ' + (sz ? uhr(sz) : fTime.format(new Date())) + ' Uhr';
+  }
+
   function render() {
     const d = state.daten || {};
     const k = d.kennzahlen || {};
-    const sz = zeit(d.stand);
-    const stand = sz ? uhr(sz) : fTime.format(new Date());
-    $('stand').textContent = 'Stand ' + stand + ' Uhr';
+    zeigeStand();
 
     const rrOffen = num(k.rueckrufe_offen) != null ? num(k.rueckrufe_offen) : arr(d.rueckrufe).filter((r) => r.status !== 'erledigt').length;
     $('k-kunden').textContent = num(k.aktive_kunden) != null ? num(k.aktive_kunden) : '–';
@@ -439,7 +494,7 @@
     renderKostenListe(d.kosten_liste);
     renderBetriebe(arr(d.betriebe), k);
     renderRueckrufe(arr(d.rueckrufe));
-    renderTermine(arr(d.termine));
+    renderTermine(arr(d.betriebe), arr(d.termine));
     renderPrivat(arr(d.privat_termine));
   }
 
@@ -529,7 +584,9 @@
     const gGrenze = num(jb.gewerbesteuer_grenze) != null ? num(jb.gewerbesteuer_grenze) : 24500;
     const kGrenze = num(jb.kleinunternehmer_grenze) != null ? num(jb.kleinunternehmer_grenze) : 25000;
     if (gewinn != null) {
-      box.appendChild(fortschritt('Gewerbesteuer-Freibetrag: ' + fEuro(gewinn) + ' von ' + fEuro0(gGrenze) + ' Gewinn', gewinn, gGrenze, jb.gewerbesteuer_prozent, jb.gewerbesteuer_warnung));
+      // Bei Verlust zeigt der Balken 0 (die Zahlen oben in der Karte behalten das Minus)
+      const gewinnBalken = Math.max(0, gewinn);
+      box.appendChild(fortschritt('Gewerbesteuer-Freibetrag: ' + fEuro(gewinnBalken) + ' von ' + fEuro0(gGrenze) + ' Gewinn', gewinnBalken, gGrenze, jb.gewerbesteuer_prozent, jb.gewerbesteuer_warnung));
     }
     if (umsatz != null) {
       box.appendChild(fortschritt('Kleinunternehmer-Grenze: ' + fEuro(umsatz) + ' von ' + fEuro0(kGrenze) + ' Umsatz', umsatz, kGrenze, jb.kleinunternehmer_prozent, jb.kleinunternehmer_warnung));
@@ -717,12 +774,90 @@
     });
   }
 
-  function renderTermine(liste) {
-    renderTerminListe($('p-termine'), liste, 'Aktuell sind keine Termine eingetragen.', (t) => ({
-      titel: t.kunde_name ? String(t.kunde_name) : 'Ohne Namen',
-      zeile: [t.leistung, t.mitarbeiter].filter(Boolean).join(' · '),
-      tag: t.betrieb ? String(t.betrieb) : ''
-    }));
+  // Reiter "Termine": eine Zeile pro Betrieb; Klick klappt die Termine dieses Betriebs auf/zu.
+  // Aufgeklappte Zeilen merkt sich state.offen (nur im Arbeitsspeicher), damit die Aktualisierung nichts zuklappt.
+  const fDayShort = new Intl.DateTimeFormat('de-DE', { timeZone: 'UTC', weekday: 'short', day: '2-digit', month: '2-digit' });
+
+  function termineDetail(b, termine) {
+    const box = el('div', 'bt-liste');
+    const name = b.name ? String(b.name) : (b.kunde_id ? String(b.kunde_id) : '');
+    const heute = fKey.format(new Date());
+    const eigene = termine
+      .filter((t) => name && String(t.betrieb || '') === name)
+      .map((t) => ({ t, z: zeit(t.start) }))
+      .sort((a, c) => (a.z && c.z ? (a.z.key < c.z.key ? -1 : a.z.key > c.z.key ? 1 : a.z.min - c.z.min) : a.z ? -1 : c.z ? 1 : 0));
+    if (!eigene.length) { box.appendChild(el('div', 'bt-leer', 'Keine Termine in der Liste')); return box; }
+    eigene.forEach(({ t, z }) => {
+      const row = el('div', 'bt-t');
+      let zeitText = '–';
+      if (z) {
+        zeitText = z.ganztag ? 'Ganztägig' : uhr(z);
+        if (z.key !== heute) zeitText = fDayShort.format(new Date(Date.UTC(z.y, z.mo - 1, z.d, 12))) + ' ' + zeitText;
+      }
+      row.appendChild(el('span', 'bt-zeit', zeitText));
+      const wer = el('span', 'bt-wer');
+      wer.appendChild(el('strong', null, t.kunde_name ? String(t.kunde_name) : 'Ohne Namen'));
+      if (t.leistung) wer.appendChild(el('small', null, String(t.leistung)));
+      row.appendChild(wer);
+      box.appendChild(row);
+    });
+    return box;
+  }
+
+  function renderTermine(betriebe, termine) {
+    const box = $('p-termine');
+    box.replaceChildren();
+    if (!betriebe.length) { box.appendChild(el('div', 'leer', 'Noch keine Betriebe eingetragen.')); return; }
+    const sortiert = betriebe.filter((b) => !b.test).concat(betriebe.filter((b) => b.test));   // Test-Betriebe unten
+
+    const table = el('table', 'bt');
+    const kopf = el('thead');
+    const hr = el('tr');
+    ['Betrieb', 'Termine heute', 'Termine Woche', 'Rückrufe offen', 'Chat-Nachrichten im Monat'].forEach((h) => hr.appendChild(el('th', null, h)));
+    kopf.appendChild(hr);
+    table.appendChild(kopf);
+
+    const body = el('tbody');
+    sortiert.forEach((b, i) => {
+      const key = String(b.kunde_id || b.name || i);
+      const offen = state.offen.has(key);
+      const detailId = 'bt-d-' + i;
+
+      const tr = el('tr', 'bt-row');
+      const c0 = el('td');
+      const btn = el('button', 'bt-name');
+      btn.type = 'button';
+      btn.setAttribute('aria-expanded', String(offen));
+      btn.setAttribute('aria-controls', detailId);
+      btn.appendChild(el('span', 'bt-chev'));
+      btn.appendChild(el('span', null, b.name ? String(b.name) : (b.kunde_id ? String(b.kunde_id) : 'Ohne Namen')));
+      if (b.test) btn.appendChild(el('span', 'tag test', 'Test'));
+      c0.appendChild(btn);
+      tr.appendChild(c0);
+      [['Termine heute', b.termine_heute], ['Termine Woche', b.termine_woche], ['Rückrufe offen', b.rueckrufe_offen], ['Chat-Nachrichten im Monat', b.nachrichten_monat]].forEach(([label, v]) => {
+        const td = el('td', 'bt-num', num(v) != null ? new Intl.NumberFormat('de-DE').format(num(v)) : '–');
+        td.setAttribute('data-label', label);
+        tr.appendChild(td);
+      });
+
+      const dtr = el('tr', 'bt-detail');
+      dtr.id = detailId;
+      dtr.hidden = !offen;
+      const dtd = el('td');
+      dtd.colSpan = 5;
+      dtd.appendChild(termineDetail(b, termine));
+      dtr.appendChild(dtd);
+
+      tr.addEventListener('click', () => {
+        const jetzt = dtr.hidden;                 // war zu -> wird aufgeklappt
+        dtr.hidden = !jetzt;
+        btn.setAttribute('aria-expanded', String(jetzt));
+        if (jetzt) state.offen.add(key); else state.offen.delete(key);
+      });
+      body.append(tr, dtr);
+    });
+    table.appendChild(body);
+    box.appendChild(table);
   }
 
   function renderPrivat(liste) {
@@ -778,7 +913,7 @@
 
   $('reload').addEventListener('click', () => lade());
   $('logout').addEventListener('click', () => abmelden(''));
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && state.pin && !$('board').hidden) lade(true); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.pin && state.timer && !$('board').hidden) lade(true); });
 
   setTimeout(() => $('pin').focus(), 50);
 })();
