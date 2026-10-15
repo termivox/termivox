@@ -551,7 +551,7 @@ body[data-page="recht"] .foot{margin-top:40px}
 .legal ul:not(.index):not(.m-elements):not(.glossary) li{margin-bottom:6px}
 .legal ul.index{list-style:none;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:20px 26px;columns:2;column-gap:32px;margin:0 0 8px}
 .legal ul.index li{break-inside:avoid}
-.legal ul.index a{display:inline-block;padding:7px 0;font-size:15px;color:var(--mut);text-decoration:none}
+.legal ul.index a{display:flex;align-items:center;min-height:44px;padding:0;font-size:15px;color:var(--mut);text-decoration:none}
 .legal ul.index a:hover{color:var(--tx)}
 .legal ul.m-elements{list-style:none;background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid var(--mint);border-radius:16px;padding:20px 24px;margin:16px 0;font-size:15px;line-height:1.65}
 .legal ul.m-elements li{margin-bottom:12px}

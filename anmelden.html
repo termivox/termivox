@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Termivox — Jetzt einrichten</title>
+<meta name="description" content="Termivox einrichten: Angaben zu Betrieb, Öffnungszeiten, Leistungen und Team senden und den persönlichen Chat-Link für Ihre Kunden erhalten.">
+<meta name="theme-color" content="#15130F">
 <link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
 <style>
 /* Schriften lokal (OFL-Lizenz in fonts/) – keine Aufrufe an fremde Server */
@@ -26,7 +28,7 @@ body{background:var(--ink); color:var(--paper); font-family:'Instrument Sans',-a
 h1,h2{font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:600;}
 .wrap{max-width:680px; margin:0 auto;}
 header{margin-bottom:28px;}
-.logo{display:flex; align-items:center; gap:10px; font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:600; font-size:1.2rem; text-decoration:none; color:var(--paper); margin-bottom:20px;}
+.logo{display:flex; align-items:center; gap:10px; min-height:44px; font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:600; font-size:1.2rem; text-decoration:none; color:var(--paper); margin-bottom:0;}
 h1{font-size:1.7rem; margin-bottom:8px;}
 .sub{color:var(--paper-dim); font-size:0.92rem;}
 
@@ -36,10 +38,12 @@ h1{font-size:1.7rem; margin-bottom:8px;}
 .field{margin-bottom:16px;}
 .field label{display:block; font-size:0.82rem; color:var(--paper-dim); margin-bottom:6px;}
 .field input, .field select{width:100%; padding:11px 13px; border-radius:5px; border:1px solid var(--line); background:var(--ink-2); color:var(--paper); font-size:0.92rem; font-family:inherit;}
+.field input:not([type="checkbox"]), .field select{min-height:48px;}
 .field input:focus, .field select:focus{outline:none; border-color:var(--brass);}
 .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
 .row3{display:grid; grid-template-columns:2fr 1fr 1fr; gap:10px;}
-.tag-geschlossen{display:flex; align-items:center; gap:8px; margin-top:6px; font-size:0.8rem; color:var(--paper-dim);}
+.tag-geschlossen, .field .tag-geschlossen{display:flex; align-items:center; gap:10px; margin:6px 0 0; min-height:44px; font-size:0.8rem; color:var(--paper-dim); cursor:pointer;}
+.tag-geschlossen input[type="checkbox"], .dienst-check input[type="checkbox"]{width:24px; height:24px; min-height:0; padding:0; margin:0; flex:none; accent-color:var(--brass); cursor:pointer;}
 
 .tarif-options{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:6px;}
 .tarif-btn{padding:14px 10px; border-radius:7px; border:1.5px solid var(--line); background:var(--ink-2); text-align:center; cursor:pointer; transition:border-color .15s;}
@@ -48,12 +52,12 @@ h1{font-size:1.7rem; margin-bottom:8px;}
 .tarif-btn .price{font-family:'Instrument Sans',system-ui,sans-serif; font-size:0.78rem; color:var(--paper-dim);}
 
 .dienst-row, .mitarbeiter-block{background:var(--ink-2); border:1px solid var(--line); border-radius:7px; padding:16px; margin-bottom:12px; position:relative;}
-.remove-btn{position:absolute; top:10px; right:10px; background:none; border:none; color:var(--bad); font-size:1.1rem; cursor:pointer; line-height:1;}
-.add-btn{width:100%; padding:11px; border-radius:6px; border:1.5px dashed var(--brass-dim); background:transparent; color:var(--brass-light); font-size:0.85rem; cursor:pointer; margin-bottom:4px;}
+.remove-btn{position:absolute; top:0; right:0; width:44px; height:44px; display:flex; align-items:center; justify-content:center; padding:0; background:none; border:none; color:var(--bad); font-size:1.1rem; cursor:pointer; line-height:1;}
+.add-btn{width:100%; padding:11px; min-height:44px; border-radius:6px; border:1.5px dashed var(--brass-dim); background:transparent; color:var(--brass-light); font-size:0.85rem; cursor:pointer; margin-bottom:4px;}
 .add-btn:hover{border-color:var(--brass);}
 
 .dienst-checkboxes{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;}
-.dienst-check{display:flex; align-items:center; gap:5px; background:var(--ink-3); border:1px solid var(--line); border-radius:5px; padding:6px 10px; font-size:0.8rem; cursor:pointer;}
+.dienst-check{display:flex; align-items:center; gap:5px; min-height:44px; background:var(--ink-3); border:1px solid var(--line); border-radius:5px; padding:0 12px; font-size:0.8rem; cursor:pointer;}
 .dienst-check.checked{border-color:var(--brass); color:var(--brass-light);}
 .dienst-check input{width:auto; margin:0;}
 
@@ -140,10 +144,10 @@ h1{font-size:1.7rem; margin-bottom:8px;}
       <div class="field" style="margin-bottom:0;">
         <label>Google-Kalender-ID (falls schon vorhanden)</label>
         <input type="text" id="standardKalenderId" placeholder="xxxxx@group.calendar.google.com" disabled>
-        <div class="tag-geschlossen">
+        <label class="tag-geschlossen">
           <input type="checkbox" id="standardKalenderErstellen" checked onchange="document.getElementById('standardKalenderId').disabled = this.checked;">
-          <label for="standardKalenderErstellen" style="margin:0;">Habe noch keinen — bitte automatisch für mich erstellen</label>
-        </div>
+          <span>Habe noch keinen — bitte automatisch für mich erstellen</span>
+        </label>
       </div>
     </div>
 
@@ -190,10 +194,10 @@ h1{font-size:1.7rem; margin-bottom:8px;}
         <input type="time" id="${tag.key}_von" value="09:00">
         <input type="time" id="${tag.key}_bis" value="18:00">
       </div>
-      <div class="tag-geschlossen">
+      <label class="tag-geschlossen">
         <input type="checkbox" id="${tag.key}_geschlossen">
-        <label for="${tag.key}_geschlossen" style="margin:0;">Geschlossen</label>
-      </div>
+        <span>Geschlossen</span>
+      </label>
     `;
     oeffnungszeitenContainer.appendChild(div);
   });
@@ -246,10 +250,10 @@ h1{font-size:1.7rem; margin-bottom:8px;}
       <div class="field">
         <label>Google-Kalender-ID (falls schon vorhanden)</label>
         <input type="text" class="mitarbeiter-kalender" placeholder="xxxxx@group.calendar.google.com" disabled>
-        <div class="tag-geschlossen">
+        <label class="tag-geschlossen">
           <input type="checkbox" class="mitarbeiter-kalender-erstellen" checked onchange="this.closest('.field').querySelector('.mitarbeiter-kalender').disabled = this.checked;">
-          <label style="margin:0;">Habe noch keinen — bitte automatisch für mich erstellen</label>
-        </div>
+          <span>Habe noch keinen — bitte automatisch für mich erstellen</span>
+        </label>
       </div>
       <div class="field">
         <label>Bedient diese Person nur bestimmte Kunden? (optional)</label>
@@ -276,10 +280,10 @@ h1{font-size:1.7rem; margin-bottom:8px;}
           <input type="time" class="ma-${tag.key}-von" value="09:00">
           <input type="time" class="ma-${tag.key}-bis" value="18:00">
         </div>
-        <div class="tag-geschlossen">
+        <label class="tag-geschlossen">
           <input type="checkbox" class="ma-${tag.key}-geschlossen">
-          <label style="margin:0;">Arbeitet an diesem Tag nicht</label>
-        </div>
+          <span>Arbeitet an diesem Tag nicht</span>
+        </label>
       `;
       tageContainer.appendChild(tagDiv);
     });
