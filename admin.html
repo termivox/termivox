@@ -24,6 +24,7 @@
 .dfld{display:block;font-weight:600;font-size:15px;margin:0 0 8px}
 .inp{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1.5px solid var(--line);background:rgba(255,255,255,.05);color:var(--tx);font:inherit;font-size:18px;letter-spacing:.04em}
 .gate-card .btn{width:100%;margin-top:16px}
+.fgrp{margin-bottom:16px}
 .msg{margin-top:14px;color:#FFB4A8;font-size:15px;min-height:1.4em}
 .msg:empty{margin:0;min-height:0}
 
@@ -205,15 +206,21 @@
 <body>
 <div class="tv db" id="app">
 
-<!-- Anmeldung nur mit PIN -->
+<!-- Anmeldung als echtes Formular, damit der Passwort-Manager des Browsers Benutzername und Passwort speichern und ausfüllen kann -->
 <section class="gate" id="gate" aria-labelledby="gate-titel">
   <div class="gate-card glass">
     <span class="eyebrow">Termivox</span>
     <h1 id="gate-titel">Admin</h1>
-    <p>Bitte geben Sie Ihre PIN ein.</p>
-    <form id="login" novalidate>
-      <label class="dfld" for="pin">PIN</label>
-      <input class="inp" id="pin" type="password" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" maxlength="12" minlength="12" required>
+    <p>Bitte melden Sie sich an.</p>
+    <form id="login" action="#" method="post" novalidate>
+      <div class="fgrp">
+        <label class="dfld" for="user">Benutzername</label>
+        <input class="inp" id="user" name="username" type="text" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" value="admin" required>
+      </div>
+      <div class="fgrp">
+        <label class="dfld" for="pin">Passwort</label>
+        <input class="inp" id="pin" name="password" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" minlength="9" maxlength="12" required>
+      </div>
       <button class="btn btn-p" type="submit" id="login-btn">Anmelden</button>
       <div class="msg" id="login-msg" role="alert"></div>
     </form>
@@ -398,8 +405,10 @@
     e.preventDefault();
     const pin = $('pin').value;                 // unverändert: Groß-/Kleinschreibung bleibt, nichts wird umgewandelt
     const msg = $('login-msg');
-    if (!pin) { msg.textContent = 'Bitte geben Sie Ihre PIN ein.'; $('pin').focus(); return; }
-    if (!/^[A-Za-z0-9]{12}$/.test(pin)) { msg.textContent = 'Die PIN besteht aus genau 12 Buchstaben und Ziffern.'; $('pin').focus(); return; }
+    // Der Benutzername dient dem Passwort-Manager des Browsers; geprüft wird weiterhin nur mit der festen Kennung "admin"
+    if ($('user').value.trim().toLowerCase() !== KUNDE_ID) { msg.textContent = 'Der Benutzername lautet „' + KUNDE_ID + '“.'; $('user').focus(); return; }
+    if (!pin) { msg.textContent = 'Bitte geben Sie Ihr Passwort ein.'; $('pin').focus(); return; }
+    if (!/^[A-Za-z0-9]{9,12}$/.test(pin)) { msg.textContent = 'Das Passwort besteht aus 9 bis 12 Buchstaben und Ziffern.'; $('pin').focus(); return; }
     $('login-btn').disabled = true; msg.textContent = 'Wird geprüft…';
     state.pin = pin;
     try {
