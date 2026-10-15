@@ -8,6 +8,7 @@
 <title>Admin – Termivox</title>
 <link rel="icon" type="image/svg+xml" href="termivox-icon.svg">
 <link rel="manifest" href="manifest-admin.webmanifest">
+<base target="_self">
 <link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/bricolage-grotesque-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
@@ -213,7 +214,8 @@
     <span class="eyebrow">Termivox</span>
     <h1 id="gate-titel">Admin</h1>
     <p>Bitte melden Sie sich an.</p>
-    <form id="login" action="#" method="post" novalidate>
+    <!-- Nur fetch im Skript meldet an: das Formular selbst darf nie etwas absenden oder navigieren (onsubmit), alles bleibt im selben Tab (target) -->
+    <form id="login" action="#" method="post" target="_self" novalidate onsubmit="return false">
       <div class="fgrp">
         <label class="dfld" for="user">Benutzername</label>
         <input class="inp" id="user" name="username" type="text" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" value="admin" required>
