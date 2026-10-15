@@ -45,6 +45,16 @@
 .kpi b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:36px;line-height:1.05;letter-spacing:-.03em;overflow-wrap:anywhere}
 .kpi span{display:block;margin-top:8px;font-size:14px;color:var(--mut);line-height:1.25}
 .kpi.mint b{color:var(--mint)}
+.kpi.wide{grid-column:1/-1}
+.bot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.bot-grid b{font-size:26px}
+.bot-grid span{margin-top:4px;font-size:13px}
+.bot-wrap{overflow-x:auto}
+.bv{width:100%;border-collapse:collapse;font-size:14px}
+.bv th{padding:8px 6px;text-align:right;font-size:12px;font-weight:500;color:var(--mut);white-space:nowrap}
+.bv td{padding:0 6px;height:44px;text-align:right;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.bv th:first-child,.bv td:first-child{text-align:left;padding-left:0}
+.bv th:last-child,.bv td:last-child{padding-right:0}
 .kpi small{display:block;margin-top:6px;font-size:12px;line-height:1.3;color:var(--mut)}
 
 /* Abschnitte */
@@ -255,6 +265,7 @@
       <div class="kpi glass mint"><b id="k-rr">–</b><span>Rückrufe offen</span></div>
       <div class="kpi glass"><b id="k-heute">–</b><span>Termine heute</span></div>
       <div class="kpi glass"><b id="k-woche">–</b><span>Termine diese Woche</span></div>
+      <div class="kpi glass wide"><span style="margin-top:0">Bot diesen Monat</span><div class="bot-grid" id="k-bot-grid"></div></div>
     </section>
 
     <div class="msg" id="board-msg" role="status"></div>
@@ -271,6 +282,9 @@
 
     <h2 class="sec-h" id="kosten-h" hidden>Kosten pro Monat</h2>
     <section class="pcard glass" id="kostenliste" aria-label="Kosten pro Monat" hidden></section>
+
+    <h2 class="sec-h" id="bv-h" hidden>Bot-Verlauf</h2>
+    <section class="pcard glass" id="bot-verlauf" aria-label="Bot-Verlauf der letzten Monate" hidden></section>
 
     <h2 class="sec-h">Betriebe <small id="betriebe-sub"></small></h2>
     <section class="biz" id="betriebe" aria-label="Betriebe"></section>
@@ -399,7 +413,7 @@
   function abmelden(text) {
     state.pin = ''; state.daten = null; state.letzterStand = null; state.offen.clear();
     $('pin').value = '';
-    ['jahresbilanz', 'tarife', 'betriebe', 'vertriebler', 'kostenliste', 'p-rueckrufe', 'p-termine', 'p-privat'].forEach((id) => $(id).replaceChildren());
+    ['jahresbilanz', 'tarife', 'betriebe', 'vertriebler', 'kostenliste', 'bot-verlauf', 'k-bot-grid', 'p-rueckrufe', 'p-termine', 'p-privat'].forEach((id) => $(id).replaceChildren());
     waehleTab('rueckrufe');
     zeigeGate(text);
   }
@@ -504,6 +518,8 @@
     renderTarife(d.tarife, k);
     renderVertriebler(d.vertriebler);
     renderKostenListe(d.kosten_liste);
+    renderBotKachel(k.bot_monat);
+    renderBotVerlauf(d.bot_verlauf);
     renderBetriebe(arr(d.betriebe), k);
     renderRueckrufe(arr(d.rueckrufe));
     renderTermine(arr(d.betriebe), arr(d.termine));
@@ -707,6 +723,10 @@
         const text = zahl + (nachr === 1 ? ' Chat-Nachricht' : ' Chat-Nachrichten') + (ok != null ? ', ca. ' + fEuro(ok) + ' OpenAI' : '');
         card.appendChild(el('div', 'bz-ai', text));
       }
+      // Bot-Statistik des Betriebs (nur wenn das Objekt geliefert wird; fehlende Felder als "–")
+      if (istObjekt(b.bot)) {
+        card.appendChild(el('div', 'bz-ai', 'Bot: ' + botZahl(b.bot.gebucht) + ' gebucht, ' + botZahl(b.bot.storniert) + ' storniert, ' + botZahl(b.bot.verschoben) + ' verschoben, ' + botZahl(b.bot.fragen) + ' Fragen'));
+      }
       const tel = telEl(b.telefon);
       if (tel) card.appendChild(tel);
       else if (b.telefon) card.appendChild(el('div', 'tel', String(b.telefon)));
@@ -903,6 +923,52 @@
     sum.appendChild(el('span', 'ko-name', 'Summe'));
     sum.appendChild(el('b', 'ko-betrag', fEuro(summe)));
     box.appendChild(sum);
+  }
+
+  // Bot-Statistik: Zahl oder "–", wenn das Feld fehlt
+  const BOT_FELDER = [['gebucht', 'gebucht'], ['storniert', 'storniert'], ['verschoben', 'verschoben'], ['fragen', 'Fragen']];
+  const botZahl = (v) => (num(v) != null ? new Intl.NumberFormat('de-DE').format(num(v)) : '–');
+  const istObjekt = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+
+  function renderBotKachel(bot) {
+    const grid = $('k-bot-grid');
+    grid.replaceChildren();
+    const b = istObjekt(bot) ? bot : {};
+    BOT_FELDER.forEach(([key, label]) => {
+      const c = el('div');
+      c.appendChild(el('b', null, botZahl(b[key])));
+      c.appendChild(el('span', null, label));
+      grid.appendChild(c);
+    });
+  }
+
+  function renderBotVerlauf(v) {
+    const box = $('bot-verlauf');
+    const kopf = $('bv-h');
+    box.replaceChildren();
+    const liste = arr(v);
+    box.hidden = kopf.hidden = !liste.length;
+    if (!liste.length) return;
+    const t = el('table', 'bv');
+    const head = el('tr');
+    head.appendChild(el('th', null, 'Monat'));
+    BOT_FELDER.forEach(([, label]) => head.appendChild(el('th', null, label)));
+    const thead = el('thead');
+    thead.appendChild(head);
+    t.appendChild(thead);
+    const body = el('tbody');
+    // neuester Monat zuerst, egal in welcher Reihenfolge die Liste kommt
+    liste.slice().sort((a, b) => String(b.monat || '').localeCompare(String(a.monat || ''))).forEach((m) => {
+      const row = el('tr');
+      const mm = String(m.monat || '').match(/^(\d{4})-(\d{2})/);
+      row.appendChild(el('td', null, mm ? new Intl.DateTimeFormat('de-DE', { timeZone: 'UTC', month: 'short', year: 'numeric' }).format(new Date(Date.UTC(+mm[1], +mm[2] - 1, 15))) : '–'));
+      BOT_FELDER.forEach(([key]) => row.appendChild(el('td', null, botZahl(m[key]))));
+      body.appendChild(row);
+    });
+    t.appendChild(body);
+    const wrap = el('div', 'bot-wrap');
+    wrap.appendChild(t);
+    box.appendChild(wrap);
   }
 
   // ---- Bedienung ------------------------------------------------------------
