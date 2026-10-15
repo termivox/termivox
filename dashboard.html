@@ -41,12 +41,52 @@
 .icon-btn:hover{border-color:var(--mint)}
 
 /* Kennzahlen */
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:22px 0 8px}
 .kpi{border-radius:20px;padding:16px 14px;text-align:left;color:var(--tx);font:inherit;cursor:default;min-height:44px}
 button.kpi{cursor:pointer}
 .kpi b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:40px;line-height:1;letter-spacing:-.03em}
 .kpi span{display:block;margin-top:8px;font-size:14px;color:var(--mut);line-height:1.25}
 .kpi.warn b{color:var(--mint)}
+
+/* Bot-Übersicht */
+.kpi.mint b{color:var(--mint)}
+.bd-h{font-size:22px;margin:30px 0 12px}
+.bd-card{border-radius:20px;padding:18px 16px}
+.bd-leer{color:var(--mut);text-align:center;padding:26px 8px}
+.bd-chart{display:flex;gap:2px;align-items:flex-end}
+.bd-day{flex:1;min-width:0;padding:0;border:0;border-radius:8px;background:transparent;color:var(--mut);font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.bd-day[aria-pressed="true"]{background:rgba(255,255,255,.09);color:var(--tx)}
+.bd-bars{height:128px;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:1px;padding:4px 1px 0}
+.bd-bar{display:block;width:5px;border-radius:3px 3px 0 0;min-height:0}
+.bd-bar.g{background:var(--mint)}
+.bd-bar.s{background:#FF8F85}
+.bd-bar.v{background:#F5CE8A}
+.bd-lbl{display:block;width:100%;min-height:26px;padding-top:6px;font-size:12px;line-height:1.2;text-align:center}
+.bd-read{margin-top:12px;min-height:44px;font-size:15px;line-height:1.4;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px}
+.bd-read strong{font-weight:700}
+.bd-leg{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;font-size:14px;color:var(--mut)}
+.bd-leg span{display:inline-flex;align-items:center;gap:7px}
+.bd-leg i{width:12px;height:12px;border-radius:4px;flex:none}
+.bd-leg i.g{background:var(--mint)}
+.bd-leg i.s{background:#FF8F85}
+.bd-leg i.v{background:#F5CE8A}
+.bd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.bd-n{border-radius:14px;background:rgba(255,255,255,.05);padding:12px}
+.bd-n b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:32px;line-height:1.05;letter-spacing:-.03em}
+.bd-n span{display:block;margin-top:6px;font-size:14px;color:var(--mut);line-height:1.25}
+.bd-foot{margin-top:12px;font-size:14px;color:var(--mut);line-height:1.5}
+.bd-foot b{color:var(--tx)}
+.bd-ls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:8px 0}
+.bd-ls+.bd-ls{border-top:1px solid var(--line)}
+.bd-ls-name{overflow-wrap:anywhere}
+.bd-ls b{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:20px}
+.bd-track{grid-column:1/-1;height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.bd-fill{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.bd-tab{width:100%;border-collapse:collapse;font-size:14px}
+.bd-tab th{padding:8px 4px;text-align:right;font-size:12px;font-weight:500;color:var(--mut);white-space:nowrap}
+.bd-tab td{padding:0 4px;height:44px;text-align:right;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.bd-tab th:first-child,.bd-tab td:first-child{text-align:left;padding-left:0}
+.bd-tab th:last-child,.bd-tab td:last-child{padding-right:0}
 
 /* Reiter */
 .dtabs{display:flex;gap:8px;margin:20px 0 6px}
@@ -95,7 +135,12 @@ button.kpi{cursor:pointer}
   .bar h1{font-size:21px}
 
   .kpis{gap:8px}
-  .kpi{padding:14px 10px}
+  .kpi{padding:14px 12px}
+}
+@media (min-width:720px){
+  .kpis{grid-template-columns:repeat(4,1fr)}
+  .bd-grid{grid-template-columns:repeat(4,1fr)}
+  .bd-bar{width:8px}
 }
 @media (max-width:430px){.icon-btn{padding:0 10px;font-size:14px}.bar-act{gap:6px}.bar .db-wrap{gap:8px}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
@@ -142,9 +187,23 @@ button.kpi{cursor:pointer}
     <section class="kpis" aria-label="Kennzahlen">
       <div class="kpi glass"><b id="k-heute">–</b><span>Termine heute</span></div>
       <div class="kpi glass"><b id="k-woche">–</b><span>Termine diese Woche</span></div>
-      <button class="kpi glass warn" type="button" id="k-rr-btn"><b id="k-rr">–</b><span>Rückrufe offen</span></button>
+      <button class="kpi glass warn" type="button" id="k-rr-btn"><b id="k-rr">–</b><span>Offene Rückrufe</span></button>
+      <div class="kpi glass mint"><b id="k-bot">–</b><span>Vom Bot gebucht (Monat)</span></div>
     </section>
 
+    <h2 class="bd-h">Letzte 14 Tage</h2>
+    <section class="bd-card glass" id="bd-chart" aria-label="Bot-Termine der letzten 14 Tage"></section>
+
+    <h2 class="bd-h">Dein Bot diesen Monat</h2>
+    <section class="bd-card glass" id="bd-monat" aria-label="Bot diesen Monat"></section>
+
+    <h2 class="bd-h" id="bd-ls-h" hidden>Beliebteste Leistungen</h2>
+    <section class="bd-card glass" id="bd-ls" aria-label="Beliebteste Leistungen" hidden></section>
+
+    <h2 class="bd-h" id="bd-mo-h" hidden>Die letzten Monate</h2>
+    <section class="bd-card glass" id="bd-mo" aria-label="Bot-Verlauf der letzten Monate" hidden></section>
+
+    <h2 class="bd-h">Termine und Rückrufe</h2>
     <div class="dtabs" role="tablist" aria-label="Bereiche" id="tabs-top">
       <button class="dtab" role="tab" id="t-termine" aria-controls="p-termine" aria-selected="true" type="button">Termine</button>
       <button class="dtab" role="tab" id="t-rueckrufe" aria-controls="p-rueckrufe" aria-selected="false" type="button">Rückrufe <span class="cnt" id="c-rr" hidden>0</span></button>
@@ -190,7 +249,7 @@ button.kpi{cursor:pointer}
   const mitIdFeld = !/^[A-Za-z0-9_-]{1,64}$/.test(urlKunde);   // ohne gültigen ?kunde= fragt die Anmeldung die Betriebs-ID ab
   let kunde = mitIdFeld ? '' : urlKunde;                      // eingegebene ID nur im Arbeitsspeicher, nie in URL oder Speicher
 
-  const state = { pin: '', rueckrufe: [], offen: 0, termine: [], kennzahlen: null, termineFehler: false, filter: 'offen', timer: null, busy: false };
+  const state = { pin: '', rueckrufe: [], offen: 0, termine: [], kennzahlen: null, bot: null, tagSel: '', termineFehler: false, filter: 'offen', timer: null, busy: false };
 
   // ---- Hilfen ---------------------------------------------------------------
   const el = (tag, cls, text) => {
@@ -229,6 +288,10 @@ button.kpi{cursor:pointer}
     return null;
   }
   const uhr = (z) => p2(z.h) + ':' + p2(z.mi);
+  const istObjekt = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+  const nz = (v) => (v != null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
+  const fZahl = new Intl.NumberFormat('de-DE');
+  const zf = (v) => (nz(v) != null ? fZahl.format(nz(v)) : '–');
   const telHref = (t) => {
     const s = String(t || '').trim();
     return /^[+0-9 ()\/-]{5,30}$/.test(s) ? 'tel:' + s.replace(/[^+0-9]/g, '') : null;
@@ -260,6 +323,15 @@ button.kpi{cursor:pointer}
     if (!Array.isArray(d.termine)) throw new Error('Format Termine');
     state.termine = d.termine;
     state.kennzahlen = d.kennzahlen && typeof d.kennzahlen === 'object' ? d.kennzahlen : null;
+    // Bot-Zahlen (alle Felder optional)
+    state.bot = {
+      monat: istObjekt(d.bot_monat) ? d.bot_monat : {},
+      tage: Array.isArray(d.bot_tage) ? d.bot_tage.filter(istObjekt) : [],
+      verlauf: Array.isArray(d.bot_verlauf) ? d.bot_verlauf.filter(istObjekt) : [],
+      top: Array.isArray(d.top_leistungen) ? d.top_leistungen.filter(istObjekt) : [],
+      nachrichten: d.nachrichten_monat,
+      gesamt: d.bot_gesamt
+    };
     state.termineFehler = false;
   }
 
@@ -301,7 +373,9 @@ button.kpi{cursor:pointer}
   }
 
   function abmelden(text) {
-    state.pin = ''; state.rueckrufe = []; state.offen = 0; state.termine = []; state.kennzahlen = null; state.termineFehler = false;
+    state.pin = ''; state.rueckrufe = []; state.offen = 0; state.termine = []; state.kennzahlen = null; state.bot = null; state.tagSel = ''; state.termineFehler = false;
+    ['bd-chart', 'bd-monat', 'bd-ls', 'bd-mo'].forEach((id) => $(id).replaceChildren());
+    $('k-bot').textContent = '–';
     $('p-termine').replaceChildren(); waehleTab('termine');
     $('pin').value = '';
     if (mitIdFeld) { kunde = ''; $('kunde-id').value = ''; }
@@ -372,6 +446,7 @@ button.kpi{cursor:pointer}
   // ---- Darstellung ----------------------------------------------------------
   function render() {
     renderKpis();
+    renderBot();
     renderTermine();
     renderRueckrufe();
   }
@@ -388,6 +463,142 @@ button.kpi{cursor:pointer}
     $('k-woche').textContent = hat ? zahl(k.termine_woche, aktiv.filter((z) => z.key >= heute && z.key <= bisSonntag).length) : '–';
     $('k-rr').textContent = state.offen;
     [$('c-rr'), $('c-rr2')].forEach((c) => { c.textContent = state.offen; c.hidden = state.offen === 0; });
+  }
+
+  // ---- Bot-Übersicht --------------------------------------------------------
+  const BOT_FELDER = [['gebucht', 'gebucht', 'g'], ['storniert', 'storniert', 's'], ['verschoben', 'verschoben', 'v']];
+  const fTagKurz = new Intl.DateTimeFormat('de-DE', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'numeric' });
+  const fMonat = new Intl.DateTimeFormat('de-DE', { timeZone: 'UTC', month: 'short', year: 'numeric' });
+  const tagDatum = (tag) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(tag || '')); return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)) : null; };
+
+  function renderBot() {
+    const b = state.bot || { monat: {}, tage: [], verlauf: [], top: [] };
+    $('k-bot').textContent = zf(b.monat.gebucht);
+    renderBotChart();
+    renderBotMonat(b);
+    renderLeistungen(b.top);
+    renderVerlauf(b.verlauf);
+  }
+
+  function renderBotChart() {
+    const box = $('bd-chart');
+    box.replaceChildren();
+    const b = state.bot;
+    const tage = b ? b.tage
+      .filter((t) => tagDatum(t.tag))
+      .sort((x, y) => (x.tag < y.tag ? -1 : x.tag > y.tag ? 1 : 0))
+      .slice(-14) : [];
+    const werte = (t) => BOT_FELDER.map(([k]) => nz(t[k]) || 0);
+    const summe = tage.reduce((s, t) => s + werte(t).reduce((a, c) => a + c, 0), 0);
+    if (!tage.length || !summe) { box.appendChild(el('div', 'bd-leer', 'Noch keine Bot-Termine')); return; }
+
+    const max = Math.max(1, ...tage.map((t) => Math.max(...werte(t))));
+    // Vorbelegung: zuletzt angetippter Tag, sonst der letzte Tag mit Bot-Terminen
+    let sel = tage.find((t) => t.tag === state.tagSel);
+    if (!sel) sel = tage.slice().reverse().find((t) => werte(t).some((x) => x > 0)) || tage[tage.length - 1];
+
+    const chart = el('div', 'bd-chart');
+    chart.setAttribute('role', 'group');
+    chart.setAttribute('aria-label', 'Tag auswählen');
+    const read = el('div', 'bd-read');
+    read.setAttribute('aria-live', 'polite');
+    const zeigeTag = (t) => {
+      read.replaceChildren();
+      read.appendChild(el('strong', null, fTagKurz.format(tagDatum(t.tag))));
+      BOT_FELDER.forEach(([k, label], i) => read.appendChild(el('span', null, werte(t)[i] + ' ' + label)));
+    };
+    tage.forEach((t) => {
+      const w = werte(t);
+      const d = tagDatum(t.tag);
+      const btn = el('button', 'bd-day');
+      btn.type = 'button';
+      btn.setAttribute('aria-pressed', String(t === sel));
+      btn.setAttribute('aria-label', fTagKurz.format(d) + ': ' + BOT_FELDER.map(([, label], i) => w[i] + ' ' + label).join(', '));
+      const bars = el('span', 'bd-bars');
+      BOT_FELDER.forEach(([, , cls], i) => {
+        const bar = el('span', 'bd-bar ' + cls);
+        bar.style.height = w[i] ? Math.max(3, Math.round(w[i] / max * 124)) + 'px' : '0';
+        bars.appendChild(bar);
+      });
+      btn.append(bars, el('span', 'bd-lbl', String(d.getUTCDate())));
+      btn.addEventListener('click', () => {
+        state.tagSel = t.tag;
+        chart.querySelectorAll('.bd-day').forEach((x) => x.setAttribute('aria-pressed', String(x === btn)));
+        zeigeTag(t);
+      });
+      chart.appendChild(btn);
+    });
+    zeigeTag(sel);
+    const leg = el('div', 'bd-leg');
+    BOT_FELDER.forEach(([k, label, cls]) => {
+      const s = el('span');
+      s.appendChild(el('i', cls));
+      s.appendChild(document.createTextNode(label + ' (' + fZahl.format(tage.reduce((a, t) => a + (nz(t[k]) || 0), 0)) + ')'));
+      leg.appendChild(s);
+    });
+    box.append(chart, read, leg);
+  }
+
+  function renderBotMonat(b) {
+    const box = $('bd-monat');
+    box.replaceChildren();
+    const grid = el('div', 'bd-grid');
+    [['gebucht', 'gebucht'], ['storniert', 'storniert'], ['verschoben', 'verschoben'], ['fragen', 'Fragen beantwortet']].forEach(([k, label]) => {
+      const c = el('div', 'bd-n');
+      c.appendChild(el('b', null, zf(b.monat[k])));
+      c.appendChild(el('span', null, label));
+      grid.appendChild(c);
+    });
+    box.appendChild(grid);
+    const foot = el('div', 'bd-foot');
+    foot.appendChild(document.createTextNode('Chat-Nachrichten diesen Monat: '));
+    foot.appendChild(el('b', null, zf(b.nachrichten)));
+    foot.appendChild(document.createTextNode(' · Insgesamt vom Bot gebucht: '));
+    foot.appendChild(el('b', null, zf(b.gesamt)));
+    box.appendChild(foot);
+  }
+
+  function renderLeistungen(top) {
+    const box = $('bd-ls');
+    box.replaceChildren();
+    const liste = (top || []).filter((x) => x.name != null && String(x.name).trim()).slice(0, 5);
+    box.hidden = $('bd-ls-h').hidden = !liste.length;
+    const max = Math.max(1, ...liste.map((x) => nz(x.anzahl) || 0));
+    liste.forEach((x) => {
+      const row = el('div', 'bd-ls');
+      row.appendChild(el('span', 'bd-ls-name', String(x.name).trim()));
+      row.appendChild(el('b', null, zf(x.anzahl)));
+      const track = el('div', 'bd-track');
+      const fill = el('span', 'bd-fill');
+      fill.style.width = Math.round((nz(x.anzahl) || 0) / max * 100) + '%';
+      track.appendChild(fill);
+      row.appendChild(track);
+      box.appendChild(row);
+    });
+  }
+
+  function renderVerlauf(verlauf) {
+    const box = $('bd-mo');
+    box.replaceChildren();
+    const liste = (verlauf || []).filter((m) => /^\d{4}-\d{2}/.test(String(m.monat || '')));
+    box.hidden = $('bd-mo-h').hidden = !liste.length;
+    if (!liste.length) return;
+    const t = el('table', 'bd-tab');
+    const head = el('tr');
+    ['Monat', 'gebucht', 'storniert', 'verschoben', 'Fragen'].forEach((h) => head.appendChild(el('th', null, h)));
+    const thead = el('thead');
+    thead.appendChild(head);
+    const body = el('tbody');
+    // neuester Monat zuerst, egal in welcher Reihenfolge die Liste kommt
+    liste.slice().sort((a, b) => String(b.monat).localeCompare(String(a.monat))).forEach((m) => {
+      const mm = /^(\d{4})-(\d{2})/.exec(m.monat);
+      const row = el('tr');
+      row.appendChild(el('td', null, fMonat.format(new Date(Date.UTC(+mm[1], +mm[2] - 1, 15)))));
+      ['gebucht', 'storniert', 'verschoben', 'fragen'].forEach((k) => row.appendChild(el('td', null, zf(m[k]))));
+      body.appendChild(row);
+    });
+    t.append(thead, body);
+    box.appendChild(t);
   }
 
   function renderTermine() {
