@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat auf Ihrer Website einbauen: Anleitung – Termivox</title>
+<meta name="description" content="So bauen Sie den Termivox-Chat ein: als Link oder Button und als eingebettetes Fenster (iframe) auf Ihrer Website, Schritt für Schritt erklärt.">
+<meta name="theme-color" content="#080B16">
+<link rel="canonical" href="https://termivox.com/einbau-anleitung.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Termivox">
+<meta property="og:locale" content="de_DE">
+<meta property="og:title" content="Chat auf Ihrer Website einbauen: Anleitung – Termivox">
+<meta property="og:description" content="So bauen Sie den Termivox-Chat ein: als Link oder Button und als eingebettetes Fenster (iframe) auf Ihrer Website, Schritt für Schritt erklärt.">
+<meta property="og:url" content="https://termivox.com/einbau-anleitung.html">
+<meta property="og:image" content="https://termivox.com/icon-512.png">
+<meta property="og:image:alt" content="Termivox-Logo">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%2334E0B8'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bricolage-grotesque-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<noscript><style>.menu-btn{display:none!important}</style></noscript>
+<noscript><style>.fq-a[hidden]{display:block!important}</style></noscript>
+
+<script src="script.js" defer></script>
+</head>
+<body data-page="branchen">
+<div class="tv">
+<a class="skip" href="#inhalt">Zum Inhalt</a>
+
+<header class="navw">
+  <div class="nav">
+    <a class="logo" href="index.html" aria-label="Termivox – Startseite"><span class="logo-dot" aria-hidden="true"></span>Termivox</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="hauptmenue"><span class="menu-ic" aria-hidden="true"><i></i><i></i><i></i></span>Menü</button>
+    <nav class="nav-links" id="hauptmenue" aria-label="Hauptmenü">
+      <ul>
+        <li><a href="index.html">Start</a></li>
+        <li><a href="funktionen.html">Funktionen</a></li>
+        <li><a href="branchen.html">Branchen</a></li>
+        <li><a href="preise.html">Preise</a></li>
+      </ul>
+      <div class="nav-extra">
+        <a class="btn btn-g btn-s" href="dashboard.html">Login</a>
+        <a class="btn btn-p btn-s" href="pilot.html">Kostenlos testen</a>
+      </div>
+    </nav>
+    <div class="nav-act">
+      <a class="btn btn-g btn-s" href="dashboard.html">Login</a>
+      <a class="btn btn-p btn-s" href="pilot.html">Kostenlos testen</a>
+    </div>
+  </div>
+</header>
+
+<main id="inhalt" tabindex="-1">
+
+<section class="sec sec-first" id="anleitung" aria-labelledby="anleitung-titel">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Anleitung</span>
+      <h1 class="h2" id="anleitung-titel">Den Chat auf <span class="grad">Ihrer Website</span> einbauen</h1>
+      <p class="lead">Es gibt zwei Wege: einen Link oder Button, der den Chat öffnet, oder ein Chat-Fenster, das direkt auf Ihrer Seite sitzt. Beides geht ohne Programmierkenntnisse.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-tight" id="vorbereitung" aria-labelledby="vorbereitung-titel">
+  <div class="wrap">
+    <div class="head">
+      <h2 class="h2" id="vorbereitung-titel">Vorher: <span class="grad">Ihr Chat-Link</span></h2>
+    </div>
+    <ol class="psteps anl">
+      <li class="pstep glass"><div class="num" aria-hidden="true">1</div><div><h3>Chat-Link bereithalten</h3><p>Nach der Einrichtung erhalten Sie von uns Ihren persönlichen Chat-Link per E-Mail. Er enthält Ihre Betriebskennung und Ihren Tarif und sieht so aus:</p><p><code class="anl-code">https://termivox.com/kunden-chat.html?kunde=IHRE-KENNUNG&amp;tarif=IHR-TARIF</code></p></div></li>
+      <li class="pstep glass"><div class="num" aria-hidden="true">2</div><div><h3>Link zuerst selbst testen</h3><p>Öffnen Sie den Link im Browser am Handy und am Computer, und stellen Sie dem Assistenten eine Frage. Erst wenn das klappt, bauen Sie ihn ein.</p></div></li>
+    </ol>
+    <figure class="platz" role="group" aria-label="Platzhalter für ein Bild">
+      <div class="platz-box"><strong>Platzhalter: Bild folgt</strong><span>Hier soll ein Screenshot der E-Mail mit dem Chat-Link stehen.</span></div>
+    </figure>
+  </div>
+</section>
+
+<section class="sec sec-tight" id="variante-link" aria-labelledby="variante-link-titel">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Variante A</span>
+      <h2 class="h2" id="variante-link-titel">Als <span class="grad">Link oder Button</span></h2>
+      <p class="lead">Der einfachste Weg. Der Chat öffnet sich in einem eigenen Fenster oder Tab. Das passt für Website, Instagram-Profil, Google-Unternehmensprofil und E-Mail-Signatur.</p>
+    </div>
+    <ol class="psteps anl">
+      <li class="pstep glass"><div class="num" aria-hidden="true">1</div><div><h3>Text und Ziel festlegen</h3><p>Legen Sie fest, wo der Link stehen soll, zum Beispiel auf einem Button „Termin online buchen“.</p></div></li>
+      <li class="pstep glass"><div class="num" aria-hidden="true">2</div><div><h3>Link eintragen</h3><p>Tragen Sie Ihren Chat-Link als Ziel des Buttons ein. Wenn Ihr Website-Baukasten einen Baustein für eigenen HTML-Code hat, können Sie stattdessen diese Zeile einsetzen und die Platzhalter ersetzen:</p><pre class="anl-pre"><code>&lt;a href="https://termivox.com/kunden-chat.html?kunde=IHRE-KENNUNG&amp;amp;tarif=IHR-TARIF"&gt;Termin online buchen&lt;/a&gt;</code></pre></div></li>
+      <li class="pstep glass"><div class="num" aria-hidden="true">3</div><div><h3>Speichern und prüfen</h3><p>Veröffentlichen Sie die Seite, tippen Sie am Handy auf den Button und schicken Sie eine Testnachricht.</p></div></li>
+    </ol>
+    <figure class="platz" role="group" aria-label="Platzhalter für ein Bild">
+      <div class="platz-box"><strong>Platzhalter: Bild folgt</strong><span>Hier soll ein Beispiel für einen Button „Termin online buchen“ auf einer Betriebs-Website stehen.</span></div>
+    </figure>
+  </div>
+</section>
+
+<section class="sec sec-tight" id="variante-iframe" aria-labelledby="variante-iframe-titel">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Variante B</span>
+      <h2 class="h2" id="variante-iframe-titel">Als <span class="grad">Fenster auf Ihrer Seite</span></h2>
+      <p class="lead">Der Chat erscheint direkt in Ihrer Seite, ohne dass Besucher sie verlassen. So ist auch unsere Live-Demo eingebaut. Dafür brauchen Sie einen Baustein für eigenen HTML-Code oder Zugriff auf den Quelltext Ihrer Seite.</p>
+    </div>
+    <ol class="psteps anl">
+      <li class="pstep glass"><div class="num" aria-hidden="true">1</div><div><h3>Platz auf der Seite wählen</h3><p>Wählen Sie die Stelle, an der das Chat-Fenster stehen soll, zum Beispiel auf einer Seite „Termin buchen“.</p></div></li>
+      <li class="pstep glass"><div class="num" aria-hidden="true">2</div><div><h3>Code einfügen</h3><p>Fügen Sie diesen Code ein und ersetzen Sie die beiden Platzhalter durch Ihre Angaben aus dem Chat-Link:</p><pre class="anl-pre"><code>&lt;iframe src="https://termivox.com/kunden-chat.html?kunde=IHRE-KENNUNG&amp;amp;tarif=IHR-TARIF"
+        title="Termin-Chat"
+        width="100%" height="640"
+        style="border:0; max-width:420px;"
+        loading="lazy"&gt;&lt;/iframe&gt;</code></pre><p>Die Höhe von 640 Pixeln ist ein Vorschlag. Passen Sie sie an Ihre Seite an.</p></div></li>
+      <li class="pstep glass"><div class="num" aria-hidden="true">3</div><div><h3>Am Handy prüfen</h3><p>Rufen Sie die veröffentlichte Seite am Handy auf. Prüfen Sie, ob das Eingabefeld und die Knöpfe sichtbar sind und ob eine Testnachricht ankommt.</p></div></li>
+    </ol>
+    <figure class="platz" role="group" aria-label="Platzhalter für ein Bild">
+      <div class="platz-box"><strong>Platzhalter: Bild folgt</strong><span>Hier soll ein Screenshot des eingebetteten Chat-Fensters auf einer Betriebs-Website stehen.</span></div>
+    </figure>
+    <p class="price-note">Ob sich fremder Code einbetten lässt, hängt von Ihrem Website-Baukasten ab. Geht es nicht, nutzen Sie Variante A.</p>
+  </div>
+</section>
+
+<section class="sec sec-tight" id="video" aria-labelledby="video-titel">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Video</span>
+      <h2 class="h2" id="video-titel">Das Ganze <span class="grad">als Video</span></h2>
+    </div>
+    <figure class="platz" role="group" aria-label="Platzhalter für ein Video">
+      <div class="platz-box platz-video"><strong>Platzhalter: Video folgt</strong><span>Hier soll ein kurzes Erklärvideo zum Einbau stehen. Bis dahin hilft Ihnen die Anleitung oben.</span></div>
+    </figure>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="cta-titel">
+  <div class="cta glowb">
+    <i aria-hidden="true"></i><i aria-hidden="true"></i>
+    <h2 class="h2" id="cta-titel">Kommen Sie <span class="shine">nicht weiter?</span></h2>
+    <p class="lead">Schreiben Sie uns, welchen Website-Baukasten Sie nutzen. Wir sehen uns das gemeinsam mit Ihnen an.</p>
+    <div class="btn-row">
+      <a class="btn btn-p" href="mailto:termivox@gmail.com">E-Mail an Termivox</a>
+      <a class="btn btn-g" href="hilfe.html">Häufige Fragen</a>
+    </div>
+    <p class="cta-hint">Noch keinen Chat-Link? <a class="ilink" href="pilot.html">30 Tage kostenlos testen</a>. Das Angebot richtet sich ausschließlich an Unternehmer.</p>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-g">
+      <div class="foot-about">
+        <a class="logo" href="index.html" aria-label="Termivox – Startseite"><span class="logo-dot" aria-hidden="true"></span>Termivox</a>
+        <p>Der KI-Terminassistent, der Anfragen beantwortet, während Sie arbeiten.</p>
+      </div>
+      <nav aria-labelledby="fh-produkt">
+        <h2 class="foot-h" id="fh-produkt">Produkt</h2>
+        <ul class="foot-l">
+          <li><a href="funktionen.html">Funktionen</a></li>
+          <li><a href="branchen.html">Branchen</a></li>
+          <li><a href="branchen/index.html">Für Ihre Branche</a></li>
+          <li><a href="preise.html">Preise</a></li>
+          <li><a href="pilot.html">Pilotprogramm</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="fh-unternehmen">
+        <h2 class="foot-h" id="fh-unternehmen">Unternehmen</h2>
+        <ul class="foot-l">
+          <li><a href="ueber-uns.html">Über uns</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="hilfe.html">Hilfe für Betriebe</a></li>
+          <li><a href="mailto:termivox@gmail.com">Kontakt</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="fh-recht">
+        <h2 class="foot-h" id="fh-recht">Rechtliches</h2>
+        <ul class="foot-l">
+          <li><a href="datenschutz.html">Datenschutz</a></li>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="agb.html">AGB</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="foot-hinweis">Das Angebot richtet sich ausschließlich an Unternehmer.</p>
+    <div class="foot-b">
+      <span>© 2026 Termivox. Alle Rechte vorbehalten.</span>
+      <span>Made for Salons, Studios &amp; Handwerk.</span>
+    </div>
+    <svg class="giant" viewBox="0 0 1000 190" aria-hidden="true" focusable="false"><defs><linearGradient id="giant-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><text x="500" y="182" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" fill="url(#giant-g)">Termivox</text></svg>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
