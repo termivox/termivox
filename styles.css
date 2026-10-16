@@ -586,3 +586,17 @@ body[data-page="recht"] .foot{margin-top:40px}
 .bd-chat .demo-note{margin-top:18px}
 .bd-preis{color:var(--tx);font-size:19px}
 .foot-hinweis{margin-top:36px;color:var(--mut);font-size:14px}
+
+/* Preisvergleich am Handy: jede Zeile wird zu einer Karte statt einer seitlich wischbaren Tabelle */
+@media (max-width:640px){
+  .tbw-hint{display:none}
+  .tbw{overflow:visible;margin-top:28px;padding-bottom:0}
+  .tbl{min-width:0;display:block;background:none;border:0;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible}
+  .tbl colgroup,.tbl thead{display:none}
+  .tbl tbody{display:block}
+  .tbl tbody tr{display:block;margin-bottom:12px;padding:14px 16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.025))}
+  .tbl tbody th{display:block;padding:0 0 8px;border:0;font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:700;text-align:left}
+  .tbl tbody td{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:44px;padding:8px 0;border:0;border-top:1px solid var(--line);font-size:15px;text-align:right}
+  .tbl tbody td::before{content:attr(data-label);flex:none;color:var(--tx);font-size:15px;font-weight:600;text-align:left}
+  .tbl tbody td:last-child{border-bottom:0}
+}
