@@ -614,7 +614,18 @@ body[data-page="recht"] .foot{margin-top:40px}
 .platz-box strong{color:var(--tx);font-size:17px}
 .platz-video{min-height:260px}
 
-/* Zurück-Link oben links auf den Unterseiten */
-.zurueck-leiste{display:flex;flex-wrap:wrap;gap:0 22px;max-width:1072px;margin:0 auto;padding:6px 42px 0}
+/* Zurück-Link oben links: am Desktop bündig mit dem Logo in der Kopf-Pille, darunter am Seitenrand des Inhalts */
+.zurueck-leiste{box-sizing:border-box;display:flex;flex-wrap:wrap;gap:0 22px;max-width:1072px;margin:0 auto;padding:4px 43px 0}
 .zurueck{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--mut);font-size:15px;font-weight:500;text-decoration:none}
 .zurueck:hover{color:var(--tx)}
+/* Die Zeile verschiebt den Inhalt nicht nennenswert: der Abstand über der ersten Überschrift wird um ihre Höhe verkleinert */
+.zurueck-leiste ~ main .sec-first{padding-top:60px}
+.zurueck-leiste ~ main .pg-sec{padding-top:70px}
+@media (max-width:1000px){
+  .zurueck-leiste{max-width:none;padding:4px 24px 0}
+}
+@media (max-width:620px){
+  .zurueck-leiste{padding:4px 20px 0}
+  .zurueck-leiste ~ main .sec-first{padding-top:34px}
+  .zurueck-leiste ~ main .pg-sec{padding-top:54px}
+}

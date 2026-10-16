@@ -27,7 +27,7 @@
 body{background:var(--ink); color:var(--paper); font-family:'Instrument Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;}
 h1,h2{font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:600;}
 a{color:var(--brass-light);}
-header{border-bottom:1px solid var(--line); padding:8px 32px; display:flex; justify-content:space-between; align-items:center;
+header{border-bottom:1px solid var(--line); padding:8px max(32px, calc((100% - 640px) / 2 + 24px)); display:flex; justify-content:space-between; align-items:center;
   position:sticky; top:0; z-index:10; background:rgba(18,16,13,0.86); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);}
 .logo{display:flex; align-items:center; gap:10px; min-height:44px; font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:600; font-size:1.2rem; text-decoration:none; color:var(--paper);}
 .back{font-family:'Instrument Sans',system-ui,sans-serif; font-size:0.82rem; font-weight:600; color:var(--brass-light); text-decoration:none; display:flex; align-items:center; gap:6px; min-height:44px;}
