@@ -629,3 +629,25 @@ body[data-page="recht"] .foot{margin-top:40px}
   .zurueck-leiste ~ main .sec-first{padding-top:34px}
   .zurueck-leiste ~ main .pg-sec{padding-top:54px}
 }
+
+/* Startseite: Karten "Für Ihre Branche" und Zeile "Mehr für Ihre Branche" (Preise, Pilot) */
+.bk{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;margin-top:48px}
+.bkarte{display:flex;flex-direction:column;justify-content:space-between;gap:20px;min-height:240px;padding:26px 22px;border-radius:26px;color:var(--tx);text-decoration:none;transition:transform .3s,border-color .3s}
+.bkarte:hover{transform:translateY(-4px);border-color:rgba(169,157,255,.5)}
+.bkarte h3{font-size:22px;line-height:1.2;margin-bottom:10px}
+.bkarte p{color:var(--mut);font-size:15px}
+.bkarte-pfeil{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);color:var(--mint);font-size:20px;transition:background .3s}
+.bkarte:hover .bkarte-pfeil{background:rgba(52,224,184,.12)}
+.bl{padding:48px 0 8px}
+.bl-t{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;margin-bottom:14px}
+.bl-l{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:10px}
+.bl-l a{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line);color:var(--mut);font-size:15px;text-decoration:none}
+.bl-l a:hover{color:var(--tx);border-color:rgba(169,157,255,.5)}
+@media (max-width:1000px){
+  .bk{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bk .bkarte:last-child{grid-column:1/-1}
+}
+@media (max-width:620px){
+  .bk{grid-template-columns:1fr;gap:12px;margin-top:32px}
+  .bkarte{min-height:0}
+}
