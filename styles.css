@@ -579,3 +579,10 @@ body[data-page="recht"] .foot{margin-top:40px}
   .legal ul.m-elements{padding:16px 16px}
   .pg-card{padding:22px 20px}
 }
+
+/* Branchenseiten (branchen/*.html) und Hinweise */
+.btn-row-l{justify-content:flex-start;margin-top:32px}
+.bd-chat{max-width:680px;margin:48px auto 0}
+.bd-chat .demo-note{margin-top:18px}
+.bd-preis{color:var(--tx);font-size:19px}
+.foot-hinweis{margin-top:36px;color:var(--mut);font-size:14px}
