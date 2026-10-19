@@ -33,7 +33,7 @@ button,textarea,input{font:inherit; color:inherit;}
 /* Kopf */
 .kopf{padding:20px 20px 16px; border-bottom:1px solid var(--line); border-top:4px solid var(--accent); background:var(--surf);}
 .kopf h1{font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:700; font-size:2rem; line-height:1.1; letter-spacing:-.02em; overflow-wrap:anywhere;}
-.kopf p{color:var(--mut); font-size:1rem; margin-top:6px;}
+.kopf p{color:var(--mut); font-size:1rem; margin-top:6px;} #betrieb-zeile{color:var(--tx); font-weight:500;}
 
 /* Nachrichten */
 .verlauf{flex:1; overflow-y:auto; padding:20px 16px; display:flex; flex-direction:column; gap:12px; scroll-behavior:smooth;}
@@ -60,6 +60,9 @@ button,textarea,input{font:inherit; color:inherit;}
 .eingabe textarea::placeholder{color:var(--mut);}
 .senden{min-width:48px; min-height:48px; padding:0 18px; border-radius:14px; border:0; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;}
 .senden:disabled{opacity:.5; cursor:default;}
+.datenhinweis{padding:0 16px 8px; font-size:.82rem; line-height:1.4; color:var(--mut);} .datenhinweis a{color:var(--hi); padding:12px 0;}
+/* Niedrige Fenster (z. B. Handy mit offener Tastatur): Eingabefeld und Hinweis haben Vorrang, die Schnellauswahl pausiert */
+@media (max-height:520px){ .schnell{display:none;} .kopf{padding:10px 16px 8px;} .kopf h1{font-size:1.4rem;} .verlauf{padding:8px 16px;} }
 
 /* Feste Leiste unten */
 .leiste{display:flex; gap:10px; padding:10px 16px calc(12px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:var(--bg);}
@@ -94,7 +97,7 @@ button,textarea,input{font:inherit; color:inherit;}
 <div class="app" id="app">
   <header class="kopf">
     <h1 id="betrieb-name">Ihr Betrieb</h1>
-    <p id="betrieb-zeile">Du chattest mit dem KI-Assistenten</p>
+    <p id="betrieb-zeile">Sie schreiben mit einem KI-Assistenten, nicht mit einem Menschen.</p>
   </header>
 
   <div class="fehlerseite" id="link-fehler" hidden></div>
@@ -112,6 +115,8 @@ button,textarea,input{font:inherit; color:inherit;}
     <textarea id="text" rows="1" placeholder="Ihre Nachricht..." aria-label="Ihre Nachricht" enterkeyhint="send"></textarea>
     <button type="submit" class="senden" id="senden" aria-label="Senden">Senden</button>
   </form>
+
+  <p class="datenhinweis">Bitte geben Sie keine Gesundheitsdaten oder sensiblen Angaben ein. Mehr dazu in der <a href="https://termivox.com/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
 
   <nav class="leiste" aria-label="Kontakt">
     <button type="button" class="sprechen" id="btn-sprechen">Mit dem Betrieb sprechen</button>
@@ -183,7 +188,7 @@ button,textarea,input{font:inherit; color:inherit;}
   function zeigeBetrieb() {
     var name = betrieb.name;
     $('betrieb-name').textContent = name || 'Ihr Betrieb';
-    $('betrieb-zeile').textContent = 'Du chattest mit dem KI-Assistenten' + (name ? ' von ' + name : '');
+    $('betrieb-zeile').textContent = 'Sie schreiben mit einem KI-Assistenten, nicht mit einem Menschen.';
     document.title = name ? 'Chat – ' + name : 'Chat mit dem KI-Assistenten';
     if (/^#[0-9A-Fa-f]{6}$/.test(betrieb.farbe || '')) {
       document.documentElement.style.setProperty('--accent', betrieb.farbe);
