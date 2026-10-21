@@ -126,6 +126,27 @@ button.kpi{cursor:pointer}
 .rr-act .btn{flex:1;min-width:150px}
 .rr-tel{margin-top:6px;display:inline-block;font-size:18px;font-weight:600;padding:10px 0}
 
+/* Termin eintragen */
+.tf-neu{margin:18px 0 0}
+.tf-neu .btn{min-width:240px}
+.tf-fenster{position:fixed;inset:0;z-index:50;display:flex;padding:16px;background:rgba(4,6,14,.8);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tf-karte{width:100%;max-width:520px;margin:auto;border-radius:24px;padding:24px 20px;background:#0E1330;border:1px solid var(--line);color-scheme:dark}
+.tf-karte h2{font-size:26px;margin-bottom:6px}
+.tf-karte h3{font-size:20px;margin:0 0 8px}
+.tf-lade{color:var(--mut);padding:10px 0}
+.tf-feld{margin-bottom:14px}
+.tf-zeile{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tf-karte .inp{letter-spacing:0}
+.tf-karte select.inp{appearance:auto;-webkit-appearance:menulist;padding-right:10px}
+.tf-aktion{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.tf-aktion .btn{flex:1;min-width:140px}
+.tf-aktion .btn[disabled]{opacity:.55;cursor:default}
+.tf-warn{margin:10px 0 14px;padding-left:22px;color:#F5CE8A}
+.tf-warn li{margin-bottom:8px;overflow-wrap:anywhere}
+.tf-hinweis{margin:0 0 6px;color:var(--tx);overflow-wrap:anywhere}
+.tf-call{margin-top:10px}
+@media (max-width:480px){.tf-zeile{grid-template-columns:1fr}.tf-karte{padding:20px 16px}}
+
 /* Feste Leiste am Handy */
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;gap:8px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(8,11,22,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .dock .dtab{min-height:54px}
@@ -211,6 +232,8 @@ button.kpi{cursor:pointer}
 
     <div class="msg" id="board-msg" role="status"></div>
 
+    <div class="tf-neu" id="tf-neu"><button class="btn btn-p" type="button" id="tf-oeffnen">Termin eintragen</button></div>
+
     <section class="panel" id="p-termine" role="tabpanel" aria-labelledby="t-termine"></section>
     <section class="panel" id="p-rueckrufe" role="tabpanel" aria-labelledby="t-rueckrufe" hidden>
       <div class="seg" role="group" aria-label="Filter">
@@ -221,6 +244,40 @@ button.kpi{cursor:pointer}
       <div id="rr-liste"></div>
     </section>
   </main>
+
+  <div class="tf-fenster" id="tf-fenster" hidden>
+    <div class="tf-karte glass" role="dialog" aria-modal="true" aria-labelledby="tf-titel">
+      <h2 id="tf-titel">Termin eintragen</h2>
+      <form id="tf-form" novalidate>
+        <p class="tf-lade" id="tf-lade" role="status">Wird geladen…</p>
+        <div id="tf-felder" hidden>
+          <div class="tf-feld"><label class="dfld" for="tf-name">Name</label><input class="inp" id="tf-name" type="text" autocomplete="off" maxlength="100" required></div>
+          <div class="tf-feld"><label class="dfld" for="tf-tel">Telefon</label><input class="inp" id="tf-tel" type="tel" inputmode="tel" autocomplete="off" maxlength="30" required></div>
+          <div class="tf-feld"><label class="dfld" for="tf-leistung">Dienstleistung</label><select class="inp" id="tf-leistung" required></select></div>
+          <div class="tf-feld" id="tf-ma-feld" hidden><label class="dfld" for="tf-ma">Mitarbeiter</label><select class="inp" id="tf-ma"></select></div>
+          <div class="tf-zeile">
+            <div class="tf-feld"><label class="dfld" for="tf-datum">Datum</label><input class="inp" id="tf-datum" type="date" required></div>
+            <div class="tf-feld"><label class="dfld" for="tf-uhr">Uhrzeit</label><input class="inp" id="tf-uhr" type="time" required></div>
+          </div>
+        </div>
+        <div class="msg" id="tf-msg" role="alert"></div>
+        <div class="tf-aktion">
+          <button class="btn btn-g" type="button" id="tf-abbrechen">Abbrechen</button>
+          <button class="btn btn-p" type="submit" id="tf-senden" disabled>Eintragen</button>
+        </div>
+      </form>
+      <div id="tf-rueck" hidden>
+        <h3>Bitte kurz prüfen</h3>
+        <ul class="tf-warn" id="tf-warn"></ul>
+        <p class="tf-hinweis" id="tf-hinweis"></p>
+        <div class="tf-aktion">
+          <button class="btn btn-p" type="button" id="tf-trotzdem">Trotzdem eintragen</button>
+          <button class="btn btn-g" type="button" id="tf-rueck-zu">Abbrechen</button>
+          <a class="btn btn-g" id="tf-anruf" href="#" hidden>Kunde zurückrufen</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <nav class="dock" role="tablist" aria-label="Bereiche (mobil)" id="tabs-dock">
     <button class="dtab" role="tab" data-t="termine" aria-selected="true" type="button">Termine</button>
@@ -376,6 +433,7 @@ button.kpi{cursor:pointer}
     state.pin = ''; state.rueckrufe = []; state.offen = 0; state.termine = []; state.kennzahlen = null; state.bot = null; state.tagSel = ''; state.termineFehler = false;
     ['bd-chart', 'bd-monat', 'bd-ls', 'bd-mo'].forEach((id) => $(id).replaceChildren());
     $('k-bot').textContent = '–';
+    tfSchliessen();
     $('p-termine').replaceChildren(); waehleTab('termine');
     $('pin').value = '';
     if (mitIdFeld) { kunde = ''; $('kunde-id').value = ''; }
@@ -437,6 +495,7 @@ button.kpi{cursor:pointer}
       $('stand').textContent = 'Stand ' + fTime.format(new Date()) + ' Uhr';
       render();
     } catch (err) {
+      msg.className = 'msg';
       msg.textContent = 'Gerade klappt etwas nicht. Die Daten konnten nicht geladen werden. Bitte versuchen Sie es gleich noch einmal.';
       if (!still) $('stand').textContent = 'Nicht aktuell';
       render();
@@ -646,6 +705,14 @@ button.kpi{cursor:pointer}
         else info.appendChild(el('span', null, t.telefon));
       }
       if (storno) info.appendChild(el('span', 'tag cancel', 'Storniert'));
+      if (href) {
+        const call = el('a', 'btn btn-p btn-s', 'Anrufen');
+        call.href = href;
+        call.setAttribute('aria-label', 'Anrufen: ' + (t.kunde_name || 'Kunde'));
+        const wrap = el('div', 'tf-call');
+        wrap.appendChild(call);
+        info.appendChild(wrap);
+      }
       item.append(zt, info);
       box.appendChild(item);
     });
@@ -703,14 +770,195 @@ button.kpi{cursor:pointer}
     } catch (err) {
       if (err instanceof LoginError) { state.busy = false; abmelden(err.message); return; }
       r.status = alt; state.offen = altOffen; render();
+      msg.className = 'msg';
       msg.textContent = 'Der Status konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
     } finally {
       state.busy = false;
     }
   }
 
+  // ---- Termin eintragen -----------------------------------------------------
+  // Wie api(), liefert aber auch Antworten mit success:false (fehler, rueckfrage) zurück.
+  // Wirft nur bei 401 (Anmeldung) und bei Netzwerkfehlern.
+  async function apiRoh(body) {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ kunde_id: kunde, pin: state.pin }, body))
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { /* keine JSON-Antwort */ }
+    if (res.status === 401) throw new LoginError((data && data.fehler) || 'Anmeldung nicht möglich.');
+    return { status: res.status, data };
+  }
+
+  const TF = { busy: false, body: null, maPflicht: false };
+  const TF_FEHLER = 'Gerade klappt etwas nicht. Bitte versuchen Sie es gleich noch einmal.';
+  const tfAnzeige = (id, an) => { $(id).hidden = !an; };
+
+  function tfJetzt() { return { heute: fKey.format(new Date()), uhr: fTime.format(new Date()) }; }
+
+  function tfMin() {
+    const j = tfJetzt();
+    $('tf-datum').min = j.heute;
+    $('tf-uhr').min = $('tf-datum').value === j.heute ? j.uhr : '';
+  }
+
+  function tfBusy(an) {
+    TF.busy = an;
+    const s = $('tf-senden'), t = $('tf-trotzdem');
+    s.disabled = an || $('tf-felder').hidden;
+    t.disabled = an;
+    s.textContent = an ? 'Wird eingetragen…' : 'Eintragen';
+    t.textContent = an ? 'Wird eingetragen…' : 'Trotzdem eintragen';
+  }
+
+  function tfAnsicht(rueck) {
+    tfAnzeige('tf-form', !rueck);
+    tfAnzeige('tf-rueck', rueck);
+    $('tf-titel').textContent = rueck ? 'Rückfrage' : 'Termin eintragen';
+  }
+
+  function tfFuelleAuswahl(sel, eintraege, platzhalter) {
+    sel.replaceChildren();
+    const p = document.createElement('option');
+    p.value = ''; p.textContent = platzhalter;
+    sel.appendChild(p);
+    eintraege.forEach((text, i) => { const o = document.createElement('option'); o.value = String(i); o.textContent = text; sel.appendChild(o); });
+  }
+
+  async function tfOeffnen() {
+    TF.body = null; TF.maPflicht = false;
+    $('tf-msg').textContent = '';
+    ['tf-name', 'tf-tel', 'tf-datum', 'tf-uhr'].forEach((id) => { $(id).value = ''; });
+    tfAnsicht(false);
+    tfAnzeige('tf-felder', false);
+    tfAnzeige('tf-lade', true);
+    $('tf-lade').textContent = 'Wird geladen…';
+    tfBusy(false);
+    tfMin();
+    $('tf-fenster').hidden = false;
+    document.body.style.overflow = 'hidden';
+    try {
+      const r = await apiRoh({ aktion: 'optionen' });
+      const d = r.data;
+      if (!d || d.success !== true) throw new Error('Optionen');
+      const ma = Array.isArray(d.mitarbeiter) ? d.mitarbeiter.filter((m) => typeof m === 'string' && m.trim()).map((m) => m.trim()) : [];
+      const dl = Array.isArray(d.dienstleistungen) ? d.dienstleistungen.filter((x) => x && typeof x === 'object' && x.name != null && String(x.name).trim()) : [];
+      state.tfOptionen = { mitarbeiter: ma, dienst: dl.map((x) => ({ name: String(x.name).trim(), dauer: nz(x.dauer) })) };
+      tfFuelleAuswahl($('tf-leistung'), state.tfOptionen.dienst.map((x) => x.name + (x.dauer != null ? ' (' + x.dauer + ' Min.)' : '')), 'Bitte wählen');
+      TF.maPflicht = ma.length > 1;
+      tfAnzeige('tf-ma-feld', TF.maPflicht);
+      if (TF.maPflicht) tfFuelleAuswahl($('tf-ma'), ma, 'Bitte wählen');
+      tfAnzeige('tf-lade', false);
+      tfAnzeige('tf-felder', true);
+      if (!dl.length) { $('tf-msg').textContent = 'Es sind noch keine Dienstleistungen hinterlegt. Bitte melden Sie sich bei uns.'; tfBusy(false); $('tf-senden').disabled = true; return; }
+      tfBusy(false);
+      $('tf-name').focus();
+    } catch (err) {
+      if (err instanceof LoginError) { tfSchliessen(); abmelden(err.message); return; }
+      $('tf-lade').textContent = 'Die Auswahl konnte nicht geladen werden. Bitte versuchen Sie es gleich noch einmal.';
+    }
+  }
+
+  function tfSchliessen() {
+    $('tf-fenster').hidden = true;
+    document.body.style.overflow = '';
+    TF.body = null;
+    state.tfOptionen = null;
+    ['tf-name', 'tf-tel', 'tf-datum', 'tf-uhr'].forEach((id) => { $(id).value = ''; });
+    $('tf-msg').textContent = '';
+    TF.busy = false;
+  }
+
+  function tfPruefeUndSende() {
+    if (TF.busy) return;
+    const msg = $('tf-msg');
+    msg.textContent = '';
+    const name = $('tf-name').value.trim();
+    const tel = $('tf-tel').value.trim();
+    const o = state.tfOptionen;
+    if (!o) return;
+    const li = $('tf-leistung').value;
+    const leistung = li !== '' && o.dienst[+li] ? o.dienst[+li].name : '';
+    let mitarbeiter = '';
+    if (TF.maPflicht) { const mi = $('tf-ma').value; mitarbeiter = mi !== '' && o.mitarbeiter[+mi] ? o.mitarbeiter[+mi] : ''; }
+    else if (o.mitarbeiter.length === 1) mitarbeiter = o.mitarbeiter[0];
+    const datum = $('tf-datum').value;
+    const uhrzeit = $('tf-uhr').value;
+    const j = tfJetzt();
+    const stellen = (tel.match(/[0-9]/g) || []).length;
+    let fehler = '';
+    let fokus = null;
+    if (!name) { fehler = 'Bitte geben Sie den Namen ein.'; fokus = 'tf-name'; }
+    else if (!/^[0-9+ ()\/-]{1,30}$/.test(tel) || stellen < 6) { fehler = 'Bitte geben Sie eine gültige Telefonnummer ein (mindestens 6 Ziffern).'; fokus = 'tf-tel'; }
+    else if (!leistung) { fehler = 'Bitte wählen Sie eine Dienstleistung.'; fokus = 'tf-leistung'; }
+    else if (TF.maPflicht && !mitarbeiter) { fehler = 'Bitte wählen Sie einen Mitarbeiter.'; fokus = 'tf-ma'; }
+    else if (!datum) { fehler = 'Bitte wählen Sie ein Datum.'; fokus = 'tf-datum'; }
+    else if (!uhrzeit) { fehler = 'Bitte wählen Sie eine Uhrzeit.'; fokus = 'tf-uhr'; }
+    else if (datum < j.heute || (datum === j.heute && uhrzeit < j.uhr)) { fehler = 'Bitte wählen Sie einen Zeitpunkt in der Zukunft.'; fokus = 'tf-datum'; }
+    if (fehler) { msg.textContent = fehler; $(fokus).focus(); return; }
+    TF.body = { name, telefon: tel, leistung, mitarbeiter, datum, uhrzeit, bestaetigt: false };
+    tfSenden(false);
+  }
+
+  async function tfSenden(bestaetigt) {
+    if (TF.busy || !TF.body) return;
+    tfBusy(true);
+    const msg = $('tf-msg');
+    msg.textContent = '';
+    try {
+      const body = Object.assign({ aktion: 'termin_eintragen' }, TF.body, { bestaetigt: !!bestaetigt });
+      const r = await apiRoh(body);
+      const d = r.data;
+      if (d && d.success === true) { await tfErfolg(d); return; }
+      if (d && d.rueckfrage === true) { tfRueckfrage(d); return; }
+      tfAnsicht(false);
+      msg.textContent = d && typeof d.fehler === 'string' && d.fehler.trim() ? d.fehler.trim() : TF_FEHLER;
+    } catch (err) {
+      if (err instanceof LoginError) { tfSchliessen(); abmelden(err.message); return; }
+      tfAnsicht(false);
+      msg.textContent = TF_FEHLER;
+    } finally {
+      tfBusy(false);
+    }
+  }
+
+  function tfRueckfrage(d) {
+    const liste = $('tf-warn');
+    liste.replaceChildren();
+    (Array.isArray(d.warnungen) ? d.warnungen : []).forEach((w) => { if (w != null && String(w).trim()) liste.appendChild(el('li', null, String(w))); });
+    $('tf-hinweis').textContent = typeof d.hinweis === 'string' && d.hinweis.trim() ? d.hinweis.trim() : 'Trotzdem eintragen?';
+    const href = telHref(TF.body && TF.body.telefon);
+    const a = $('tf-anruf');
+    if (href) { a.href = href; a.hidden = false; } else { a.removeAttribute('href'); a.hidden = true; }
+    tfAnsicht(true);
+    $('tf-trotzdem').focus();
+  }
+
+  async function tfErfolg(d) {
+    const z = zeit(d.start);
+    const wer = [d.kunde_name || (TF.body && TF.body.name), d.leistung || (TF.body && TF.body.leistung)].filter(Boolean).join(', ');
+    const text = 'Termin eingetragen' + (wer ? ': ' + wer : '') + (z && !z.ganztag ? ' am ' + p2(z.d) + '.' + p2(z.mo) + '. um ' + uhr(z) + ' Uhr' : '') + '.';
+    tfSchliessen();
+    await lade(true);
+    const m = $('board-msg');
+    m.className = 'msg ok';
+    m.textContent = text;
+    setTimeout(() => { if (m.textContent === text) { m.textContent = ''; m.className = 'msg'; } }, 10000);
+  }
+
+  $('tf-oeffnen').addEventListener('click', tfOeffnen);
+  $('tf-form').addEventListener('submit', (e) => { e.preventDefault(); tfPruefeUndSende(); });
+  $('tf-abbrechen').addEventListener('click', () => { if (!TF.busy) tfSchliessen(); });
+  $('tf-trotzdem').addEventListener('click', () => tfSenden(true));
+  $('tf-rueck-zu').addEventListener('click', () => { if (!TF.busy) { tfAnsicht(false); $('tf-name').focus(); } });
+  $('tf-datum').addEventListener('change', tfMin);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('tf-fenster').hidden && !TF.busy) tfSchliessen(); });
+
   // ---- Bedienung ------------------------------------------------------------
   function waehleTab(name) {
+    $('tf-neu').hidden = name !== 'termine';
     $('p-rueckrufe').hidden = name !== 'rueckrufe';
     $('p-termine').hidden = name !== 'termine';
     $('t-rueckrufe').setAttribute('aria-selected', String(name === 'rueckrufe'));
