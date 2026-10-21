@@ -137,7 +137,11 @@ button.kpi{cursor:pointer}
 .tf-feld{margin-bottom:14px}
 .tf-zeile{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .tf-karte .inp{letter-spacing:0}
-.tf-karte select.inp{appearance:auto;-webkit-appearance:menulist;padding-right:10px}
+.tf-karte select.inp{appearance:auto;-webkit-appearance:menulist;padding-right:10px;background-color:#1A1F3A;color:var(--tx);color-scheme:dark}
+.tf-karte select.inp option{background-color:#0E1330;color:var(--tx)}
+.tf-karte select.inp option:checked{background-color:var(--accent);color:#fff}
+.tf-karte input[type="date"],.tf-karte input[type="time"]{color-scheme:dark;background-color:#1A1F3A;color:var(--tx);min-width:0}
+.tf-karte input[type="date"]::-webkit-calendar-picker-indicator,.tf-karte input[type="time"]::-webkit-calendar-picker-indicator{cursor:pointer}
 .tf-aktion{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
 .tf-aktion .btn{flex:1;min-width:140px}
 .tf-aktion .btn[disabled]{opacity:.55;cursor:default}
