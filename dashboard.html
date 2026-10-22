@@ -151,9 +151,26 @@ button.kpi{cursor:pointer}
 .tf-call{margin-top:10px}
 @media (max-width:480px){.tf-zeile{grid-template-columns:1fr}.tf-karte{padding:20px 16px}}
 
+/* Kunden */
+.kd-suche{margin:18px 0 8px}
+.kd-karte{border-radius:18px;padding:16px;margin-bottom:12px}
+.kd-kopf strong{display:block;font-size:19px;overflow-wrap:anywhere}
+.kd-kopf .rr-tel{margin-top:0}
+.kd-act{margin-top:4px}
+.kd-info{margin-top:10px;color:var(--mut);font-size:15px;line-height:1.5}
+.kd-info span{display:block;overflow-wrap:anywhere}
+.kd-notiz-kopf{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:14px 0 6px}
+.kd-notiz-kopf .dfld{margin:0}
+.kd-zaehler{font-size:13px;color:var(--mut)}
+.kd-karte textarea.inp{min-height:88px;padding:12px 14px;line-height:1.4;letter-spacing:0;font-size:16px;resize:vertical}
+.kd-speichern{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.kd-speichern .btn[disabled]{opacity:.55;cursor:default}
+.kd-status{font-size:15px;color:var(--mint)}
+.kd-status.fehler{color:#FFB4A8}
+
 /* Feste Leiste am Handy */
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;gap:8px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(8,11,22,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
-.dock .dtab{min-height:54px}
+.dock .dtab{min-height:54px;padding:0 6px;font-size:16px}
 @media (max-width:720px){
   .dtabs{display:none}
   .dock{display:flex}
@@ -231,6 +248,7 @@ button.kpi{cursor:pointer}
     <h2 class="bd-h">Termine und Rückrufe</h2>
     <div class="dtabs" role="tablist" aria-label="Bereiche" id="tabs-top">
       <button class="dtab" role="tab" id="t-termine" aria-controls="p-termine" aria-selected="true" type="button">Termine</button>
+      <button class="dtab" role="tab" id="t-kunden" aria-controls="p-kunden" aria-selected="false" type="button">Kunden</button>
       <button class="dtab" role="tab" id="t-rueckrufe" aria-controls="p-rueckrufe" aria-selected="false" type="button">Rückrufe <span class="cnt" id="c-rr" hidden>0</span></button>
     </div>
 
@@ -239,6 +257,13 @@ button.kpi{cursor:pointer}
     <div class="tf-neu" id="tf-neu"><button class="btn btn-p" type="button" id="tf-oeffnen">Termin eintragen</button></div>
 
     <section class="panel" id="p-termine" role="tabpanel" aria-labelledby="t-termine"></section>
+    <section class="panel" id="p-kunden" role="tabpanel" aria-labelledby="t-kunden" hidden>
+      <div class="kd-suche">
+        <label class="dfld" for="kd-suche">Kunde suchen</label>
+        <input class="inp" id="kd-suche" type="search" placeholder="Name oder Telefonnummer" autocomplete="off" maxlength="60">
+      </div>
+      <div id="kd-liste" aria-live="polite"></div>
+    </section>
     <section class="panel" id="p-rueckrufe" role="tabpanel" aria-labelledby="t-rueckrufe" hidden>
       <div class="seg" role="group" aria-label="Filter">
         <button type="button" data-f="offen" aria-pressed="true">Offen</button>
@@ -285,6 +310,7 @@ button.kpi{cursor:pointer}
 
   <nav class="dock" role="tablist" aria-label="Bereiche (mobil)" id="tabs-dock">
     <button class="dtab" role="tab" data-t="termine" aria-selected="true" type="button">Termine</button>
+    <button class="dtab" role="tab" data-t="kunden" aria-selected="false" type="button">Kunden</button>
     <button class="dtab" role="tab" data-t="rueckrufe" aria-selected="false" type="button">Rückrufe <span class="cnt" id="c-rr2" hidden>0</span></button>
   </nav>
 </div>
@@ -438,6 +464,7 @@ button.kpi{cursor:pointer}
     ['bd-chart', 'bd-monat', 'bd-ls', 'bd-mo'].forEach((id) => $(id).replaceChildren());
     $('k-bot').textContent = '–';
     tfSchliessen();
+    kdZuruecksetzen();
     $('p-termine').replaceChildren(); waehleTab('termine');
     $('pin').value = '';
     if (mitIdFeld) { kunde = ''; $('kunde-id').value = ''; }
@@ -498,6 +525,7 @@ button.kpi{cursor:pointer}
       msg.textContent = '';
       $('stand').textContent = 'Stand ' + fTime.format(new Date()) + ' Uhr';
       render();
+      if (KD.aktiv) kdLaden(true);
     } catch (err) {
       msg.className = 'msg';
       msg.textContent = 'Gerade klappt etwas nicht. Die Daten konnten nicht geladen werden. Bitte versuchen Sie es gleich noch einmal.';
@@ -960,11 +988,190 @@ button.kpi{cursor:pointer}
   $('tf-datum').addEventListener('change', tfMin);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('tf-fenster').hidden && !TF.busy) tfSchliessen(); });
 
+  // ---- Kunden (Stammkunden mit Notiz) ---------------------------------------
+  const KD = { aktiv: false, geladen: false, laden: false, liste: [], fehler: '', suche: '', entwurf: {}, status: {}, busy: {}, zaehler: 0 };
+  const KD_MAX = 300;
+  const KD_FEHLER = 'Die Notiz konnte nicht gespeichert werden. Bitte versuchen Sie es gleich noch einmal.';
+  const kdZiffern = (s) => String(s == null ? '' : s).replace(/[^0-9]/g, '');
+
+  function kdPruefeListe(d) {
+    if (!d || d.success !== true || !Array.isArray(d.kunden)) return null;
+    return d.kunden.filter((k) => k && typeof k === 'object' && k.telefon != null && String(k.telefon).trim());
+  }
+
+  function kdDatum(v) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v || ''));
+    return m ? m[3] + '.' + m[2] + '.' + m[1] : '';
+  }
+
+  async function kdLaden(still) {
+    if (KD.laden || !state.pin) return;
+    KD.laden = true;
+    if (!still && !KD.geladen) $('kd-liste').replaceChildren(el('div', 'leer', 'Wird geladen…'));
+    try {
+      const r = await apiRoh({ aktion: 'kunden' });
+      if (!state.pin) return;                         // in der Zwischenzeit abgemeldet
+      const liste = kdPruefeListe(r.data);
+      if (!liste) throw new Error('Format Kunden');
+      KD.liste = liste; KD.geladen = true; KD.fehler = '';
+      kdZeichne(false);
+    } catch (err) {
+      if (err instanceof LoginError) { abmelden(err.message); return; }
+      if (!KD.geladen) { KD.fehler = 'Die Kundenliste konnte nicht geladen werden. Bitte versuchen Sie es gleich noch einmal.'; kdZeichne(true); }
+    } finally {
+      KD.laden = false;
+    }
+  }
+
+  // Zeichnet die Liste neu. Ohne "erzwingen" wird nichts überschrieben, solange ein Notizfeld Fokus hat
+  // oder ein ungespeicherter Entwurf offen ist.
+  function kdZeichne(erzwingen) {
+    const box = $('kd-liste');
+    const fokus = document.activeElement;
+    const tippt = !!fokus && fokus.tagName === 'TEXTAREA' && box.contains(fokus);
+    if (!erzwingen && (tippt || Object.keys(KD.entwurf).length)) return;
+    box.replaceChildren();
+    if (!KD.geladen) { if (KD.fehler) box.appendChild(el('div', 'leer', KD.fehler)); return; }
+    if (!KD.liste.length) { box.appendChild(el('div', 'leer', 'Noch keine Stammkunden. Sie erscheinen automatisch, sobald Kunden über den Chat oder das Formular buchen.')); return; }
+    const q = KD.suche.trim().toLowerCase();
+    const qz = kdZiffern(q);
+    const treffer = KD.liste.filter((k) => {
+      if (!q) return true;
+      if (String(k.name || '').toLowerCase().includes(q)) return true;
+      if (!qz) return false;
+      const tz = kdZiffern(k.telefon);
+      return tz.includes(qz) || (qz.length > 1 && qz[0] === '0' && tz.includes(qz.slice(1)));
+    });
+    if (!treffer.length) { box.appendChild(el('div', 'leer', 'Keine Kunden gefunden.')); return; }
+    treffer.forEach((k) => box.appendChild(kdKarte(k)));
+  }
+
+  function kdKarte(k) {
+    const tel = String(k.telefon).trim();
+    const gespeichert = typeof k.notiz === 'string' ? k.notiz : '';
+    const karte = el('article', 'kd-karte glass');
+    karte.dataset.tel = tel;
+    const kopf = el('div', 'kd-kopf');
+    kopf.appendChild(el('strong', null, k.name ? String(k.name) : 'Ohne Namen'));
+    const href = telHref(tel);
+    if (href) { const a = el('a', 'rr-tel', tel); a.href = href; kopf.appendChild(a); }
+    else kopf.appendChild(el('span', 'rr-tel', tel));
+    karte.appendChild(kopf);
+    if (href) {
+      const act = el('div', 'kd-act');
+      const anruf = el('a', 'btn btn-p btn-s', 'Anrufen');
+      anruf.href = href;
+      anruf.setAttribute('aria-label', 'Anrufen: ' + (k.name ? String(k.name) : tel));
+      act.appendChild(anruf);
+      karte.appendChild(act);
+    }
+    const info = el('div', 'kd-info');
+    if (k.letzte_leistung) info.appendChild(el('span', null, 'Letzte Leistung: ' + k.letzte_leistung));
+    if (k.lieblings_mitarbeiter) info.appendChild(el('span', null, 'Lieblings-Mitarbeiter: ' + k.lieblings_mitarbeiter));
+    const n = nz(k.anzahl_termine);
+    const dat = kdDatum(k.zuletzt);
+    if (n != null || dat) {
+      const teil = n != null ? fZahl.format(n) + (n === 1 ? ' Termin' : ' Termine') : '';
+      info.appendChild(el('span', null, teil ? teil + (dat ? ', zuletzt am ' + dat : '') : 'Zuletzt am ' + dat));
+    }
+    if (info.childNodes.length) karte.appendChild(info);
+
+    KD.zaehler += 1;
+    const id = 'kd-n-' + KD.zaehler;
+    const notizKopf = el('div', 'kd-notiz-kopf');
+    const label = el('label', 'dfld', 'Notiz');
+    label.htmlFor = id;
+    const zaehler = el('span', 'kd-zaehler', '');
+    notizKopf.append(label, zaehler);
+    const ta = document.createElement('textarea');
+    ta.className = 'inp kd-notiz';
+    ta.id = id;
+    ta.rows = 3;
+    ta.maxLength = KD_MAX;
+    ta.value = Object.prototype.hasOwnProperty.call(KD.entwurf, tel) ? KD.entwurf[tel] : gespeichert;
+    const zeigeZaehler = () => { zaehler.textContent = ta.value.length + '/' + KD_MAX; };
+    zeigeZaehler();
+
+    const zeile = el('div', 'kd-speichern');
+    const btn = el('button', 'btn btn-p btn-s', 'Speichern');
+    btn.type = 'button';
+    btn.disabled = !!KD.busy[tel];
+    const status = el('span', 'kd-status');
+    status.setAttribute('role', 'status');
+    const s = KD.status[tel];
+    if (s) { status.textContent = s.text; if (!s.ok) status.classList.add('fehler'); }
+    zeile.append(btn, status);
+
+    ta.addEventListener('input', () => {
+      zeigeZaehler();
+      if (ta.value.trim() !== gespeichert.trim()) KD.entwurf[tel] = ta.value; else delete KD.entwurf[tel];
+      delete KD.status[tel];
+      status.textContent = '';
+      status.classList.remove('fehler');
+    });
+    btn.addEventListener('click', () => kdSpeichern(tel, ta, btn, status));
+    karte.append(notizKopf, ta, zeile);
+    return karte;
+  }
+
+  async function kdSpeichern(tel, ta, btn, status) {
+    if (KD.busy[tel]) return;
+    KD.busy[tel] = true;
+    btn.disabled = true;
+    btn.textContent = 'Wird gespeichert…';
+    status.classList.remove('fehler');
+    status.textContent = '';
+    const gesendet = ta.value.trim().slice(0, KD_MAX);
+    let ergebnis = null;
+    try {
+      const r = await apiRoh({ aktion: 'kunden_notiz', telefon: tel, notiz: gesendet });
+      if (!state.pin) return;
+      const liste = kdPruefeListe(r.data);
+      if (liste) {
+        KD.liste = liste; KD.geladen = true; KD.fehler = '';
+        if (ta.value.trim() === gesendet) delete KD.entwurf[tel]; else KD.entwurf[tel] = ta.value;   // inzwischen weitergetippt: Entwurf bleibt
+        ergebnis = { text: 'Gespeichert', ok: true };
+      } else if (r.data && typeof r.data.fehler === 'string' && r.data.fehler.trim()) {
+        ergebnis = { text: r.data.fehler.trim(), ok: false };
+      } else {
+        ergebnis = { text: KD_FEHLER, ok: false };
+      }
+    } catch (err) {
+      if (err instanceof LoginError) { abmelden(err.message); return; }
+      ergebnis = { text: KD_FEHLER, ok: false };
+    } finally {
+      delete KD.busy[tel];
+    }
+    KD.status[tel] = ergebnis;
+    kdZeichne(true);
+    if (ergebnis.ok) {
+      setTimeout(() => {
+        if (KD.status[tel] !== ergebnis) return;
+        delete KD.status[tel];
+        document.querySelectorAll('.kd-karte').forEach((c) => { if (c.dataset.tel === tel) { const st = c.querySelector('.kd-status'); if (st) st.textContent = ''; } });
+      }, 4000);
+    }
+  }
+
+  function kdZuruecksetzen() {
+    KD.aktiv = false; KD.geladen = false; KD.laden = false; KD.liste = []; KD.fehler = ''; KD.suche = '';
+    KD.entwurf = {}; KD.status = {}; KD.busy = {};
+    $('kd-suche').value = '';
+    $('kd-liste').replaceChildren();
+  }
+
+  $('t-kunden').addEventListener('click', () => waehleTab('kunden'));
+  $('kd-suche').addEventListener('input', () => { KD.suche = $('kd-suche').value; kdZeichne(true); });
+
   // ---- Bedienung ------------------------------------------------------------
   function waehleTab(name) {
     $('tf-neu').hidden = name !== 'termine';
     $('p-rueckrufe').hidden = name !== 'rueckrufe';
     $('p-termine').hidden = name !== 'termine';
+    $('p-kunden').hidden = name !== 'kunden';
+    $('t-kunden').setAttribute('aria-selected', String(name === 'kunden'));
+    KD.aktiv = name === 'kunden';
+    if (KD.aktiv) kdLaden(KD.geladen);
     $('t-rueckrufe').setAttribute('aria-selected', String(name === 'rueckrufe'));
     $('t-termine').setAttribute('aria-selected', String(name === 'termine'));
     document.querySelectorAll('#tabs-dock .dtab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.t === name)));
