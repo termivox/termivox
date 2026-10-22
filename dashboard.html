@@ -159,6 +159,10 @@ button.kpi{cursor:pointer}
 .kd-act{margin-top:4px}
 .kd-info{margin-top:10px;color:var(--mut);font-size:15px;line-height:1.5}
 .kd-info span{display:block;overflow-wrap:anywhere}
+.kd-loeschen{margin-left:auto;color:#FFB4A8;border-color:rgba(255,120,100,.45)}
+.kd-lo-ja{background:#B3402F;color:#fff}
+.kd-lo-ja:hover{background:#C44A38}
+.kd-lo-wer{margin:0 0 4px;color:var(--mut);overflow-wrap:anywhere}
 .kd-termine-knopf{margin-top:12px}
 .kd-termine{list-style:none;margin:10px 0 0;padding:0}
 .kd-termine li{padding:9px 0;border-top:1px solid var(--line);font-size:15px;line-height:1.4;overflow-wrap:anywhere}
@@ -278,6 +282,19 @@ button.kpi{cursor:pointer}
       <div id="rr-liste"></div>
     </section>
   </main>
+
+  <div class="tf-fenster" id="kd-lo-fenster" hidden>
+    <div class="tf-karte glass" role="alertdialog" aria-modal="true" aria-labelledby="kd-lo-titel" aria-describedby="kd-lo-frage">
+      <h2 id="kd-lo-titel">Kunde löschen</h2>
+      <p class="tf-hinweis" id="kd-lo-frage">Diesen Kunden und seinen Verlauf wirklich löschen?</p>
+      <p class="kd-lo-wer" id="kd-lo-wer"></p>
+      <div class="msg" id="kd-lo-msg" role="alert"></div>
+      <div class="tf-aktion">
+        <button class="btn btn-g" type="button" id="kd-lo-nein">Nein</button>
+        <button class="btn kd-lo-ja" type="button" id="kd-lo-ja">Ja, löschen</button>
+      </div>
+    </div>
+  </div>
 
   <div class="tf-fenster" id="tf-fenster" hidden>
     <div class="tf-karte glass" role="dialog" aria-modal="true" aria-labelledby="tf-titel">
@@ -1163,6 +1180,10 @@ button.kpi{cursor:pointer}
     const s = KD.status[tel];
     if (s) { status.textContent = s.text; if (!s.ok) status.classList.add('fehler'); }
     zeile.append(btn, status);
+    const loeschen = el('button', 'btn btn-g btn-s kd-loeschen', 'Kunde löschen');
+    loeschen.type = 'button';
+    loeschen.addEventListener('click', () => kdLoeschenFrage(k));
+    zeile.appendChild(loeschen);
 
     ta.addEventListener('input', () => {
       zeigeZaehler();
@@ -1220,7 +1241,70 @@ button.kpi{cursor:pointer}
     KD.entwurf = {}; KD.status = {}; KD.busy = {}; KD.offen = {};
     $('kd-suche').value = '';
     $('kd-liste').replaceChildren();
+    $('kd-lo-fenster').hidden = true; KDL.tel = ''; KDL.busy = false;
+    if ($('tf-fenster').hidden) document.body.style.overflow = '';
   }
+
+  // ---- Kunde löschen (mit Rückfrage) -----------------------------------------
+  const KDL = { tel: '', busy: false };
+  const KDL_FEHLER = 'Gerade klappt etwas nicht. Bitte versuchen Sie es gleich noch einmal.';
+
+  function kdLoeschenFrage(k) {
+    KDL.tel = String(k.telefon).trim();
+    $('kd-lo-wer').textContent = (k.name ? String(k.name) : 'Ohne Namen') + ' · ' + KDL.tel;
+    $('kd-lo-msg').textContent = '';
+    $('kd-lo-fenster').hidden = false;
+    document.body.style.overflow = 'hidden';
+    $('kd-lo-nein').focus();
+  }
+
+  function kdLoeschenZu() {
+    if (KDL.busy) return;
+    $('kd-lo-fenster').hidden = true;
+    document.body.style.overflow = '';
+    KDL.tel = '';
+  }
+
+  async function kdLoeschen() {
+    if (KDL.busy || !KDL.tel) return;
+    const tel = KDL.tel;
+    KDL.busy = true;
+    $('kd-lo-ja').disabled = true; $('kd-lo-nein').disabled = true;
+    $('kd-lo-ja').textContent = 'Wird gelöscht…';
+    $('kd-lo-msg').textContent = '';
+    let fertig = false;
+    try {
+      const r = await apiRoh({ aktion: 'kunde_loeschen', telefon: tel });
+      if (!state.pin) return;
+      const d = r.data;
+      if (d && d.success === true) {
+        fertig = true;
+      } else {
+        $('kd-lo-msg').textContent = d && typeof d.fehler === 'string' && d.fehler.trim() ? d.fehler.trim() : KDL_FEHLER;
+      }
+    } catch (err) {
+      if (err instanceof LoginError) { KDL.busy = false; abmelden(err.message); return; }
+      $('kd-lo-msg').textContent = KDL_FEHLER;
+    } finally {
+      KDL.busy = false;
+      $('kd-lo-ja').disabled = false; $('kd-lo-nein').disabled = false;
+      $('kd-lo-ja').textContent = 'Ja, löschen';
+    }
+    if (!fertig) return;
+    kdLoeschenZu();
+    delete KD.entwurf[tel]; delete KD.status[tel]; delete KD.offen[tel]; delete KD.busy[tel];
+    KD.liste = KD.liste.filter((k) => String(k.telefon).trim() !== tel);   // sofort aus der Anzeige nehmen
+    kdZeichne(true);
+    kdLaden(true);                                                          // danach frisch vom Server
+    const m = $('board-msg');
+    m.className = 'msg ok';
+    m.textContent = 'Kunde gelöscht.';
+    setTimeout(() => { if (m.textContent === 'Kunde gelöscht.') { m.textContent = ''; m.className = 'msg'; } }, 8000);
+  }
+
+  $('kd-lo-nein').addEventListener('click', kdLoeschenZu);
+  $('kd-lo-ja').addEventListener('click', kdLoeschen);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('kd-lo-fenster').hidden) kdLoeschenZu(); });
 
   $('t-kunden').addEventListener('click', () => waehleTab('kunden'));
   $('kd-suche').addEventListener('input', () => { KD.suche = $('kd-suche').value; kdZeichne(true); });

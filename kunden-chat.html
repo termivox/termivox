@@ -60,9 +60,9 @@ button,textarea,input{font:inherit; color:inherit;}
 .eingabe textarea::placeholder{color:var(--mut);}
 .senden{min-width:48px; min-height:48px; padding:0 18px; border-radius:14px; border:0; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;}
 .senden:disabled{opacity:.5; cursor:default;}
-.datenhinweis{padding:0 16px 8px; font-size:.82rem; line-height:1.4; color:var(--mut);} .datenhinweis a{color:var(--hi); padding:12px 0;}
+.datenhinweis{padding:0 16px 2px; font-size:.82rem; line-height:1.4; color:var(--mut);} .datenhinweis a{color:var(--hi); padding:6px 0;} .dh-ende{padding-bottom:8px;}
 /* Niedrige Fenster (z. B. Handy mit offener Tastatur): Eingabefeld und Hinweis haben Vorrang, die Schnellauswahl pausiert */
-@media (max-height:520px){ .schnell{display:none;} .kopf{padding:10px 16px 8px;} .kopf h1{font-size:1.4rem;} .verlauf{padding:8px 16px;} }
+@media (max-height:520px){ .schnell{display:none;} .kopf{padding:10px 16px 8px;} .kopf h1{font-size:1.4rem;} .verlauf{padding:8px 16px;} .eingabe{padding:6px 16px;} .datenhinweis{font-size:.78rem; line-height:1.3;} .app .leiste{padding-top:6px;} .app .leiste > *{min-height:44px;} }
 
 /* Feste Leiste unten */
 .leiste{display:flex; gap:10px; padding:10px 16px calc(12px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:var(--bg);}
@@ -117,6 +117,7 @@ button,textarea,input{font:inherit; color:inherit;}
   </form>
 
   <p class="datenhinweis">Bitte geben Sie keine Gesundheitsdaten oder sensiblen Angaben ein. Mehr dazu in der <a href="https://termivox.com/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
+  <p class="datenhinweis dh-ende">Für Ihre Terminverwaltung speichern wir Name und Telefonnummer. Mehr dazu in der <a href="https://termivox.com/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
 
   <nav class="leiste" aria-label="Kontakt">
     <button type="button" class="sprechen" id="btn-sprechen">Mit dem Betrieb sprechen</button>
