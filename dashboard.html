@@ -159,6 +159,11 @@ button.kpi{cursor:pointer}
 .kd-act{margin-top:4px}
 .kd-info{margin-top:10px;color:var(--mut);font-size:15px;line-height:1.5}
 .kd-info span{display:block;overflow-wrap:anywhere}
+.kd-termine-knopf{margin-top:12px}
+.kd-termine{list-style:none;margin:10px 0 0;padding:0}
+.kd-termine li{padding:9px 0;border-top:1px solid var(--line);font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+.kd-termine li.leer-zeile{color:var(--mut);border-top:0;padding-top:2px}
+.kd-kommend{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;background:rgba(52,224,184,.16);color:var(--mint);font-size:12px;font-weight:600;vertical-align:1px}
 .kd-notiz-kopf{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:14px 0 6px}
 .kd-notiz-kopf .dfld{margin:0}
 .kd-zaehler{font-size:13px;color:var(--mut)}
@@ -989,7 +994,7 @@ button.kpi{cursor:pointer}
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('tf-fenster').hidden && !TF.busy) tfSchliessen(); });
 
   // ---- Kunden (Stammkunden mit Notiz) ---------------------------------------
-  const KD = { aktiv: false, geladen: false, laden: false, liste: [], fehler: '', suche: '', entwurf: {}, status: {}, busy: {}, zaehler: 0 };
+  const KD = { aktiv: false, geladen: false, laden: false, liste: [], fehler: '', suche: '', entwurf: {}, status: {}, busy: {}, offen: {}, zaehler: 0 };
   const KD_MAX = 300;
   const KD_FEHLER = 'Die Notiz konnte nicht gespeichert werden. Bitte versuchen Sie es gleich noch einmal.';
   const kdZiffern = (s) => String(s == null ? '' : s).replace(/[^0-9]/g, '');
@@ -1046,6 +1051,31 @@ button.kpi{cursor:pointer}
     treffer.forEach((k) => box.appendChild(kdKarte(k)));
   }
 
+  const KD_TAGE = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+
+  // Terminverlauf eines Kunden: nur gültige Einträge, Reihenfolge wie vom Server (neueste zuerst)
+  function kdTermine(k) {
+    return (Array.isArray(k.termine) ? k.termine : []).filter((x) => x && typeof x === 'object' && /^\d{4}-\d{2}-\d{2}$/.test(String(x.datum || '')));
+  }
+
+  // "Fr 31.10.2026, 14:00 – Haare färben bei Sarah"; Wochentag aus dem Datum selbst (kein Zeitzonen-Fehler)
+  function kdTerminText(x) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(x.datum));
+    const wt = KD_TAGE[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)).getUTCDay()];
+    const zeit = /^\d{2}:\d{2}/.test(String(x.uhrzeit || '')) ? ', ' + String(x.uhrzeit).slice(0, 5) : '';
+    const was = x.leistung ? String(x.leistung) : 'Termin';
+    const wer = x.mitarbeiter ? ' bei ' + String(x.mitarbeiter) : '';
+    return wt + ' ' + m[3] + '.' + m[2] + '.' + m[1] + zeit + ' – ' + was + wer;
+  }
+
+  function kdKommend(x) {
+    const heute = fKey.format(new Date());
+    const jetzt = fTime.format(new Date());
+    const d = String(x.datum);
+    if (d !== heute) return d > heute;
+    return /^\d{2}:\d{2}/.test(String(x.uhrzeit || '')) ? String(x.uhrzeit).slice(0, 5) > jetzt : true;
+  }
+
   function kdKarte(k) {
     const tel = String(k.telefon).trim();
     const gespeichert = typeof k.notiz === 'string' ? k.notiz : '';
@@ -1075,6 +1105,31 @@ button.kpi{cursor:pointer}
       info.appendChild(el('span', null, teil ? teil + (dat ? ', zuletzt am ' + dat : '') : 'Zuletzt am ' + dat));
     }
     if (info.childNodes.length) karte.appendChild(info);
+    const verlauf = kdTermine(k);
+    const tid = 'kd-t-' + (KD.zaehler + 1);
+    const tKnopf = el('button', 'btn btn-g btn-s kd-termine-knopf', '');
+    tKnopf.type = 'button';
+    tKnopf.setAttribute('aria-controls', tid);
+    const tListe = el('ul', 'kd-termine');
+    tListe.id = tid;
+    if (verlauf.length) {
+      verlauf.forEach((x) => {
+        const li = el('li', null, kdTerminText(x));
+        if (kdKommend(x)) li.appendChild(el('span', 'kd-kommend', 'kommend'));
+        tListe.appendChild(li);
+      });
+    } else {
+      tListe.appendChild(el('li', 'leer-zeile', 'Noch kein Verlauf. Er füllt sich ab jetzt bei jeder Buchung.'));
+    }
+    const zeigeVerlauf = () => {
+      const offen = !!KD.offen[tel];
+      tListe.hidden = !offen;
+      tKnopf.setAttribute('aria-expanded', String(offen));
+      tKnopf.textContent = (offen ? 'Termine ausblenden (' : 'Termine anzeigen (') + verlauf.length + ')';
+    };
+    zeigeVerlauf();
+    tKnopf.addEventListener('click', () => { if (KD.offen[tel]) delete KD.offen[tel]; else KD.offen[tel] = true; zeigeVerlauf(); });
+    karte.append(tKnopf, tListe);
 
     KD.zaehler += 1;
     const id = 'kd-n-' + KD.zaehler;
@@ -1155,7 +1210,7 @@ button.kpi{cursor:pointer}
 
   function kdZuruecksetzen() {
     KD.aktiv = false; KD.geladen = false; KD.laden = false; KD.liste = []; KD.fehler = ''; KD.suche = '';
-    KD.entwurf = {}; KD.status = {}; KD.busy = {};
+    KD.entwurf = {}; KD.status = {}; KD.busy = {}; KD.offen = {};
     $('kd-suche').value = '';
     $('kd-liste').replaceChildren();
   }
