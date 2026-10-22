@@ -338,8 +338,15 @@ button.kpi{cursor:pointer}
   const $ = (id) => document.getElementById(id);
   const params = new URLSearchParams(location.search);
   const urlKunde = (params.get('kunde') || '').trim();
-  const mitIdFeld = !/^[A-Za-z0-9_-]{1,64}$/.test(urlKunde);   // ohne gültigen ?kunde= fragt die Anmeldung die Betriebs-ID ab
-  let kunde = mitIdFeld ? '' : urlKunde;                      // eingegebene ID nur im Arbeitsspeicher, nie in URL oder Speicher
+  const urlKundeOk = /^[A-Za-z0-9_-]{1,64}$/.test(urlKunde);
+  const adminLink = urlKunde.toLowerCase() === 'admin' || params.get('admin') === '1';       // ?kunde=admin oder ?admin=1
+  const alsApp = !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);   // als App installiert
+  // Betriebs-ID-Feld nur für den Admin-Link und in der installierten App (die ohne ?kunde startet);
+  // ohne gültigen Link und ohne App gibt es kein Formular, nur einen Hinweis.
+  const mitIdFeld = adminLink || (alsApp && !urlKundeOk);
+  const ohneLink = !mitIdFeld && !urlKundeOk;
+  const idVorgabe = adminLink && urlKundeOk ? (urlKunde.toLowerCase() === 'admin' ? 'admin' : urlKunde) : '';   // stammt aus der Adresse, ist nicht geheim
+  let kunde = !mitIdFeld && urlKundeOk ? urlKunde : '';          // eingegebene ID nur im Arbeitsspeicher, nie in URL oder Speicher
 
   const state = { pin: '', rueckrufe: [], offen: 0, termine: [], kennzahlen: null, bot: null, tagSel: '', termineFehler: false, filter: 'offen', timer: null, busy: false };
 
@@ -472,7 +479,7 @@ button.kpi{cursor:pointer}
     kdZuruecksetzen();
     $('p-termine').replaceChildren(); waehleTab('termine');
     $('pin').value = '';
-    if (mitIdFeld) { kunde = ''; $('kunde-id').value = ''; }
+    if (mitIdFeld) { kunde = ''; $('kunde-id').value = idVorgabe; }
     $('rr-liste').replaceChildren();
     zeigeGate(text);
   }
@@ -1249,10 +1256,14 @@ button.kpi{cursor:pointer}
   document.addEventListener('visibilitychange', () => { if (!document.hidden && state.pin && !$('board').hidden) lade(true); });
 
   // ---- Start ----------------------------------------------------------------
-  if (mitIdFeld) {
+  if (ohneLink) {
+    $('login').hidden = true;
+    $('gate-text').textContent = 'Bitte öffnen Sie Ihr Dashboard über den persönlichen Link, den Sie von Termivox erhalten haben.';
+  } else if (mitIdFeld) {
     $('kunde-feld').hidden = false;
+    $('kunde-id').value = idVorgabe;
     $('gate-text').textContent = 'Bitte geben Sie Ihre Betriebs-ID und Ihre PIN ein.';
-    setTimeout(() => $('kunde-id').focus(), 50);
+    setTimeout(() => (idVorgabe ? $('pin') : $('kunde-id')).focus(), 50);
   } else {
     setTimeout(() => $('pin').focus(), 50);
   }
