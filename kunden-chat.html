@@ -343,47 +343,72 @@ button,textarea,input{font:inherit; color:inherit;}
     });
   }
 
+  // Die Verbindung kann beim Aufbau hängen oder abreißen, bevor die Antwort da ist (n8n antwortet erst nach
+  // einigen Sekunden). Darum: Aufbau höchstens 4 s abwarten, bei Abbruch bis zu 5 Versuche, solange noch keine Antwort kam.
+  var WS_AUFBAU_MS = 4000, WS_VERSUCHE = 5;
+
   function oeffneWs(executionId, token) {
     var basis = new URL(webhookUrl).origin.replace(/^http/, 'ws');
     var url = basis + '/chat?sessionId=' + encodeURIComponent(sessionId) + '&executionId=' + encodeURIComponent(executionId) +
       '&isPublic=true' + (token ? '&token=' + encodeURIComponent(token) : '');
     var antwort = wsWarten();
-    var s = new WebSocket(url);
-    s.addEventListener('open', function () { merke('WS offen'); });
-    s.addEventListener('error', function () { merke('WS Fehler'); });
-    s.addEventListener('close', function (ev) { merke('WS zu, Code ' + ev.code); });
-    var textProtokoll;  // true: "n8n|..."-Nachrichten, false: JSON-Nachrichten
-    var puffer = '';    // Textstücke, falls die Antwort in Teilen kommt
-    function fertig(t) { if (wartend) wartend.ok(t); s.close(); }
-    s.onmessage = function (e) {
-      var d = e.data;
-      merke('WS Nachricht, ' + String(d).length + ' Zeichen' + (/^n8n|/.test(String(d)) ? ' (' + d + ')' : ''));
-      var textArt = d === 'n8n|heartbeat' || d === 'n8n|continue';
-      var typ;
-      if (textArt) typ = d === 'n8n|heartbeat' ? 'heartbeat' : 'continue';
-      else { try { typ = JSON.parse(d).type; } catch (x) { typ = undefined; } }
-      var gueltig = textArt ? textProtokoll !== true : textProtokoll !== false;
-      if (typ === 'heartbeat' && gueltig) {
-        textProtokoll = !textArt;
-        s.send(textArt ? 'n8n|heartbeat-ack' : JSON.stringify({ type: 'heartbeat-ack' }));
-        return;
+    var puffer = '';       // Textstücke, falls die Antwort in Teilen kommt
+    var erledigt = false;  // Antwort ist da oder der Versuch wurde aufgegeben
+    var versuch = 0;
+
+    function ende(t) { erledigt = true; if (wartend) wartend.ok(t); }
+    function aufgeben() { erledigt = true; if (wartend) wartend.fehl(unsicher('Verbindung beendet')); }
+
+    function verbinde() {
+      versuch++;
+      merke('WS Versuch ' + versuch);
+      var s = new WebSocket(url);
+      var offen = false, beendet = false;
+      var textProtokoll;  // true: "n8n|..."-Nachrichten, false: JSON-Nachrichten
+      var aufbauUhr = setTimeout(function () { if (!offen) { merke('WS Aufbau zu langsam'); abbruch(); } }, WS_AUFBAU_MS);
+
+      // Verbindung weg, aber noch keine Antwort: neu verbinden oder aufgeben
+      function abbruch() {
+        if (beendet) return;
+        beendet = true; clearTimeout(aufbauUhr);
+        try { s.close(); } catch (x) { /* schon zu */ }
+        if (erledigt) return;
+        if (puffer.trim()) { ende(puffer); return; }
+        if (versuch < WS_VERSUCHE) setTimeout(function () { if (!erledigt) verbinde(); }, 500);
+        else aufgeben();
       }
-      if (typ === 'continue' && gueltig) return;
-      if (typ === 'begin') return;
-      if (typ === 'item') {
-        try { var inh = JSON.parse(d).content; if (typeof inh === 'string') puffer += inh; } catch (x) { /* ignorieren */ }
-        return;
-      }
-      if (typ === 'end') { if (puffer.trim()) fertig(puffer); return; }
-      var antwortTeil = wsText(d);
-      if (!antwortTeil.trim()) return;   // leere Nachricht: weiter warten, nicht abbrechen
-      fertig(antwortTeil);
-    };
-    s.onclose = function () {
-      if (puffer.trim() && wartend) { wartend.ok(puffer); return; }
-      if (wartend) wartend.fehl(unsicher('Verbindung beendet'));
-    };
-    s.onerror = function () { /* onclose folgt */ };
+      function fertig(t) { beendet = true; clearTimeout(aufbauUhr); ende(t); try { s.close(); } catch (x) { /* schon zu */ } }
+
+      s.addEventListener('open', function () { offen = true; clearTimeout(aufbauUhr); merke('WS offen'); });
+      s.addEventListener('error', function () { merke('WS Fehler'); });
+      s.addEventListener('close', function (ev) { merke('WS zu, Code ' + ev.code); abbruch(); });
+      s.onmessage = function (e) {
+        var d = e.data;
+        merke('WS Nachricht, ' + String(d).length + ' Zeichen' + ((d === 'n8n|heartbeat' || d === 'n8n|continue') ? ' (' + d + ')' : ''));
+        var textArt = d === 'n8n|heartbeat' || d === 'n8n|continue';
+        var typ;
+        if (textArt) typ = d === 'n8n|heartbeat' ? 'heartbeat' : 'continue';
+        else { try { typ = JSON.parse(d).type; } catch (x) { typ = undefined; } }
+        var gueltig = textArt ? textProtokoll !== true : textProtokoll !== false;
+        if (typ === 'heartbeat' && gueltig) {
+          textProtokoll = !textArt;
+          s.send(textArt ? 'n8n|heartbeat-ack' : JSON.stringify({ type: 'heartbeat-ack' }));
+          return;
+        }
+        if (typ === 'continue' && gueltig) return;
+        if (typ === 'begin') return;
+        if (typ === 'item') {
+          try { var inh = JSON.parse(d).content; if (typeof inh === 'string') puffer += inh; } catch (x) { /* ignorieren */ }
+          return;
+        }
+        if (typ === 'end') { if (puffer.trim()) fertig(puffer); return; }
+        var antwortTeil = wsText(d);
+        if (!antwortTeil.trim()) return;   // leere Nachricht: weiter warten, nicht abbrechen
+        fertig(antwortTeil);
+      };
+    }
+
+    verbinde();
     return antwort;
   }
 
