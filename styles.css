@@ -651,3 +651,25 @@ body[data-page="recht"] .foot{margin-top:40px}
   .bk{grid-template-columns:1fr;gap:12px;margin-top:32px}
   .bkarte{min-height:0}
 }
+
+/* Demo-Seite */
+.demo-hinweis{margin-top:30px;padding:16px 20px;border-radius:20px;border:1.5px solid rgba(245,206,138,.6);background:rgba(245,206,138,.09);color:var(--tx);font-size:17px;line-height:1.5}
+.demo-hinweis strong{color:#F5CE8A}
+.btn-demo{border-color:rgba(52,224,184,.65);color:var(--mint)}
+.demo-wahl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:28px}
+.demo-karte{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-height:84px;padding:16px 20px;border-radius:22px;border:1.5px solid var(--line);background:rgba(255,255,255,.04);color:var(--tx);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,background .2s}
+.demo-karte b{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;line-height:1.2}
+.demo-karte span{color:var(--mut);font-size:15px}
+.demo-karte:hover{border-color:rgba(169,157,255,.5)}
+.demo-karte[aria-pressed="true"]{border-color:var(--mint);background:rgba(52,224,184,.1)}
+.demo-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:20px;margin-top:20px;align-items:start}
+.demo-box{border-radius:26px;padding:18px}
+.demo-box h2{font-size:22px;margin:0 0 12px}
+.demo-rahmen{display:block;width:100%;height:640px;border:0;border-radius:16px;background:#080B16}
+.demo-pin{margin:0 0 12px;padding:12px 18px;border-radius:16px;background:rgba(52,224,184,.12);border:1.5px solid rgba(52,224,184,.55);font-size:18px}
+.demo-pin strong{margin-left:8px;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;letter-spacing:.08em;color:var(--mint)}
+.demo-neu{display:inline-flex;align-items:center;min-height:44px;margin-top:8px;font-size:15px}
+.demo-tipps{margin:12px 0 0;padding-left:24px;display:grid;gap:12px;max-width:760px;color:#D5DAEA;font-size:17px;line-height:1.5}
+.demo-tipps b{color:var(--tx)}
+@media (max-width:1000px){.demo-grid{grid-template-columns:1fr}}
+@media (max-width:700px){.demo-wahl{grid-template-columns:1fr}.demo-rahmen{height:600px}.demo-hinweis{font-size:16px}}

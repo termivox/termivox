@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Termivox live ausprobieren: Chat und Dashboard</title>
+<meta name="description" content="Probieren Sie Termivox live aus: Chat und Dashboard für Friseur, Handwerk und mehrere Standorte, mit Demo-PIN und Demo-Daten.">
+<meta name="theme-color" content="#080B16">
+<link rel="canonical" href="https://termivox.com/demo.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Termivox">
+<meta property="og:locale" content="de_DE">
+<meta property="og:title" content="Termivox live ausprobieren: Chat und Dashboard">
+<meta property="og:description" content="Probieren Sie Termivox live aus: Chat und Dashboard für Friseur, Handwerk und mehrere Standorte, mit Demo-PIN und Demo-Daten.">
+<meta property="og:url" content="https://termivox.com/demo.html">
+<meta property="og:image" content="https://termivox.com/icon-512.png">
+<meta property="og:image:alt" content="Termivox-Logo">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%2334E0B8'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bricolage-grotesque-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<noscript><style>.menu-btn{display:none!important}</style></noscript>
+<script src="script.js" defer></script>
+</head>
+<body data-page="demo">
+<div class="tv">
+<a class="skip" href="#inhalt">Zum Inhalt</a>
+
+<div class="zurueck-leiste"><a class="zurueck" href="index.html"><span aria-hidden="true">←</span> Startseite</a></div>
+
+<header class="navw">
+  <div class="nav">
+    <a class="logo" href="index.html" aria-label="Termivox – Startseite"><span class="logo-dot" aria-hidden="true"></span>Termivox</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="hauptmenue"><span class="menu-ic" aria-hidden="true"><i></i><i></i><i></i></span>Menü</button>
+    <nav class="nav-links" id="hauptmenue" aria-label="Hauptmenü">
+      <ul>
+        <li><a href="index.html">Start</a></li>
+        <li><a href="funktionen.html">Funktionen</a></li>
+        <li><a href="branchen/index.html">Branchen</a></li>
+        <li><a href="preise.html">Preise</a></li>
+        <li><a href="demo.html" class="on" aria-current="page">Demo</a></li>
+      </ul>
+      <div class="nav-extra">
+        <a class="btn btn-g btn-s" href="dashboard.html">Login</a>
+        <a class="btn btn-p btn-s" href="pilot.html">Kostenlos testen</a>
+      </div>
+    </nav>
+    <div class="nav-act">
+      <a class="btn btn-g btn-s" href="dashboard.html">Login</a>
+      <a class="btn btn-p btn-s" href="pilot.html">Kostenlos testen</a>
+    </div>
+  </div>
+</header>
+
+<main id="inhalt" tabindex="-1">
+
+<section class="sec sec-first" id="demo" aria-labelledby="demo-titel">
+  <div class="wrap">
+    <div class="head">
+      <span class="eyebrow">Live-Demo</span>
+      <h1 class="h2" id="demo-titel">Termivox <span class="grad">live ausprobieren</span></h1>
+      <p class="lead">Wählen Sie einen Beispielbetrieb. Links schreiben Sie wie ein Kunde mit dem Assistenten, rechts sehen Sie, was der Betrieb im Dashboard davon hat.</p>
+    </div>
+
+    <div class="demo-hinweis" role="note">
+      <strong>Das ist eine Demo.</strong> Bitte keine echten Namen oder Telefonnummern eingeben. Alle Demo-Daten werden jede Nacht gelöscht.
+    </div>
+
+    <div class="demo-wahl" role="group" aria-label="Beispielbetrieb wählen">
+      <button class="demo-karte" type="button" data-b="friseur" aria-pressed="true"><b>Friseur</b><span>Tarif Professional</span></button>
+      <button class="demo-karte" type="button" data-b="handwerk" aria-pressed="false"><b>Handwerk</b><span>Tarif Starter</span></button>
+      <button class="demo-karte" type="button" data-b="business" aria-pressed="false"><b>Mehrere Standorte</b><span>Tarif Business</span></button>
+    </div>
+
+    <div class="demo-grid">
+      <section class="demo-box glass" aria-labelledby="demo-chat-h">
+        <h2 id="demo-chat-h">Chat Ihrer Kunden</h2>
+        <iframe class="demo-rahmen" id="demo-chat" title="Termivox-Chat der Demo" loading="lazy"></iframe>
+      </section>
+
+      <section class="demo-box glass" aria-labelledby="demo-dash-h">
+        <h2 id="demo-dash-h">Dashboard des Betriebs</h2>
+        <p class="demo-pin">Demo-PIN: <strong>4711</strong></p>
+        <iframe class="demo-rahmen" id="demo-dash" title="Termivox-Dashboard der Demo" loading="lazy"></iframe>
+        <a class="ilink demo-neu" id="demo-neu" href="dashboard.html?kunde=demo_friseur" target="_blank" rel="noopener">Dashboard in neuem Fenster öffnen</a>
+      </section>
+    </div>
+
+    <noscript><p class="price-note">Ohne JavaScript: <a class="ilink" href="kunden-chat.html?kunde=demo_friseur&amp;tarif=pro">Chat öffnen</a> · <a class="ilink" href="dashboard.html?kunde=demo_friseur">Dashboard öffnen</a> (Demo-PIN: 4711)</p></noscript>
+
+    <h2 class="hilfe-h" id="demo-tipps">Vorführ-Tipps</h2>
+    <ol class="demo-tipps">
+      <li><b>Termin buchen:</b> Im Chat einen Termin buchen. Danach im Dashboard "Aktualisieren" antippen, der Termin steht in der Liste.</li>
+      <li><b>Kunde wiedererkannt:</b> Eine zweite Buchung mit derselben Telefonnummer machen. Der Chat erkennt den Kunden wieder.</li>
+      <li><b>Reiter "Kunden":</b> Im Dashboard den Reiter "Kunden" öffnen: Stammkunde mit Verlauf und Notiz.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="cta-titel">
+  <div class="cta glowb">
+    <i aria-hidden="true"></i><i aria-hidden="true"></i>
+    <h2 class="h2" id="cta-titel">Gefällt Ihnen, was Sie sehen? <span class="shine">30 Tage kostenlos testen.</span></h2>
+    <p class="lead">Wir richten Termivox persönlich für Ihren Betrieb ein. Danach entscheiden Sie in Ruhe.</p>
+    <div class="btn-row">
+      <a class="btn btn-p" href="pilot.html">Kostenlos testen</a>
+      <a class="btn btn-g" href="preise.html">Preise ansehen</a>
+    </div>
+    <p class="cta-hint">Das Angebot richtet sich ausschließlich an Unternehmer.</p>
+  </div>
+</section>
+
+<script>
+(function () {
+  var B = {
+    friseur:  { id: 'demo_friseur',  tarif: 'pro' },
+    handwerk: { id: 'demo_handwerk', tarif: 'standard' },
+    business: { id: 'demo_business', tarif: 'business' }
+  };
+  var karten = document.querySelectorAll('.demo-karte');
+  var chat = document.getElementById('demo-chat');
+  var dash = document.getElementById('demo-dash');
+  var neu = document.getElementById('demo-neu');
+  function waehle(key) {
+    var b = B[key]; if (!b) return;
+    karten.forEach(function (k) { k.setAttribute('aria-pressed', String(k.getAttribute('data-b') === key)); });
+    chat.src = 'kunden-chat.html?kunde=' + b.id + '&tarif=' + b.tarif;
+    dash.src = 'dashboard.html?kunde=' + b.id;
+    neu.href = 'dashboard.html?kunde=' + b.id;
+  }
+  karten.forEach(function (k) { k.addEventListener('click', function () { waehle(k.getAttribute('data-b')); }); });
+  var start = new URLSearchParams(location.search).get('betrieb');
+  waehle(B[start] ? start : 'friseur');
+})();
+</script>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-g">
+      <div class="foot-about">
+        <a class="logo" href="index.html" aria-label="Termivox – Startseite"><span class="logo-dot" aria-hidden="true"></span>Termivox</a>
+        <p>Der KI-Terminassistent, der Anfragen beantwortet, während Sie arbeiten.</p>
+      </div>
+      <nav aria-labelledby="fh-produkt">
+        <h2 class="foot-h" id="fh-produkt">Produkt</h2>
+        <ul class="foot-l">
+          <li><a href="funktionen.html">Funktionen</a></li>
+          <li><a href="branchen/index.html">Branchen</a></li>
+          <li><a href="preise.html">Preise</a></li>
+          <li><a href="pilot.html">Pilotprogramm</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="fh-unternehmen">
+        <h2 class="foot-h" id="fh-unternehmen">Unternehmen</h2>
+        <ul class="foot-l">
+          <li><a href="ueber-uns.html">Über uns</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="hilfe.html">Hilfe für Betriebe</a></li>
+          <li><a href="mailto:termivox@gmail.com">Kontakt</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="fh-recht">
+        <h2 class="foot-h" id="fh-recht">Rechtliches</h2>
+        <ul class="foot-l">
+          <li><a href="datenschutz.html">Datenschutz</a></li>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="agb.html">AGB</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="foot-hinweis">Das Angebot richtet sich ausschließlich an Unternehmer.</p>
+    <div class="foot-b">
+      <span>© 2026 Termivox. Alle Rechte vorbehalten.</span>
+      <span>Made for Salons, Studios &amp; Handwerk.</span>
+    </div>
+    <svg class="giant" viewBox="0 0 1000 190" aria-hidden="true" focusable="false"><defs><linearGradient id="giant-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset=".85" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><text x="500" y="182" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" fill="url(#giant-g)">Termivox</text></svg>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
