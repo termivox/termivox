@@ -281,6 +281,9 @@ button,textarea,input{font:inherit; color:inherit;}
         var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16);
       });
   var wartet = false;
+  var wsLog = [];   // nur für die Browser-Konsole, falls einmal keine Antwort ankommt (ohne Inhalte der Nachrichten)
+  function merke(x) { wsLog.push(((Date.now() - wsStart) / 1000).toFixed(1) + 's ' + x); }
+  var wsStart = Date.now();
   var ANTWORT_MS = 120000;     // so lange wartet der Chat auf die Antwort (Buchungen im Tarif Pro dauern oft 10 bis 16 Sekunden)
   var HINWEIS_NACH_MS = 4000;  // nach dieser Zeit erscheint "Einen Moment, ich buche …"
 
@@ -346,11 +349,15 @@ button,textarea,input{font:inherit; color:inherit;}
       '&isPublic=true' + (token ? '&token=' + encodeURIComponent(token) : '');
     var antwort = wsWarten();
     var s = new WebSocket(url);
+    s.addEventListener('open', function () { merke('WS offen'); });
+    s.addEventListener('error', function () { merke('WS Fehler'); });
+    s.addEventListener('close', function (ev) { merke('WS zu, Code ' + ev.code); });
     var textProtokoll;  // true: "n8n|..."-Nachrichten, false: JSON-Nachrichten
     var puffer = '';    // Textstücke, falls die Antwort in Teilen kommt
     function fertig(t) { if (wartend) wartend.ok(t); s.close(); }
     s.onmessage = function (e) {
       var d = e.data;
+      merke('WS Nachricht, ' + String(d).length + ' Zeichen' + (/^n8n|/.test(String(d)) ? ' (' + d + ')' : ''));
       var textArt = d === 'n8n|heartbeat' || d === 'n8n|continue';
       var typ;
       if (textArt) typ = d === 'n8n|heartbeat' ? 'heartbeat' : 'continue';
@@ -419,6 +426,7 @@ button,textarea,input{font:inherit; color:inherit;}
     addMsg('user', text);
     feld.value = ''; feld.style.height = '';
     zeigeTippt(true);
+    wsLog = []; wsStart = Date.now();
     var hinweisUhr = setTimeout(zeigeWartetext, HINWEIS_NACH_MS);
 
     holeAntwort(text)
@@ -431,6 +439,7 @@ button,textarea,input{font:inherit; color:inherit;}
       .catch(function (e) {
         clearTimeout(hinweisUhr);
         zeigeTippt(false);
+        if (window.console && console.warn) console.warn('Chat: keine Antwort bekommen (' + (e && e.message) + '). Ablauf: ' + (wsLog.join(' | ') || 'keine Websocket-Verbindung'));
         addMsg('bot', e && e.unsicher ? unsicherText() : fehlerText());
       })
       .then(function () {
