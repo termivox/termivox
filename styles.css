@@ -656,12 +656,19 @@ body[data-page="recht"] .foot{margin-top:40px}
 .demo-hinweis{margin-top:30px;padding:16px 20px;border-radius:20px;border:1.5px solid rgba(245,206,138,.6);background:rgba(245,206,138,.09);color:var(--tx);font-size:17px;line-height:1.5}
 .demo-hinweis strong{color:#F5CE8A}
 .btn-demo{border-color:rgba(52,224,184,.65);color:var(--mint)}
-.demo-wahl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:28px}
+.demo-schritt{display:flex;align-items:baseline;gap:12px;margin:34px 0 0;font-size:22px}
+.demo-schritt span{font-family:'Instrument Sans',system-ui,sans-serif;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mint)}
+.demo-wahl{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:14px}
 .demo-karte{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-height:84px;padding:16px 20px;border-radius:22px;border:1.5px solid var(--line);background:rgba(255,255,255,.04);color:var(--tx);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,background .2s}
 .demo-karte b{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;line-height:1.2}
-.demo-karte span{color:var(--mut);font-size:15px}
+.demo-karte span{color:var(--mut);font-size:15px;line-height:1.4}
 .demo-karte:hover{border-color:rgba(169,157,255,.5)}
 .demo-karte[aria-pressed="true"]{border-color:var(--mint);background:rgba(52,224,184,.1)}
+.demo-reset{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:26px}
+.demo-reset .btn[disabled]{opacity:.55;cursor:default}
+.demo-status{margin:0;font-size:16px;color:var(--mut);overflow-wrap:anywhere}
+.demo-status.ok{color:var(--mint)}
+.demo-status.fehler{color:#FFB4A8}
 .demo-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:20px;margin-top:20px;align-items:start}
 .demo-box{border-radius:26px;padding:18px}
 .demo-box h2{font-size:22px;margin:0 0 12px}
@@ -672,4 +679,4 @@ body[data-page="recht"] .foot{margin-top:40px}
 .demo-tipps{margin:12px 0 0;padding-left:24px;display:grid;gap:12px;max-width:760px;color:#D5DAEA;font-size:17px;line-height:1.5}
 .demo-tipps b{color:var(--tx)}
 @media (max-width:1000px){.demo-grid{grid-template-columns:1fr}}
-@media (max-width:700px){.demo-wahl{grid-template-columns:1fr}.demo-rahmen{height:600px}.demo-hinweis{font-size:16px}}
+@media (max-width:700px){.demo-rahmen{height:600px}.demo-hinweis{font-size:16px}.demo-schritt{font-size:20px}}

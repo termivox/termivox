@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Termivox live ausprobieren: Chat und Dashboard</title>
-<meta name="description" content="Probieren Sie Termivox live aus: Chat und Dashboard für Friseur, Handwerk und mehrere Standorte, mit Demo-PIN und Demo-Daten.">
+<meta name="description" content="Probieren Sie Termivox live aus: Branche und Tarif wählen, im Chat einen Termin buchen und im Dashboard sehen. Mit Demo-PIN und Beispieldaten.">
 <meta name="theme-color" content="#080B16">
 <link rel="canonical" href="https://termivox.com/demo.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Termivox">
 <meta property="og:locale" content="de_DE">
 <meta property="og:title" content="Termivox live ausprobieren: Chat und Dashboard">
-<meta property="og:description" content="Probieren Sie Termivox live aus: Chat und Dashboard für Friseur, Handwerk und mehrere Standorte, mit Demo-PIN und Demo-Daten.">
+<meta property="og:description" content="Probieren Sie Termivox live aus: Branche und Tarif wählen, im Chat einen Termin buchen und im Dashboard sehen. Mit Demo-PIN und Beispieldaten.">
 <meta property="og:url" content="https://termivox.com/demo.html">
 <meta property="og:image" content="https://termivox.com/icon-512.png">
 <meta property="og:image:alt" content="Termivox-Logo">
@@ -60,40 +60,45 @@
     <div class="head">
       <span class="eyebrow">Live-Demo</span>
       <h1 class="h2" id="demo-titel">Termivox <span class="grad">live ausprobieren</span></h1>
-      <p class="lead">Wählen Sie einen Beispielbetrieb. Links schreiben Sie wie ein Kunde mit dem Assistenten, rechts sehen Sie, was der Betrieb im Dashboard davon hat.</p>
+      <p class="lead">Wählen Sie Ihre Branche und einen Tarif. Links schreiben Sie wie ein Kunde mit dem Assistenten, rechts sehen Sie im Dashboard, was der Betrieb davon hat.</p>
     </div>
 
     <div class="demo-hinweis" role="note">
-      <strong>Das ist eine Demo.</strong> Bitte keine echten Namen oder Telefonnummern eingeben. Alle Demo-Daten werden jede Nacht gelöscht.
+      <strong>Das ist eine Demo mit Beispieldaten.</strong> Bitte keine echten Namen oder Telefonnummern eingeben. Wenn Sie einen anderen Tarif ausprobieren wollen, klicken Sie vorher auf „Demo zurücksetzen“, dann sind alle Zeiten wieder frei. Die Demo-Daten werden jede Nacht gelöscht.
     </div>
 
-    <div class="demo-wahl" role="group" aria-label="Beispielbetrieb wählen">
-      <button class="demo-karte" type="button" data-b="friseur" aria-pressed="true"><b>Friseur</b><span>Tarif Professional</span></button>
-      <button class="demo-karte" type="button" data-b="handwerk" aria-pressed="false"><b>Handwerk</b><span>Tarif Starter</span></button>
-      <button class="demo-karte" type="button" data-b="business" aria-pressed="false"><b>Mehrere Standorte</b><span>Tarif Business</span></button>
+    <h2 class="demo-schritt"><span>Schritt 1</span> Branche wählen</h2>
+    <div class="demo-wahl" id="demo-branchen" role="group" aria-label="Branche wählen"></div>
+
+    <h2 class="demo-schritt"><span>Schritt 2</span> Tarif wählen</h2>
+    <div class="demo-wahl" id="demo-tarife" role="group" aria-label="Tarif wählen"></div>
+
+    <div class="demo-reset">
+      <button class="btn btn-g" type="button" id="demo-reset">Demo zurücksetzen</button>
+      <p class="demo-status" id="demo-status" role="status"></p>
     </div>
 
     <div class="demo-grid">
       <section class="demo-box glass" aria-labelledby="demo-chat-h">
         <h2 id="demo-chat-h">Chat Ihrer Kunden</h2>
-        <iframe class="demo-rahmen" id="demo-chat" title="Termivox-Chat der Demo" loading="lazy"></iframe>
+        <iframe class="demo-rahmen" id="demo-chat" title="Termivox-Chat der Demo"></iframe>
       </section>
 
       <section class="demo-box glass" aria-labelledby="demo-dash-h">
         <h2 id="demo-dash-h">Dashboard des Betriebs</h2>
         <p class="demo-pin">Demo-PIN: <strong>4711</strong></p>
-        <iframe class="demo-rahmen" id="demo-dash" title="Termivox-Dashboard der Demo" loading="lazy"></iframe>
-        <a class="ilink demo-neu" id="demo-neu" href="dashboard.html?kunde=demo_friseur" target="_blank" rel="noopener">Dashboard in neuem Fenster öffnen</a>
+        <iframe class="demo-rahmen" id="demo-dash" title="Termivox-Dashboard der Demo"></iframe>
+        <a class="ilink demo-neu" id="demo-neu" href="dashboard.html?kunde=demo_friseur_pro" target="_blank" rel="noopener">Dashboard in neuem Fenster öffnen</a>
       </section>
     </div>
 
-    <noscript><p class="price-note">Ohne JavaScript: <a class="ilink" href="kunden-chat.html?kunde=demo_friseur&amp;tarif=pro">Chat öffnen</a> · <a class="ilink" href="dashboard.html?kunde=demo_friseur">Dashboard öffnen</a> (Demo-PIN: 4711)</p></noscript>
+    <noscript><p class="price-note">Ohne JavaScript: <a class="ilink" href="kunden-chat.html?kunde=demo_friseur_pro&amp;tarif=pro">Chat öffnen</a> · <a class="ilink" href="dashboard.html?kunde=demo_friseur_pro">Dashboard öffnen</a> (Demo-PIN: 4711)</p></noscript>
 
     <h2 class="hilfe-h" id="demo-tipps">Vorführ-Tipps</h2>
     <ol class="demo-tipps">
-      <li><b>Termin buchen:</b> Im Chat einen Termin buchen. Danach im Dashboard "Aktualisieren" antippen, der Termin steht in der Liste.</li>
+      <li><b>Termin buchen:</b> Im Chat einen Termin buchen. Danach im Dashboard „Aktualisieren“ antippen, der Termin steht in der Liste.</li>
       <li><b>Kunde wiedererkannt:</b> Eine zweite Buchung mit derselben Telefonnummer machen. Der Chat erkennt den Kunden wieder.</li>
-      <li><b>Reiter "Kunden":</b> Im Dashboard den Reiter "Kunden" öffnen: Stammkunde mit Verlauf und Notiz.</li>
+      <li><b>Reiter „Kunden“:</b> Im Dashboard den Reiter „Kunden“ öffnen: Stammkunde mit Verlauf und Notiz.</li>
     </ol>
   </div>
 </section>
@@ -113,25 +118,106 @@
 
 <script>
 (function () {
-  var B = {
-    friseur:  { id: 'demo_friseur',  tarif: 'pro' },
-    handwerk: { id: 'demo_handwerk', tarif: 'standard' },
-    business: { id: 'demo_business', tarif: 'business' }
+  // ---- Konfiguration: eine neue Branche oder ein neuer Tarif ist nur ein neuer Eintrag in dieser Liste ----
+  // Betriebs-ID = "demo_" + Branche + "_" + Tarif (z. B. demo_friseur_pro)
+  var DEMO = {
+    resetUrl: 'https://n8n.termivox.com/webhook/demo-reset',
+    voreinstellung: { branche: 'friseur', tarif: 'pro' },
+    branchen: [
+      { key: 'friseur', name: 'Friseur', text: 'Beispielbetrieb für Salons' },
+      { key: 'fitness', name: 'Fitnessstudio', text: 'Beispielbetrieb für Studios' }
+    ],
+    tarife: [
+      { key: 'standard', name: 'Standard', text: 'Ein Kalender, ein Mitarbeiter, KI-Chat rund um die Uhr.' },
+      { key: 'pro', name: 'Pro', text: 'Mehrere Mitarbeiter mit eigenen Kalendern, Alternativvorschläge bei belegten Terminen.' },
+      { key: 'business', name: 'Business', text: 'Mehrere Standorte, automatische Warteliste, WhatsApp-Erinnerung 24 Stunden vorher.' }
+    ]
   };
-  var karten = document.querySelectorAll('.demo-karte');
+
   var chat = document.getElementById('demo-chat');
   var dash = document.getElementById('demo-dash');
   var neu = document.getElementById('demo-neu');
-  function waehle(key) {
-    var b = B[key]; if (!b) return;
-    karten.forEach(function (k) { k.setAttribute('aria-pressed', String(k.getAttribute('data-b') === key)); });
-    chat.src = 'kunden-chat.html?kunde=' + b.id + '&tarif=' + b.tarif;
-    dash.src = 'dashboard.html?kunde=' + b.id;
-    neu.href = 'dashboard.html?kunde=' + b.id;
+  var status = document.getElementById('demo-status');
+  var resetBtn = document.getElementById('demo-reset');
+  var wahl = { branche: DEMO.voreinstellung.branche, tarif: DEMO.voreinstellung.tarif };
+  var wartet = false;
+
+  function gibt(liste, key) { for (var i = 0; i < liste.length; i++) { if (liste[i].key === key) return true; } return false; }
+  var q = new URLSearchParams(location.search);
+  if (gibt(DEMO.branchen, q.get('branche'))) wahl.branche = q.get('branche');
+  if (gibt(DEMO.tarife, q.get('tarif'))) wahl.tarif = q.get('tarif');
+
+  function betriebsId() { return 'demo_' + wahl.branche + '_' + wahl.tarif; }
+
+  function karten(boxId, liste, art) {
+    var box = document.getElementById(boxId);
+    liste.forEach(function (e) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'demo-karte';
+      b.setAttribute('data-art', art);
+      b.setAttribute('data-key', e.key);
+      var h = document.createElement('b'); h.textContent = e.name;
+      var s = document.createElement('span'); s.textContent = e.text;
+      b.appendChild(h); b.appendChild(s);
+      b.addEventListener('click', function () { wahl[art] = e.key; markiere(); laden(); });
+      box.appendChild(b);
+    });
   }
-  karten.forEach(function (k) { k.addEventListener('click', function () { waehle(k.getAttribute('data-b')); }); });
-  var start = new URLSearchParams(location.search).get('betrieb');
-  waehle(B[start] ? start : 'friseur');
+
+  function markiere() {
+    document.querySelectorAll('.demo-karte').forEach(function (k) {
+      k.setAttribute('aria-pressed', String(wahl[k.getAttribute('data-art')] === k.getAttribute('data-key')));
+    });
+  }
+
+  function laden() {
+    var id = betriebsId();
+    chat.src = 'kunden-chat.html?kunde=' + id + '&tarif=' + wahl.tarif;
+    dash.src = 'dashboard.html?kunde=' + id;
+    neu.href = 'dashboard.html?kunde=' + id;
+  }
+
+  function meldung(text, fehler) {
+    status.textContent = text;
+    status.className = 'demo-status' + (fehler ? ' fehler' : (text ? ' ok' : ''));
+  }
+
+  function zuruecksetzen() {
+    if (wartet) return;
+    wartet = true;
+    resetBtn.disabled = true;
+    meldung('Wird zurückgesetzt …', false);
+    var FEHLER = 'Das Zurücksetzen hat gerade nicht geklappt. Bitte versuchen Sie es in einer Minute noch einmal.';
+    fetch(DEMO.resetUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ branche: wahl.branche })
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json().then(function (d) { return d; }, function () { return null; });
+      })
+      .then(function (d) {
+        if (d && d.success === false) throw new Error('abgelehnt');
+        // Die Antwort kommt sofort, das Löschen dauert noch einige Sekunden
+        setTimeout(function () {
+          meldung('Zurückgesetzt, alle Zeiten sind wieder frei.', false);
+          laden();
+          wartet = false; resetBtn.disabled = false;
+        }, 5000);
+      })
+      .catch(function () {
+        meldung(FEHLER, true);
+        wartet = false; resetBtn.disabled = false;
+      });
+  }
+
+  karten('demo-branchen', DEMO.branchen, 'branche');
+  karten('demo-tarife', DEMO.tarife, 'tarif');
+  resetBtn.addEventListener('click', zuruecksetzen);
+  markiere();
+  laden();
 })();
 </script>
 </main>
