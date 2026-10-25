@@ -284,7 +284,6 @@ button,textarea,input{font:inherit; color:inherit;}
   var wsLog = [];   // nur für die Browser-Konsole, falls einmal keine Antwort ankommt (ohne Inhalte der Nachrichten)
   function merke(x) { wsLog.push(((Date.now() - wsStart) / 1000).toFixed(1) + 's ' + x); }
   var wsStart = Date.now();
-  var ANTWORT_MS = 120000;     // so lange wartet der Chat auf die Antwort (Buchungen im Tarif Pro dauern oft 10 bis 16 Sekunden)
   var HINWEIS_NACH_MS = 4000;  // nach dieser Zeit erscheint "Einen Moment, ich buche …"
 
   // Antwort unsicher (Zeitüberschreitung, leer, Verbindung weg): die Buchung kann trotzdem durchgegangen sein
@@ -319,7 +318,15 @@ button,textarea,input{font:inherit; color:inherit;}
   // Manche Workflows antworten nicht direkt, sondern melden "executionStarted" und
   // schicken die Antwort danach über eine Websocket-Verbindung zu n8n (wie @n8n/chat).
   // Nach der Antwort wird die Verbindung geschlossen; jede neue Frage geht wieder per POST.
-  var wartend = null;
+  // Steht die Verbindung nicht, wenn n8n antwortet, geht die Antwort dort verloren. Darum wird sie nach
+  // 4 s zusätzlich über die Abhol-Adresse geholt. Wer zuerst liefert, gewinnt; die andere Seite wird beendet.
+  var ABHOL_NACH_MS = 4000, ABHOL_INTERVALL_MS = 2000, ABHOL_MAX_MS = 60000, ABHOL_ANFRAGE_MS = 8000;
+  var POST_WARTE_MS = 15000;   // kommt auf das Senden nichts zurück, wird genau einmal erneut gesendet
+
+  function abholUrl(executionId) {
+    return new URL(webhookUrl).origin + '/webhook/chat-antwort?id=' + encodeURIComponent(executionId) +
+      '&session=' + encodeURIComponent(sessionId);
+  }
 
   function wsText(daten) {
     try {
@@ -333,36 +340,28 @@ button,textarea,input{font:inherit; color:inherit;}
     return daten;
   }
 
-  function wsWarten() {
-    return new Promise(function (ok, fehl) {
-      var timer = setTimeout(function () { wartend = null; fehl(unsicher('Zeitüberschreitung')); }, ANTWORT_MS);
-      wartend = {
-        ok: function (t) { clearTimeout(timer); wartend = null; ok(t); },
-        fehl: function (e) { clearTimeout(timer); wartend = null; fehl(e); }
-      };
-    });
-  }
-
   // Die Verbindung kann beim Aufbau hängen oder abreißen, bevor die Antwort da ist (n8n antwortet erst nach
   // einigen Sekunden). Darum: Aufbau höchstens 4 s abwarten, bei Abbruch bis zu 5 Versuche, solange noch keine Antwort kam.
   var WS_AUFBAU_MS = 4000, WS_VERSUCHE = 5;
 
-  function oeffneWs(executionId, token) {
+  // bei.antwort(text) wird höchstens einmal gerufen; bei.aufgegeben() nach dem letzten erfolglosen Versuch.
+  function oeffneWs(executionId, token, bei) {
     var basis = new URL(webhookUrl).origin.replace(/^http/, 'ws');
     var url = basis + '/chat?sessionId=' + encodeURIComponent(sessionId) + '&executionId=' + encodeURIComponent(executionId) +
       '&isPublic=true' + (token ? '&token=' + encodeURIComponent(token) : '');
-    var antwort = wsWarten();
     var puffer = '';       // Textstücke, falls die Antwort in Teilen kommt
-    var erledigt = false;  // Antwort ist da oder der Versuch wurde aufgegeben
+    var erledigt = false;  // Antwort ist geliefert, aufgegeben oder von außen beendet
     var versuch = 0;
+    var aktuell = null;
 
-    function ende(t) { erledigt = true; if (wartend) wartend.ok(t); }
-    function aufgeben() { erledigt = true; if (wartend) wartend.fehl(unsicher('Verbindung beendet')); }
+    function liefere(t) { if (erledigt) return; erledigt = true; schliesse(); bei.antwort(t); }
+    function schliesse() { try { if (aktuell) aktuell.close(); } catch (x) { /* schon zu */ } }
 
     function verbinde() {
       versuch++;
       merke('WS Versuch ' + versuch);
       var s = new WebSocket(url);
+      aktuell = s;
       var offen = false, beendet = false;
       var textProtokoll;  // true: "n8n|..."-Nachrichten, false: JSON-Nachrichten
       var aufbauUhr = setTimeout(function () { if (!offen) { merke('WS Aufbau zu langsam'); abbruch(); } }, WS_AUFBAU_MS);
@@ -373,11 +372,10 @@ button,textarea,input{font:inherit; color:inherit;}
         beendet = true; clearTimeout(aufbauUhr);
         try { s.close(); } catch (x) { /* schon zu */ }
         if (erledigt) return;
-        if (puffer.trim()) { ende(puffer); return; }
+        if (puffer.trim()) { liefere(puffer); return; }
         if (versuch < WS_VERSUCHE) setTimeout(function () { if (!erledigt) verbinde(); }, 500);
-        else aufgeben();
+        else { erledigt = true; bei.aufgegeben(); }
       }
-      function fertig(t) { beendet = true; clearTimeout(aufbauUhr); ende(t); try { s.close(); } catch (x) { /* schon zu */ } }
 
       s.addEventListener('open', function () { offen = true; clearTimeout(aufbauUhr); merke('WS offen'); });
       s.addEventListener('error', function () { merke('WS Fehler'); });
@@ -401,20 +399,75 @@ button,textarea,input{font:inherit; color:inherit;}
           try { var inh = JSON.parse(d).content; if (typeof inh === 'string') puffer += inh; } catch (x) { /* ignorieren */ }
           return;
         }
-        if (typ === 'end') { if (puffer.trim()) fertig(puffer); return; }
+        if (typ === 'end') { if (puffer.trim()) liefere(puffer); return; }
         var antwortTeil = wsText(d);
         if (!antwortTeil.trim()) return;   // leere Nachricht: weiter warten, nicht abbrechen
-        fertig(antwortTeil);
+        liefere(antwortTeil);
       };
     }
 
     verbinde();
-    return antwort;
+    return {
+      stop: function () { erledigt = true; schliesse(); },
+      empfaengt: function () { return puffer.trim() !== ''; },   // Antwort kommt gerade in Teilen
+      puffer: function () { return puffer; }
+    };
   }
 
-  function holeAntwort(text) {
+  // Wartet auf die Antwort zur Ausführung: Websocket und Abholung laufen nebeneinander, die erste Antwort zählt.
+  function erwarteAntwort(executionId, token, start) {
+    return new Promise(function (ok, fehl) {
+      var fertig = false, abholTimer = null, startUhr = null, abholStart = 0, ws = null, abfragen = 0;
+
+      function ende() { fertig = true; clearTimeout(abholTimer); clearTimeout(startUhr); if (ws) ws.stop(); }
+      function liefere(t, quelle) {
+        if (fertig || !String(t).trim()) return;
+        ende();
+        merke('Antwort per ' + quelle + (quelle === 'abholung' ? ' nach ' + abfragen + ' Abfragen' : ''));
+        ok({ text: String(t), quelle: quelle, sek: (Date.now() - start) / 1000 });
+      }
+      function aufgeben() {
+        if (fertig) return;
+        if (ws && ws.puffer().trim()) { liefere(ws.puffer(), 'websocket'); return; }
+        ende();
+        fehl(unsicher('Keine Antwort nach ' + (ABHOL_MAX_MS / 1000) + ' s Abholung'));
+      }
+
+      function abfrage() {
+        if (fertig) return;
+        if (Date.now() - abholStart > ABHOL_MAX_MS) { aufgeben(); return; }
+        abfragen++;
+        var ab = window.AbortController ? new AbortController() : null;
+        var uhr = ab ? setTimeout(function () { ab.abort(); }, ABHOL_ANFRAGE_MS) : null;
+        function nochmal() { clearTimeout(uhr); if (!fertig) abholTimer = setTimeout(abfrage, ABHOL_INTERVALL_MS); }
+        fetch(abholUrl(executionId), { signal: ab ? ab.signal : undefined })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            clearTimeout(uhr);
+            if (fertig) return;
+            // kommt die Antwort gerade in Teilen über die Verbindung, wird deren Ende abgewartet
+            if (d && d.status === 'antwort' && d.text && String(d.text).trim() && !(ws && ws.empfaengt())) { liefere(d.text, 'abholung'); return; }
+            nochmal();
+          }, nochmal);
+      }
+
+      ws = oeffneWs(executionId, token, {
+        antwort: function (t) { liefere(t, 'websocket'); },
+        aufgegeben: function () { merke('WS aufgegeben, Abholung läuft weiter'); }
+      });
+      startUhr = setTimeout(function () {
+        if (fertig) return;
+        merke('Abholung startet');
+        abholStart = Date.now();
+        abfrage();
+      }, Math.max(0, ABHOL_NACH_MS - (Date.now() - start)));
+    });
+  }
+
+  // Ein POST; kommt innerhalb von 15 s nichts zurück oder schlägt er fehl, wird genau EINMAL erneut gesendet.
+  function postEinmal(text) {
     var abbruch = window.AbortController ? new AbortController() : null;
-    var uhr = abbruch ? setTimeout(function () { abbruch.abort(); }, ANTWORT_MS) : null;
+    var uhr = abbruch ? setTimeout(function () { abbruch.abort(); }, POST_WARTE_MS) : null;
     return fetch(webhookUrl, {
       method: 'POST',
       signal: abbruch ? abbruch.signal : undefined,
@@ -432,14 +485,23 @@ button,textarea,input{font:inherit; color:inherit;}
       })
       .then(function (roh) { clearTimeout(uhr); return roh; }, function (e) {
         clearTimeout(uhr);
-        if (e && e.name === 'AbortError') throw unsicher('Zeitüberschreitung');
+        if (e && e.name === 'AbortError') throw unsicher('Zeitüberschreitung beim Senden');
         throw e;
+      });
+  }
+
+  function holeAntwort(text) {
+    var start = Date.now();
+    return postEinmal(text)
+      .catch(function (e) {
+        merke('Senden ohne Ergebnis (' + (e && e.message) + '), zweiter Versuch');
+        return postEinmal(text);
       })
       .then(function (roh) {
         var j = null;
         try { j = JSON.parse(roh); } catch (e) { /* kein JSON */ }
-        if (j && j.executionStarted && j.executionId) return oeffneWs(j.executionId, j.resumeToken);
-        return antwortText(roh);
+        if (j && j.executionStarted && j.executionId != null) return erwarteAntwort(String(j.executionId), j.resumeToken, start);
+        return { text: antwortText(roh), quelle: 'http', sek: (Date.now() - start) / 1000 };
       });
   }
 
@@ -455,11 +517,12 @@ button,textarea,input{font:inherit; color:inherit;}
     var hinweisUhr = setTimeout(zeigeWartetext, HINWEIS_NACH_MS);
 
     holeAntwort(text)
-      .then(function (antwort) {
-        if (!antwort || !String(antwort).trim()) throw unsicher('leere Antwort');
+      .then(function (erg) {
+        if (!erg.text || !String(erg.text).trim()) throw unsicher('leere Antwort');
         clearTimeout(hinweisUhr);
         zeigeTippt(false);
-        addMsg('bot', antwort);
+        var m = addMsg('bot', erg.text);
+        if (m && m.setAttribute) { m.setAttribute('data-quelle', erg.quelle); m.setAttribute('data-sek', erg.sek.toFixed(1)); }
       })
       .catch(function (e) {
         clearTimeout(hinweisUhr);
