@@ -495,7 +495,9 @@ button,textarea,input{font:inherit; color:inherit;}
     return postEinmal(text)
       .catch(function (e) {
         merke('Senden ohne Ergebnis (' + (e && e.message) + '), zweiter Versuch');
-        return postEinmal(text);
+        // schlug das Senden sofort fehl (Netzwerk), kurz warten, damit eine kurze Störung vorbei sein kann
+        var pause = Date.now() - start < 5000 ? 2000 : 0;
+        return new Promise(function (ok) { setTimeout(ok, pause); }).then(function () { return postEinmal(text); });
       })
       .then(function (roh) {
         var j = null;
