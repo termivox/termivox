@@ -46,6 +46,8 @@ button,textarea,input{font:inherit; color:inherit;}
 .tippt span{width:9px; height:9px; border-radius:50%; background:var(--mut); animation:blink 1.2s infinite ease-in-out;}
 .tippt span:nth-child(2){animation-delay:.2s;}
 .tippt span:nth-child(3){animation-delay:.4s;}
+.tippt{flex-wrap:wrap;}
+.tippt .wartetext{font-style:normal; font-size:.9rem; color:var(--mut); margin-left:4px;}
 @keyframes blink{0%,80%,100%{opacity:.25; transform:scale(.8);}40%{opacity:1; transform:scale(1);}}
 @media (prefers-reduced-motion:reduce){.tippt span{animation:none; opacity:.7;} .verlauf{scroll-behavior:auto;}}
 
@@ -257,6 +259,16 @@ button,textarea,input{font:inherit; color:inherit;}
     }
   }
 
+  // Nach einigen Sekunden ohne Antwort: Hinweiszeile neben den Tipp-Punkten
+  function zeigeWartetext() {
+    if (!tippt || tippt.querySelector('.wartetext')) return;
+    var w = document.createElement('em');
+    w.className = 'wartetext';
+    w.textContent = 'Einen Moment, ich buche …';
+    tippt.appendChild(w);
+    scrollEnde();
+  }
+
   function fehlerText() {
     return betrieb.telefon && !$('btn-anruf').hidden
       ? 'Gerade klappt etwas nicht. Rufen Sie uns bitte an oder nutzen Sie „Mit dem Betrieb sprechen“.'
@@ -269,6 +281,14 @@ button,textarea,input{font:inherit; color:inherit;}
         var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16);
       });
   var wartet = false;
+  var ANTWORT_MS = 120000;     // so lange wartet der Chat auf die Antwort (Buchungen im Tarif Pro dauern oft 10 bis 16 Sekunden)
+  var HINWEIS_NACH_MS = 4000;  // nach dieser Zeit erscheint "Einen Moment, ich buche …"
+
+  // Antwort unsicher (Zeitüberschreitung, leer, Verbindung weg): die Buchung kann trotzdem durchgegangen sein
+  function unsicher(m) { var e = new Error(m); e.unsicher = true; return e; }
+  function unsicherText() {
+    return 'Ich habe noch keine Antwort bekommen. Ihre Buchung ist vielleicht trotzdem schon eingetragen. Bitte schauen Sie nach einer Bestätigung oder nutzen Sie „Mit dem Betrieb sprechen“.';
+  }
 
   // n8n antwortet je nach Einstellung mit {"output":"..."} oder zeilenweise mit Textstücken
   function antwortText(roh) {
@@ -302,6 +322,7 @@ button,textarea,input{font:inherit; color:inherit;}
     try {
       var o = JSON.parse(daten);
       if (o && typeof o === 'object') {
+        if (typeof o.output === 'string') return o.output;
         if (typeof o.text === 'string') return o.text;
         if (typeof o.message === 'string') return o.message;
       }
@@ -311,7 +332,7 @@ button,textarea,input{font:inherit; color:inherit;}
 
   function wsWarten() {
     return new Promise(function (ok, fehl) {
-      var timer = setTimeout(function () { wartend = null; fehl(new Error('Zeitüberschreitung')); }, 90000);
+      var timer = setTimeout(function () { wartend = null; fehl(unsicher('Zeitüberschreitung')); }, ANTWORT_MS);
       wartend = {
         ok: function (t) { clearTimeout(timer); wartend = null; ok(t); },
         fehl: function (e) { clearTimeout(timer); wartend = null; fehl(e); }
@@ -326,6 +347,8 @@ button,textarea,input{font:inherit; color:inherit;}
     var antwort = wsWarten();
     var s = new WebSocket(url);
     var textProtokoll;  // true: "n8n|..."-Nachrichten, false: JSON-Nachrichten
+    var puffer = '';    // Textstücke, falls die Antwort in Teilen kommt
+    function fertig(t) { if (wartend) wartend.ok(t); s.close(); }
     s.onmessage = function (e) {
       var d = e.data;
       var textArt = d === 'n8n|heartbeat' || d === 'n8n|continue';
@@ -339,19 +362,30 @@ button,textarea,input{font:inherit; color:inherit;}
         return;
       }
       if (typ === 'continue' && gueltig) return;
-      if (wartend) wartend.ok(wsText(d));
-      s.close();
+      if (typ === 'begin') return;
+      if (typ === 'item') {
+        try { var inh = JSON.parse(d).content; if (typeof inh === 'string') puffer += inh; } catch (x) { /* ignorieren */ }
+        return;
+      }
+      if (typ === 'end') { if (puffer.trim()) fertig(puffer); return; }
+      var antwortTeil = wsText(d);
+      if (!antwortTeil.trim()) return;   // leere Nachricht: weiter warten, nicht abbrechen
+      fertig(antwortTeil);
     };
     s.onclose = function () {
-      if (wartend) wartend.fehl(new Error('Verbindung beendet'));
+      if (puffer.trim() && wartend) { wartend.ok(puffer); return; }
+      if (wartend) wartend.fehl(unsicher('Verbindung beendet'));
     };
     s.onerror = function () { /* onclose folgt */ };
     return antwort;
   }
 
   function holeAntwort(text) {
+    var abbruch = window.AbortController ? new AbortController() : null;
+    var uhr = abbruch ? setTimeout(function () { abbruch.abort(); }, ANTWORT_MS) : null;
     return fetch(webhookUrl, {
       method: 'POST',
+      signal: abbruch ? abbruch.signal : undefined,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'sendMessage',
@@ -363,6 +397,11 @@ button,textarea,input{font:inherit; color:inherit;}
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.text();
+      })
+      .then(function (roh) { clearTimeout(uhr); return roh; }, function (e) {
+        clearTimeout(uhr);
+        if (e && e.name === 'AbortError') throw unsicher('Zeitüberschreitung');
+        throw e;
       })
       .then(function (roh) {
         var j = null;
@@ -380,16 +419,19 @@ button,textarea,input{font:inherit; color:inherit;}
     addMsg('user', text);
     feld.value = ''; feld.style.height = '';
     zeigeTippt(true);
+    var hinweisUhr = setTimeout(zeigeWartetext, HINWEIS_NACH_MS);
 
     holeAntwort(text)
       .then(function (antwort) {
-        if (!antwort) throw new Error('leere Antwort');
+        if (!antwort || !String(antwort).trim()) throw unsicher('leere Antwort');
+        clearTimeout(hinweisUhr);
         zeigeTippt(false);
         addMsg('bot', antwort);
       })
-      .catch(function () {
+      .catch(function (e) {
+        clearTimeout(hinweisUhr);
         zeigeTippt(false);
-        addMsg('bot', fehlerText());
+        addMsg('bot', e && e.unsicher ? unsicherText() : fehlerText());
       })
       .then(function () {
         wartet = false; sendenBtn.disabled = false;
