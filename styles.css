@@ -664,6 +664,8 @@ body[data-page="recht"] .foot{margin-top:40px}
 .demo-karte span{color:var(--mut);font-size:15px;line-height:1.4}
 .demo-karte:hover{border-color:rgba(169,157,255,.5)}
 .demo-karte[aria-pressed="true"]{border-color:var(--mint);background:rgba(52,224,184,.1)}
+.demo-branchenhinweis{margin:12px 0 0;padding:10px 16px;border-radius:14px;border:1.5px solid rgba(245,206,138,.6);background:rgba(245,206,138,.09);font-size:16px;line-height:1.4}
+.demo-branchenhinweis[hidden]{display:none}
 .demo-reset{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:26px}
 .demo-reset .btn[disabled]{opacity:.55;cursor:default}
 .demo-status{margin:0;font-size:16px;color:var(--mut);overflow-wrap:anywhere}

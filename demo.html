@@ -64,11 +64,12 @@
     </div>
 
     <div class="demo-hinweis" role="note">
-      <strong>Das ist eine Demo mit Beispieldaten.</strong> Bitte keine echten Namen oder Telefonnummern eingeben. Wenn Sie einen anderen Tarif ausprobieren wollen, klicken Sie vorher auf „Demo zurücksetzen“, dann sind alle Zeiten wieder frei. Die Demo-Daten werden jede Nacht gelöscht.
+      <strong>Das ist eine Demo mit Beispieldaten.</strong> Bitte keine echten Namen oder Telefonnummern eingeben. Bitte immer nur eine Person gleichzeitig die Demo benutzen. Wenn Sie einen anderen Tarif ausprobieren wollen, klicken Sie vorher auf „Demo zurücksetzen“, dann sind alle Demos wieder auf Anfang und alle Zeiten frei. Die Demo-Daten werden jede Nacht gelöscht.
     </div>
 
     <h2 class="demo-schritt"><span>Schritt 1</span> Branche wählen</h2>
     <div class="demo-wahl" id="demo-branchen" role="group" aria-label="Branche wählen"></div>
+    <p class="demo-branchenhinweis" id="demo-branchenhinweis" role="note" hidden></p>
 
     <h2 class="demo-schritt"><span>Schritt 2</span> Tarif wählen</h2>
     <div class="demo-wahl" id="demo-tarife" role="group" aria-label="Tarif wählen"></div>
@@ -130,7 +131,12 @@
     voreinstellung: { branche: 'friseur', tarif: 'pro' },
     branchen: [
       { key: 'friseur', name: 'Friseur', text: 'Beispielbetrieb für Salons' },
-      { key: 'fitness', name: 'Fitnessstudio', text: 'Probetraining, Personal Training, Beratungsgespräch und Ernährungsberatung buchen, mit Wunsch-Trainer ab Pro.' }
+      { key: 'fitness', name: 'Fitnessstudio', text: 'Probetraining, Personal Training, Beratungsgespräch und Ernährungsberatung buchen, mit Wunsch-Trainer ab Pro.' },
+      { key: 'kosmetik', name: 'Kosmetik und Nagelstudio', text: 'Maniküre, Pediküre, Gelnägel und Gesichtsbehandlung buchen.' },
+      { key: 'massage', name: 'Massage und Physiotherapie', text: 'Massage, Krankengymnastik und Manuelle Therapie buchen.' },
+      { key: 'handwerk', name: 'Handwerk', text: 'Besichtigungstermine, Wartung und Notfall-Reparatur buchen.' },
+      { key: 'praxis', name: 'Praxis', text: 'Sprechstunde, Vorsorge, Impfung und Blutabnahme buchen.', hinweis: 'Bitte keine Gesundheitsdaten eingeben.' },
+      { key: 'kfz', name: 'Autowerkstatt', text: 'Inspektion, Ölwechsel, Reifenwechsel und TÜV-Vorbereitung buchen.' }
     ],
     tarife: [
       { key: 'standard', name: 'Starter', text: 'Ein Kalender, ein Mitarbeiter, KI-Chat rund um die Uhr.' },
@@ -172,6 +178,11 @@
   }
 
   function markiere() {
+    var bh = document.getElementById('demo-branchenhinweis');
+    var text = '';
+    DEMO.branchen.forEach(function (e) { if (e.key === wahl.branche && e.hinweis) text = e.hinweis; });
+    bh.textContent = text;
+    bh.hidden = !text;
     document.querySelectorAll('.demo-karte').forEach(function (k) {
       k.setAttribute('aria-pressed', String(wahl[k.getAttribute('data-art')] === k.getAttribute('data-key')));
     });
@@ -198,7 +209,7 @@
     fetch(DEMO.resetUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ branche: wahl.branche })
+      body: '{}'
     })
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
