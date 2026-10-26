@@ -353,6 +353,41 @@
     });
   }
 
+  /* 7. Erklärvideo (index.html): Es startet nie von selbst. Erst der Klick auf das Vorschaubild
+        setzt das Video ein und spielt es ab. Dabei wird anonym gezählt, dass geklickt wurde:
+        ein Ereignis ohne Namen, IP-Adresse oder Cookies, an den eigenen n8n-Server. */
+  function erklaerfilm() {
+    var box = document.getElementById('film');
+    var knopf = document.getElementById('film-start');
+    if (!box || !knopf) return;
+    var ZAEHLER = 'https://n8n.termivox.com/webhook/video-zaehler';
+    knopf.addEventListener('click', function () {
+      var video = document.createElement('video');
+      video.controls = true;
+      video.setAttribute('playsinline', '');
+      video.preload = 'none';
+      video.poster = 'erklaerfilm-poster.jpg';
+      video.setAttribute('aria-label', 'So funktioniert Termivox, 2 Minuten');
+      video.src = 'erklaerfilm.mp4';
+      box.replaceChild(video, knopf);
+      var spielt = video.play();
+      if (spielt && spielt.catch) spielt.catch(function () { /* Bedienelemente stehen bereit */ });
+      video.focus();
+      if (window.fetch) {
+        try {
+          fetch(ZAEHLER, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ereignis: 'video_play' }),
+            credentials: 'omit',
+            referrerPolicy: 'no-referrer',
+            keepalive: true
+          }).catch(function () { /* Zählen ist unwichtig, das Video läuft trotzdem */ });
+        } catch (e) { /* ignorieren */ }
+      }
+    });
+  }
+
   legacyAnchors();
   window.addEventListener('hashchange', legacyAnchors);
   mobileMenu();
@@ -361,4 +396,5 @@
   calculator();
   pilotForm();
   ortSuche();
+  erklaerfilm();
 })();
