@@ -230,10 +230,24 @@
       });
   }
 
+  // Handy: Tastatur offen -> Rahmen an den sichtbaren Bereich anpassen
+  var schmal = window.matchMedia('(max-width:899px)');
+  if (window.visualViewport) {
+    var vv = window.visualViewport;
+    var anpassen = function () {
+      var offen = schmal.matches && vv.height < window.innerHeight - 120;
+      document.documentElement.style.setProperty('--demo-h', offen ? Math.max(vv.height - 172, 200) + 'px' : '');
+      document.documentElement.style.setProperty('--demo-h2', offen ? Math.max(vv.height - 258, 160) + 'px' : '');
+      if (offen) grid.scrollIntoView({ block: 'start' });
+    };
+    vv.addEventListener('resize', anpassen);
+  }
+
   // Handy: nur ein Bereich sichtbar (Chat oder Dashboard); die Wahl bleibt beim Wechsel von Branche oder Tarif erhalten
   document.querySelectorAll('.demo-reiter button').forEach(function (b) {
     b.addEventListener('click', function () {
       grid.setAttribute('data-reiter', b.getAttribute('data-r'));
+      if (schmal.matches) grid.scrollIntoView({ block: 'start' });   // Rahmen füllt den Platz unter Leiste und Reitern
       document.querySelectorAll('.demo-reiter button').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
     });
   });

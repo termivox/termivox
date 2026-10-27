@@ -66,6 +66,31 @@ button,textarea,input{font:inherit; color:inherit;}
 /* Niedrige Fenster (z. B. Handy mit offener Tastatur): Eingabefeld und Hinweis haben Vorrang, die Schnellauswahl pausiert */
 @media (max-height:520px){ .schnell{display:none;} .kopf{padding:10px 16px 8px;} .kopf h1{font-size:1.4rem;} .verlauf{padding:8px 16px;} .eingabe{padding:6px 16px;} .datenhinweis{font-size:.78rem; line-height:1.3;} .app .leiste{padding-top:6px;} .app .leiste > *{min-height:44px;} }
 
+/* Schmale Bildschirme (Handy): Chat füllt die Höhe, Kopf schmal, Schnellknöpfe in einer Zeile, Datenschutz als kurze Zeile */
+.dh-zeile{display:none;}
+@media (max-width:600px){
+  .kopf{padding:8px 14px 8px; border-top-width:3px;}
+  .kopf h1{font-size:1.3rem; line-height:1.15; letter-spacing:-.01em;}
+  .kopf p{font-size:.85rem; line-height:1.3; margin-top:2px;}
+  .verlauf{padding:12px 12px; gap:10px;}
+  .msg{max-width:92%; padding:10px 14px;}
+  .schnell{flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; gap:8px; padding:4px 12px 8px; scrollbar-width:none;}
+  .schnell::-webkit-scrollbar{display:none;}
+  .schnell button{flex:none; min-height:44px; padding:8px 16px; font-size:.95rem; white-space:nowrap; scroll-snap-align:start;}
+  .eingabe{padding:8px 12px; gap:8px;}
+  .dh-zeile{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 14px; min-height:36px; font-size:.82rem; color:var(--mut); border-top:1px solid var(--line);}
+  .dh-zeile a{color:var(--hi); padding:8px 0; white-space:nowrap;}
+  .dh-knopf{white-space:nowrap; background:none; border:0; color:var(--mut); font-size:.82rem; padding:8px 0; cursor:pointer; text-decoration:underline; text-underline-offset:3px;}
+  .dh-knopf::after{content:" \25BE";}
+  .dh.offen .dh-knopf::after{content:" \25B4";}
+  .dh-text{display:none;}
+  .dh.offen .dh-text{display:block; max-height:34vh; overflow-y:auto; padding-bottom:4px;}
+  .leiste{padding:6px 12px calc(8px + env(safe-area-inset-bottom)); gap:8px;}
+  .leiste > *{min-height:44px; font-size:.95rem;}
+  /* Tastatur offen: Platz für Eingabefeld und Nachrichten */
+  .tastatur .schnell, .tastatur .dh, .tastatur .leiste{display:none;}
+}
+
 /* Feste Leiste unten */
 .leiste{display:flex; gap:10px; padding:10px 16px calc(12px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:var(--bg);}
 .leiste > *{flex:1; min-height:52px; display:flex; align-items:center; justify-content:center; text-align:center; padding:8px 12px; border-radius:14px; font-weight:600; font-size:1rem; text-decoration:none; cursor:pointer; line-height:1.2;}
@@ -118,8 +143,13 @@ button,textarea,input{font:inherit; color:inherit;}
     <button type="submit" class="senden" id="senden" aria-label="Senden">Senden</button>
   </form>
 
-  <p class="datenhinweis">Bitte geben Sie keine Gesundheitsdaten oder sensiblen Angaben ein. Mehr dazu in der <a href="https://termivox.com/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
-  <p class="datenhinweis dh-ende">Für Ihre Terminverwaltung speichern wir Name und Telefonnummer. Mehr dazu in der <a href="https://termivox.com/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
+  <div class="dh" id="dh">
+    <div class="dh-zeile"><button type="button" class="dh-knopf" id="dh-knopf" aria-expanded="false" aria-controls="dh-text">Hinweise zum Datenschutz</button><a href="https://termivox.com/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a></div>
+    <div class="dh-text" id="dh-text">
+      <p class="datenhinweis">Bitte geben Sie keine Gesundheitsdaten oder sensiblen Angaben ein. Mehr dazu in der <a href="https://termivox.com/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
+      <p class="datenhinweis dh-ende">Für Ihre Terminverwaltung speichern wir Name und Telefonnummer. Mehr dazu in der <a href="https://termivox.com/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
+    </div>
+  </div>
 
   <nav class="leiste" aria-label="Kontakt">
     <button type="button" class="sprechen" id="btn-sprechen">Mit dem Betrieb sprechen</button>
@@ -552,6 +582,31 @@ button,textarea,input{font:inherit; color:inherit;}
     var b = e.target.closest('button[data-text]');
     if (b) sende(b.getAttribute('data-text'));
   });
+
+  // ---- Handy: Datenschutz-Zeile aufklappen, Tastatur verdeckt das Eingabefeld nicht -------------------
+  (function () {
+    var dh = $('dh'), knopf = $('dh-knopf');
+    if (dh && knopf) {
+      knopf.addEventListener('click', function () {
+        var offen = dh.classList.toggle('offen');
+        knopf.setAttribute('aria-expanded', String(offen));
+      });
+    }
+    // Eigenständige Seite auf dem Handy: bei offener Tastatur wird die Höhe auf den sichtbaren Bereich gesetzt
+    // (eingebettet in eine andere Seite übernimmt diese Seite das).
+    var vv = window.visualViewport, app = $('app');
+    if (!vv || !app || !window.matchMedia || window.top !== window.self) return;
+    var schmal = window.matchMedia('(max-width:600px)');
+    function anpassen() {
+      var offen = schmal.matches && vv.height < window.innerHeight - 120;
+      app.style.height = offen ? vv.height + 'px' : '';
+      document.body.classList.toggle('tastatur', offen);
+      if (offen) window.scrollTo(0, 0);
+    }
+    vv.addEventListener('resize', anpassen);
+    vv.addEventListener('scroll', anpassen);
+    anpassen();
+  })();
 
   // ---- Mit dem Betrieb sprechen --------------------------------------------
   var fenster = $('fenster'), formular = $('rueckruf'), hinweis = $('r-hinweis');

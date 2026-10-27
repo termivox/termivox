@@ -682,15 +682,16 @@ body[data-page="recht"] .foot{margin-top:40px}
 .demo-tipps{margin:12px 0 0;padding-left:24px;display:grid;gap:12px;max-width:760px;color:#D5DAEA;font-size:17px;line-height:1.5}
 .demo-tipps b{color:var(--tx)}
 @media (max-width:899px){
-  .demo-reiter{display:flex;gap:8px;margin-top:24px}
+  .demo-reiter{display:flex;gap:8px;margin-top:16px;position:sticky;top:84px;z-index:20;padding:6px 0;background:var(--bg)}
   .demo-reiter button{flex:1;min-height:52px;border-radius:14px;border:1.5px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:17px;font-weight:600;cursor:pointer}
   .demo-reiter button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
-  .demo-grid{grid-template-columns:1fr;margin:12px -8px 0}
+  .demo-grid{grid-template-columns:1fr;margin:6px -8px 0;scroll-margin-top:150px}
   .demo-grid[data-reiter="chat"] #demo-box-dash{display:none}
   .demo-grid[data-reiter="dashboard"] #demo-box-chat{display:none}
   .demo-box{height:auto;padding:8px;border-radius:20px}
   .demo-box>h2{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  .demo-rahmen{flex:none;height:75vh;min-height:480px}
+  .demo-rahmen{flex:none;height:var(--demo-h,calc(100vh - 172px));height:var(--demo-h,calc(100dvh - 172px));min-height:380px}
+  .demo-grid[data-reiter="dashboard"] .demo-rahmen{height:var(--demo-h2,calc(100vh - 258px));height:var(--demo-h2,calc(100dvh - 258px))}
   .demo-hinweis{font-size:16px}
   .demo-schritt{font-size:20px}
 }
