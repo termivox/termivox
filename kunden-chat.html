@@ -87,7 +87,10 @@ button,textarea,input{font:inherit; color:inherit;}
   .dh.offen .dh-text{display:block; max-height:34vh; overflow-y:auto; padding-bottom:4px;}
   .leiste{padding:6px 12px calc(8px + env(safe-area-inset-bottom)); gap:8px;}
   .leiste > *{min-height:44px; font-size:.95rem;}
-  /* Tastatur offen: Platz für Eingabefeld und Nachrichten */
+  .verlauf{overscroll-behavior:contain; -webkit-overflow-scrolling:touch; touch-action:pan-y;}
+  /* Tastatur offen: Platz für Eingabefeld und Nachrichten; die Seite selbst scrollt nicht, nur der Nachrichtenbereich */
+  html.tastatur, html.tastatur body{overflow:hidden; overscroll-behavior:none;}
+  html.tastatur .app{position:fixed; top:0; left:0; right:0; margin:0 auto;}
   .tastatur .schnell, .tastatur .dh, .tastatur .leiste{display:none;}
 }
 
@@ -592,16 +595,39 @@ button,textarea,input{font:inherit; color:inherit;}
         knopf.setAttribute('aria-expanded', String(offen));
       });
     }
-    // Eigenständige Seite auf dem Handy: bei offener Tastatur wird die Höhe auf den sichtbaren Bereich gesetzt
-    // (eingebettet in eine andere Seite übernimmt diese Seite das).
-    var vv = window.visualViewport, app = $('app');
-    if (!vv || !app || !window.matchMedia || window.top !== window.self) return;
-    var schmal = window.matchMedia('(max-width:600px)');
+    // Nachrichtenbereich: beim Antippen des Eingabefelds und bei offener Tastatur zur letzten Nachricht
+    var verlauf = $('verlauf'), feld = $('text'), app = $('app');
+    function nachUnten() {
+      try { verlauf.scrollTo({ top: verlauf.scrollHeight, behavior: 'instant' }); } catch (e) { verlauf.scrollTop = verlauf.scrollHeight; }   // sofort, ohne sanftes Gleiten
+    }
+    if (feld) {
+      feld.addEventListener('focus', function () {
+        setTimeout(nachUnten, 50); setTimeout(nachUnten, 350); setTimeout(nachUnten, 800);   // nach dem Einfahren der Tastatur
+      });
+    }
+    // Handy: Tastatur offen. Der Chat folgt dem sichtbaren Bereich (Höhe und Verschiebung), statt die Seite zu scrollen.
+    // Eigenständige Seite: dieser Chat selbst. Eingebettet (gleiche Adresse, z. B. Demo-Seite): der Rahmen, in dem er steht.
+    var schmal = window.matchMedia ? window.matchMedia('(max-width:600px)') : null;
+    var eigen = window.top === window.self, rahmen = null, aussen = window;
+    if (!eigen) { try { rahmen = window.frameElement; aussen = window.top; } catch (e) { rahmen = null; } }
+    var vv = aussen.visualViewport;
+    if (!vv || !schmal || (!eigen && !rahmen)) return;
+    var html = document.documentElement;
     function anpassen() {
-      var offen = schmal.matches && vv.height < window.innerHeight - 120;
-      app.style.height = offen ? vv.height + 'px' : '';
-      document.body.classList.toggle('tastatur', offen);
-      if (offen) window.scrollTo(0, 0);
+      var offen = schmal.matches && vv.height < aussen.innerHeight - 120;
+      html.classList.toggle('tastatur', offen);
+      if (eigen) {
+        app.style.height = offen ? vv.height + 'px' : '';
+        app.style.transform = offen ? 'translateY(' + vv.offsetTop + 'px)' : '';
+      } else {
+        rahmen.style.setProperty('--vv-top', vv.offsetTop + 'px');
+        rahmen.style.setProperty('--vv-h', vv.height + 'px');
+        rahmen.classList.toggle('tastatur-voll', offen);
+        var box = rahmen.closest ? rahmen.closest('.demo-box') : null;
+        if (box) box.classList.toggle('tastatur-box', offen);
+        aussen.document.documentElement.classList.toggle('tastatur-sperre', offen);
+      }
+      if (offen) nachUnten();
     }
     vv.addEventListener('resize', anpassen);
     vv.addEventListener('scroll', anpassen);
