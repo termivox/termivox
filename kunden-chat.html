@@ -88,6 +88,7 @@ button,textarea,input{font:inherit; color:inherit;}
   .leiste{padding:6px 12px calc(8px + env(safe-area-inset-bottom)); gap:8px;}
   .leiste > *{min-height:44px; font-size:.95rem;}
   .verlauf{overscroll-behavior:contain; -webkit-overflow-scrolling:touch; touch-action:pan-y;}
+  html.eingebettet .verlauf{overscroll-behavior:auto;}   /* in der Demo-Seite: am Ende der Nachrichten scrollt die Seite weiter */
   /* Tastatur offen: Platz für Eingabefeld und Nachrichten; die Seite selbst scrollt nicht, nur der Nachrichtenbereich */
   html.tastatur, html.tastatur body{overflow:hidden; overscroll-behavior:none;}
   html.tastatur .app{position:fixed; top:0; left:0; right:0; margin:0 auto;}
@@ -605,28 +606,40 @@ button,textarea,input{font:inherit; color:inherit;}
         setTimeout(nachUnten, 50); setTimeout(nachUnten, 350); setTimeout(nachUnten, 800);   // nach dem Einfahren der Tastatur
       });
     }
-    // Handy: Tastatur offen. Der Chat folgt dem sichtbaren Bereich (Höhe und Verschiebung), statt die Seite zu scrollen.
-    // Eigenständige Seite: dieser Chat selbst. Eingebettet (gleiche Adresse, z. B. Demo-Seite): der Rahmen, in dem er steht.
     var schmal = window.matchMedia ? window.matchMedia('(max-width:600px)') : null;
-    var eigen = window.top === window.self, rahmen = null, aussen = window;
-    if (!eigen) { try { rahmen = window.frameElement; aussen = window.top; } catch (e) { rahmen = null; } }
-    var vv = aussen.visualViewport;
-    if (!vv || !schmal || (!eigen && !rahmen)) return;
+    var eigen = window.top === window.self;
+
+    // Eingebettet (z. B. Demo-Seite): nichts wird festgehalten. Der Chat bleibt im normalen Fluss der Seite und
+    // scrollt mit; beim Antippen des Feldes wird es nur sichtbar gemacht (die Seite scrollt bei Bedarf mit).
+    if (!eigen) {
+      document.documentElement.classList.add('eingebettet');
+      if (feld) {
+        feld.addEventListener('focus', function () {
+          var zeigen = function () {
+            // liegt das Eingabefeld unter der Tastatur, scrollt nur die Seite so weit, dass es wieder sichtbar ist
+            try {
+              var oben = window.top, vv = oben.visualViewport, r = feld.getBoundingClientRect(), f = window.frameElement.getBoundingClientRect();
+              if (!vv) return;
+              var feldUnten = f.top + r.bottom, sichtbarUnten = vv.offsetTop + vv.height - 8;
+              if (feldUnten > sichtbarUnten) oben.scrollBy(0, Math.ceil(feldUnten - sichtbarUnten));
+            } catch (e) { /* ignorieren */ }
+          };
+          setTimeout(zeigen, 350); setTimeout(zeigen, 800);   // nach dem Einfahren der Tastatur
+        });
+      }
+      return;
+    }
+
+    // Eigenständige Seite auf dem Handy: bei offener Tastatur folgt der Chat dem sichtbaren Bereich
+    // (Höhe und Verschiebung), statt die Seite zu scrollen.
+    var vv = window.visualViewport;
+    if (!vv || !schmal) return;
     var html = document.documentElement;
     function anpassen() {
-      var offen = schmal.matches && vv.height < aussen.innerHeight - 120;
+      var offen = schmal.matches && vv.height < window.innerHeight - 120;
       html.classList.toggle('tastatur', offen);
-      if (eigen) {
-        app.style.height = offen ? vv.height + 'px' : '';
-        app.style.transform = offen ? 'translateY(' + vv.offsetTop + 'px)' : '';
-      } else {
-        rahmen.style.setProperty('--vv-top', vv.offsetTop + 'px');
-        rahmen.style.setProperty('--vv-h', vv.height + 'px');
-        rahmen.classList.toggle('tastatur-voll', offen);
-        var box = rahmen.closest ? rahmen.closest('.demo-box') : null;
-        if (box) box.classList.toggle('tastatur-box', offen);
-        aussen.document.documentElement.classList.toggle('tastatur-sperre', offen);
-      }
+      app.style.height = offen ? vv.height + 'px' : '';
+      app.style.transform = offen ? 'translateY(' + vv.offsetTop + 'px)' : '';
       if (offen) nachUnten();
     }
     vv.addEventListener('resize', anpassen);
