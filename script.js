@@ -361,19 +361,22 @@
     var knopf = document.getElementById('film-start');
     if (!box || !knopf) return;
     var ZAEHLER = 'https://n8n.termivox.com/webhook/video-zaehler';
+    var datei = box.getAttribute("data-video") || "erklaerfilm.mp4";
+    var poster = box.getAttribute("data-poster") || "erklaerfilm-poster.jpg";
+    var titel = box.getAttribute("data-label") || "So funktioniert Termivox, 2 Minuten";
     knopf.addEventListener('click', function () {
       var video = document.createElement('video');
       video.controls = true;
       video.setAttribute('playsinline', '');
       video.preload = 'none';
-      video.poster = 'erklaerfilm-poster.jpg';
-      video.setAttribute('aria-label', 'So funktioniert Termivox, 2 Minuten');
-      video.src = 'erklaerfilm.mp4';
+      video.poster = poster;
+      video.setAttribute('aria-label', titel);
+      video.src = datei;
       box.replaceChild(video, knopf);
       var spielt = video.play();
       if (spielt && spielt.catch) spielt.catch(function () { /* Bedienelemente stehen bereit */ });
       video.focus();
-      if (window.fetch) {
+      if (window.fetch && !box.hasAttribute('data-video')) {
         try {
           fetch(ZAEHLER, {
             method: 'POST',
