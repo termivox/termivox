@@ -49,9 +49,12 @@ main > p.intro{color:var(--paper-dim); font-size:0.98rem; margin-bottom:32px; ma
 
 
 @media (max-width:640px){
-  main{padding:32px 16px 56px;}
-  h1{font-size:1.5rem;}
-  .chat-card{height:min(480px, 65vh);}
+  main{padding:12px 12px 40px;}
+  .eyebrow{margin-bottom:6px;}
+  h1{font-size:1.25rem; margin-bottom:8px;}
+  main > p.intro{font-size:.88rem; margin-bottom:12px;}
+  /* Handy: Chat nutzt fast die ganze sichtbare Höhe (Seitenkopf abgezogen) */
+  .chat-card{height:calc(100vh - 80px); height:calc(100dvh - 80px); min-height:420px; border-radius:6px;}
   header{padding:4px 16px;}
   .logo{font-size:1.05rem;}
 }

@@ -78,8 +78,9 @@ button,textarea,input{font:inherit; color:inherit;}
   .schnell::-webkit-scrollbar{display:none;}
   .schnell button{flex:none; min-height:44px; padding:8px 16px; font-size:.95rem; white-space:nowrap; scroll-snap-align:start;}
   .eingabe{padding:8px 12px; gap:8px;}
-  .dh-zeile{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 14px; min-height:36px; font-size:.82rem; color:var(--mut); border-top:1px solid var(--line);}
-  .dh-zeile a{color:var(--hi); padding:8px 0; white-space:nowrap;}
+  .dh-zeile{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 12px; min-height:36px; font-size:.82rem; color:var(--mut); border-top:1px solid var(--line);}
+  .dh-zeile a{color:var(--hi); padding:8px 0; white-space:nowrap; flex:none;}
+  .dh-knopf{min-width:0; text-align:left;}
   .dh-knopf{white-space:nowrap; background:none; border:0; color:var(--mut); font-size:.82rem; padding:8px 0; cursor:pointer; text-decoration:underline; text-underline-offset:3px;}
   .dh-knopf::after{content:" \25BE";}
   .dh.offen .dh-knopf::after{content:" \25B4";}
@@ -89,6 +90,10 @@ button,textarea,input{font:inherit; color:inherit;}
   .leiste > *{min-height:44px; font-size:.95rem;}
   .verlauf{overscroll-behavior:contain; -webkit-overflow-scrolling:touch; touch-action:pan-y;}
   html.eingebettet .verlauf{overscroll-behavior:auto;}   /* in der Demo-Seite: am Ende der Nachrichten scrollt die Seite weiter */
+  html.eingebettet .kopf{padding:6px 12px 6px;}   /* Demo: Kopf noch schmaler, mehr Platz für Nachrichten */
+  html.eingebettet .kopf h1{font-size:1.1rem;}
+  html.eingebettet .kopf p{font-size:.75rem; line-height:1.25; margin-top:1px;}
+  html.eingebettet .schnell{padding:4px 12px 6px;}
   /* Tastatur offen: Platz für Eingabefeld und Nachrichten; die Seite selbst scrollt nicht, nur der Nachrichtenbereich */
   html.tastatur, html.tastatur body{overflow:hidden; overscroll-behavior:none;}
   html.tastatur .app{position:fixed; top:0; left:0; right:0; margin:0 auto;}
